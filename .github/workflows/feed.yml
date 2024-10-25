@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.arch }} build
+    name: ${{ matrix.arch }} ${{ matrix.branch }} build
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -35,10 +35,25 @@ jobs:
           - mips64_octeonplus
           - i386_pentium4
           - x86_64
+        branch:
+          - alpha
+          - stable
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Prepare for stable
+        if:  matrix.branch == 'stable'
+        run: |
+          . mihomo/stable
+          # add PKG_VERSION to first line
+          sed -i "1s/^/PKG_VERSION:=$PKG_VERSION\n/" mihomo/Makefile
+          sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$PKG_RELEASE/" mihomo/Makefile
+          sed -i "s/PKG_SOURCE_DATE:=.*/PKG_SOURCE_DATE:=$PKG_SOURCE_DATE/" mihomo/Makefile
+          sed -i "s/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:=$PKG_SOURCE_VERSION/" mihomo/Makefile
+          sed -i "s/PKG_MIRROR_HASH:=.*/PKG_MIRROR_HASH:=$PKG_MIRROR_HASH/" mihomo/Makefile
+          sed -i "s/PKG_BUILD_VERSION:=.*/PKG_BUILD_VERSION:=$PKG_BUILD_VERSION/" mihomo/Makefile
 
       - name: Build
         uses: openwrt/gh-action-sdk@main
@@ -52,18 +67,23 @@ jobs:
 
       - name: Compress
         run: |
-          tar -c -z -f mihomo_${{ matrix.arch }}.tar.gz bin/packages/${{ matrix.arch }}/mihomo
+          tar -c -z -f mihomo_${{ matrix.arch }}_${{ matrix.branch }}.tar.gz bin/packages/${{ matrix.arch }}/mihomo
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: mihomo_${{ matrix.arch }}
-          path: mihomo_${{ matrix.arch }}.tar.gz
+          name: mihomo_${{ matrix.arch }}_${{ matrix.branch }}
+          path: mihomo_${{ matrix.arch }}_${{ matrix.branch }}.tar.gz
 
   feed:
     needs: build
     name: feed
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        branch:
+          - alpha
+          - stable
 
     steps:
       - name: Download
@@ -71,9 +91,17 @@ jobs:
         with:
           merge-multiple: true
       
+      - name: Prepare
+        run: |
+          PUBLISH_BRANCH=gh-pages
+          if [ "${{ matrix.branch }}" == "stable" ]; then
+            PUBLISH_BRANCH=feed/stable
+          fi
+          echo "PUBLISH_BRANCH=${PUBLISH_BRANCH}" >> $GITHUB_ENV
+
       - name: Uncompress
         run: |
-          ls mihomo_*.tar.gz | xargs -n 1 tar -x -z -f
+          ls mihomo_*.tar.gz | grep _${{ matrix.branch }}.tar.gz | xargs -n 1 tar -x -z -f
 
       - name: Feed
         uses: peaceiris/actions-gh-pages@v4
@@ -82,3 +110,4 @@ jobs:
           publish_dir: bin/packages
           force_orphan: true
           commit_message: Update Feed
+          publish_branch: ${{ env.PUBLISH_BRANCH }}

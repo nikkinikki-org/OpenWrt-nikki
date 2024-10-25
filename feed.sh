@@ -2,6 +2,11 @@
 
 # MihomoTProxy's feed
 
+branch=$1
+if [ -z "$branch" ]; then
+	branch="alpha"
+fi
+
 # check env
 if [[ ! -x "/bin/opkg" || ! -x "/sbin/fw4" ]]; then
 	echo "only supports OpenWrt build with firewall4!"
@@ -20,7 +25,11 @@ rm -f "$key_build_pub_file"
 
 # add feed
 echo "add feed"
-echo "src/gz mihomo https://morytyann.github.io/OpenWrt-mihomo/$DISTRIB_ARCH/mihomo" >> "/etc/opkg/customfeeds.conf"
+if [ "$branch" == "alpha" ]; then
+	echo "src/gz mihomo https://morytyann.github.io/OpenWrt-mihomo/$DISTRIB_ARCH/mihomo" >> "/etc/opkg/customfeeds.conf"
+else
+	echo "src/gz mihomo https://github.com/morytyann/OpenWrt-mihomo/raw/refs/heads/feed/stable/$DISTRIB_ARCH/mihomo" >> "/etc/opkg/customfeeds.conf"
+fi
 
 # update feeds
 echo "update feeds"
