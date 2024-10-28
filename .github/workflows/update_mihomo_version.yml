@@ -45,9 +45,6 @@ jobs:
         run: |
           echo "commit_sha=$(git -C mihomo rev-parse HEAD)" >> $GITHUB_OUTPUT
           echo "short_commit_sha=$(git -C mihomo rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          git -C mihomo config tar.xz.command "xz -c"
-          git -C mihomo archive --output=mihomo.tar.xz HEAD
-          echo "checksum=$(sha256sum mihomo/mihomo.tar.xz | cut -d ' ' -f 1)" >> $GITHUB_OUTPUT
   update:
     needs:
       - get_current_info
@@ -68,8 +65,17 @@ jobs:
           sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=1/" OpenWrt-mihomo/mihomo/Makefile
           sed -i "s/PKG_SOURCE_DATE:=.*/PKG_SOURCE_DATE:=$(date -u -d yesterday -I)/" OpenWrt-mihomo/mihomo/Makefile
           sed -i "s/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:=${{ needs.get_lastest_info.outputs.commit_sha }}/" OpenWrt-mihomo/mihomo/Makefile
-          sed -i "s/PKG_MIRROR_HASH:=.*/PKG_MIRROR_HASH:=${{ needs.get_lastest_info.outputs.checksum }}/" OpenWrt-mihomo/mihomo/Makefile
+          sed -i "s/PKG_MIRROR_HASH:=.*/PKG_MIRROR_HASH:=skip/" OpenWrt-mihomo/mihomo/Makefile
           sed -i "s/PKG_BUILD_VERSION:=.*/PKG_BUILD_VERSION:=alpha-${{ needs.get_lastest_info.outputs.short_commit_sha }}/" OpenWrt-mihomo/mihomo/Makefile
+      - name: Fixup
+        uses: ekkog/gh-action-sdk@fixup
+        env:
+          ARCH: x86_64
+          FEEDNAME: mihomo
+          PACKAGES: mihomo
+          FIXUP: 1
+          KEY_BUILD: ${{ secrets.KEY_BUILD }}
+          NO_REFRESH_CHECK: true
       - id: pr
         name: Pull Request
         uses: peter-evans/create-pull-request@v6
