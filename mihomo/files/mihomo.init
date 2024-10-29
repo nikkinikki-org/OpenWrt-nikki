@@ -264,10 +264,10 @@ start_service() {
 			ip tuntap add dev "$TUN_DEVICE" mode tun vnet_hdr
 			ip link set "$TUN_DEVICE" up
 			if [ "$ipv4_proxy" == 1 ]; then
-				ip route add unicast default dev $TUN_DEVICE table "$TUN_ROUTE_TABLE"
+				ip route add unicast default dev "$TUN_DEVICE" table "$TUN_ROUTE_TABLE"
 			fi
 			if [ "$ipv6_proxy" == 1 ]; then
-				ip -6 route add unicast default dev $TUN_DEVICE table "$TUN_ROUTE_TABLE"
+				ip -6 route add unicast default dev "$TUN_DEVICE" table "$TUN_ROUTE_TABLE"
 			fi
 			$TUN_SH
 		fi
@@ -379,6 +379,23 @@ start_service() {
 			fi
 			nft add rule inet "$FW_TABLE" mangle_prerouting meta l4proto udp jump "${access_control_mode}_${udp_transparent_proxy_mode}"
 		fi
+		# fix compatible between tproxy and dockerd (kmod-br-netfilter)
+		if [ "$tproxy_enable" == 1 ] && (lsmod | grep -q br_netfilter); then
+			if [ "$ipv4_proxy" == 1 ]; then
+				local bridge_nf_call_iptables; bridge_nf_call_iptables=$(sysctl -e -n net.bridge.bridge-nf-call-iptables)
+				if [ "$bridge_nf_call_iptables" == 1 ]; then
+					touch /tmp/bridge_nf_call_iptables.flag
+					sysctl -q -w net.bridge.bridge-nf-call-iptables=0
+				fi
+			fi
+			if [ "$ipv6_proxy" == 1 ]; then
+				local bridge_nf_call_ip6tables; bridge_nf_call_ip6tables=$(sysctl -e -n net.bridge.bridge-nf-call-ip6tables)
+				if [ "$bridge_nf_call_ip6tables" == 1 ]; then
+					touch /tmp/bridge_nf_call_ip6tables.flag
+					sysctl -q -w net.bridge.bridge-nf-call-ip6tables=0
+				fi
+			fi
+		fi
 	fi
 	# cron
 	if [[ "$scheduled_restart" == 1 && -n "$cron_expression" ]]; then
@@ -431,6 +448,15 @@ cleanup() {
 	for handle in $handles; do
 		nft delete rule inet fw4 forward handle "$handle"
 	done
+	# revert fix compatible between tproxy and dockerd (kmod-br-netfilter)
+	if [ -f "/tmp/bridge_nf_call_iptables.flag" ]; then
+		rm -f /tmp/bridge_nf_call_iptables.flag
+		sysctl -q -w net.bridge.bridge-nf-call-iptables=1
+	fi
+	if [ -f "/tmp/bridge_nf_call_ip6tables.flag" ]; then
+		rm -f /tmp/bridge_nf_call_ip6tables.flag
+		sysctl -q -w net.bridge.bridge-nf-call-ip6tables=1
+	fi
 	# delete cron
 	sed -i '/#mihomo/d' "/etc/crontabs/root" > /dev/null 2>&1
 	/etc/init.d/cron restart
