@@ -7,6 +7,23 @@ USE_PROCD=1
 . "$IPKG_INSTROOT/lib/functions/network.sh"
 . "$IPKG_INSTROOT/etc/mihomo/scripts/constants.sh"
 
+boot() {
+	# init log
+	init_log
+	# load config
+	config_load mihomo
+	# start delay
+	local enabled start_delay
+	config_get_bool enabled "config" "enabled" 0
+	config_get start_delay "config" "start_delay" 0
+	if [[ "$enabled" == 1 && "$start_delay" > 0 ]]; then
+		log "App will start after $start_delay seconds."
+		sleep "$start_delay"
+	fi
+	# start
+	start
+}
+
 start_service() {
 	# clear log
 	clear_log
@@ -20,6 +37,7 @@ start_service() {
 		log "Exiting..."
 		return
 	fi
+	# start
 	log "App is enabled."
 	log "Starting..."
 	# get config
@@ -462,16 +480,19 @@ cleanup() {
 	/etc/init.d/cron restart
 }
 
-log() {
-	echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$APP_LOG_PATH"
+init_log() {
+	mkdir "$LOG_DIR"
+	touch "$APP_LOG_PATH"
+	touch "$CORE_LOG_PATH"
 }
 
 clear_log() {
-	if [ ! -d "$LOG_DIR" ]; then
-		mkdir "$LOG_DIR"
-	fi
 	echo -n > "$APP_LOG_PATH"
 	echo -n > "$CORE_LOG_PATH"
+}
+
+log() {
+	echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$APP_LOG_PATH"
 }
 
 mixin_authentications() {

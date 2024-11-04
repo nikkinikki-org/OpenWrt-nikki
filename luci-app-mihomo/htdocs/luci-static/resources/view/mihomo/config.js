@@ -102,6 +102,10 @@ return view.extend({
         o = s.option(form.Flag, 'enabled', _('Enable'));
         o.rmempty = false;
 
+        o = s.option(form.Value, 'start_delay', _('Start Delay'));
+        o.datatype = 'uinteger';
+        o.placeholder = '0';
+
         o = s.option(form.Flag, 'scheduled_restart', _('Scheduled Restart'));
         o.rmempty = false;
 
@@ -260,7 +264,7 @@ return view.extend({
         o.value('info');
         o.value('debug');
 
-        o = s.taboption('general', form.ListValue, 'mode', _('Proxy Mode'));
+        o = s.taboption('general', form.ListValue, 'mode', _('Mode'));
         o.value('global', _('Global Mode'));
         o.value('rule', _('Rule Mode'));
         o.value('direct', _('Direct Mode'));
@@ -511,7 +515,7 @@ return view.extend({
         o = s.taboption('geox', form.Flag, 'geox_auto_update', _('GeoX Auto Update'));
         o.rmempty = false;
 
-        o = s.taboption('geox', form.Value, 'geox_update_interval', _('GeoX Update Interval'), _('Hour'));
+        o = s.taboption('geox', form.Value, 'geox_update_interval', _('GeoX Update Interval'));
         o.datatype = 'uinteger';
         o.placeholder = '24';
         o.retain = true;
