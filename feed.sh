@@ -20,7 +20,21 @@ rm -f "$key_build_pub_file"
 
 # add feed
 echo "add feed"
-echo "src/gz mihomo https://morytyann.github.io/OpenWrt-mihomo/$DISTRIB_ARCH/mihomo" >> "/etc/opkg/customfeeds.conf"
+arch="$DISTRIB_ARCH"
+branch=
+if [[ "$DISTRIB_RELEASE" == *"22.03"* ]]; then
+	branch="openwrt-22.03"
+elif [[ "$DISTRIB_RELEASE" == *"23.05"* ]]; then
+	branch="openwrt-23.05"
+elif [[ "$DISTRIB_RELEASE" == *"24.10"* ]]; then
+	branch="openwrt-24.10"
+elif [[ "$DISTRIB_RELEASE" == "SNAPSHOT" ]]; then
+	branch="SNAPSHOT"
+else
+	echo "unknown release: $DISTRIB_RELEASE"
+	exit 1
+fi
+echo "src/gz mihomo https://morytyann.github.io/OpenWrt-mihomo/$branch/$arch/mihomo" >> "/etc/opkg/customfeeds.conf"
 
 # update feeds
 echo "update feeds"

@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.arch }} build
+    name: ${{ matrix.arch }}-${{ matrix.branch }} build
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -20,6 +20,7 @@ jobs:
           - arm_cortex-a15_neon-vfpv4
           - aarch64_cortex-a53
           - aarch64_cortex-a72
+          - aarch64_cortex-a76
           - aarch64_generic
           - mips_24kc
           - mips_4kec
@@ -30,6 +31,11 @@ jobs:
           - mips64_octeonplus
           - i386_pentium4
           - x86_64
+        branch:
+          - openwrt-22.03
+          - openwrt-23.05
+          - openwrt-24.10
+          - SNAPSHOT
 
     steps:
       - name: Checkout
@@ -38,7 +44,7 @@ jobs:
       - name: Build
         uses: openwrt/gh-action-sdk@main
         env:
-          ARCH: ${{ matrix.arch }}
+          ARCH: ${{ matrix.arch }}-${{ matrix.branch }}
           FEEDNAME: mihomo
           PACKAGES: luci-app-mihomo
           NO_REFRESH_CHECK: true
@@ -46,5 +52,5 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: mihomo_${{ matrix.arch }}
+          name: mihomo_${{ matrix.arch }}-${{ matrix.branch }}
           path: bin/packages/${{ matrix.arch }}/mihomo/*.ipk

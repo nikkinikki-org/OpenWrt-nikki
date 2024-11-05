@@ -10,8 +10,9 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.arch }} build
+    name: ${{ matrix.arch }}-${{ matrix.branch }} build
     runs-on: ubuntu-latest
+    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
@@ -25,6 +26,7 @@ jobs:
           - arm_cortex-a15_neon-vfpv4
           - aarch64_cortex-a53
           - aarch64_cortex-a72
+          - aarch64_cortex-a76
           - aarch64_generic
           - mips_24kc
           - mips_4kec
@@ -35,6 +37,11 @@ jobs:
           - mips64_octeonplus
           - i386_pentium4
           - x86_64
+        branch:
+          - openwrt-22.03
+          - openwrt-23.05
+          - openwrt-24.10
+          - SNAPSHOT
 
     steps:
       - name: Checkout
@@ -43,7 +50,7 @@ jobs:
       - name: Build
         uses: openwrt/gh-action-sdk@main
         env:
-          ARCH: ${{ matrix.arch }}
+          ARCH: ${{ matrix.arch }}-${{ matrix.branch }}
           FEEDNAME: mihomo
           PACKAGES: luci-app-mihomo
           INDEX: 1
@@ -52,13 +59,15 @@ jobs:
 
       - name: Compress
         run: |
-          tar -c -z -f mihomo_${{ matrix.arch }}.tar.gz bin/packages/${{ matrix.arch }}/mihomo
+          mkdir -p public/${{ matrix.branch }}/${{ matrix.arch }}
+          mv bin/packages/${{ matrix.arch }}/mihomo public/${{ matrix.branch }}/${{ matrix.arch }}
+          tar -c -z -f mihomo_${{ matrix.arch }}-${{ matrix.branch }}.tar.gz public/${{ matrix.branch }}/${{ matrix.arch }}
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: mihomo_${{ matrix.arch }}
-          path: mihomo_${{ matrix.arch }}.tar.gz
+          name: mihomo_${{ matrix.arch }}-${{ matrix.branch }}
+          path: mihomo_${{ matrix.arch }}-${{ matrix.branch }}.tar.gz
 
   feed:
     needs: build
@@ -72,14 +81,17 @@ jobs:
           pattern: mihomo_*
           merge-multiple: true
       
-      - name: Uncompress
+      - name: Prepare
         run: |
           ls mihomo_*.tar.gz | xargs -n 1 tar -x -z -f
+          for file in "public/SNAPSHOT/*"; do
+            arch=$(basename $file)
+            echo -n "SNAPSHOT/$arch" > "public/$arch"
+          done
 
       - name: Feed
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: bin/packages
           force_orphan: true
           commit_message: Update Feed
