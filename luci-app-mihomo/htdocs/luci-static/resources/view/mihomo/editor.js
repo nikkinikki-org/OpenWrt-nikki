@@ -13,10 +13,11 @@ return view.extend({
         ]);
     },
     render: function (data) {
+        const subscriptions = uci.sections('mihomo', 'subscription');
         const profiles = data[1];
 
         let m, s, o;
-        
+
         m = new form.Map('mihomo');
 
         s = m.section(form.NamedSection, 'editor', 'editor');
@@ -27,6 +28,11 @@ return view.extend({
         for (const profile of profiles) {
             o.value(mihomo.profilesDir + '/' + profile.name, _('File:') + profile.name);
         }
+
+        for (const subscription of subscriptions) {
+            o.value(mihomo.subscriptionsDir + '/' + subscription['.name'] + '.yaml', _('Subscription:') + subscription.name);
+        }
+
         o.value(mihomo.mixinFilePath, _('File for Mixin'));
         o.value(mihomo.runProfilePath, _('Profile for Startup'));
         o.value(mihomo.reservedIPNFT, _('File for Reserved IP'));
@@ -43,6 +49,7 @@ return view.extend({
 
         o = s.option(form.TextValue, '_profile_content',);
         o.rows = 25;
+        o.wrap = false;
         o.write = function (section_id, formvalue) {
             const path = m.lookupOption('mihomo.editor._profile')[0].formvalue('editor');
             return fs.write(path, formvalue);
@@ -55,7 +62,7 @@ return view.extend({
         return m.render();
     },
     handleSaveApply: function (ev, mode) {
-        return this.handleSave(ev).finally(function() {
+        return this.handleSave(ev).finally(function () {
             return mode === '0' ? mihomo.reload() : mihomo.restart();
         });
     },

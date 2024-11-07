@@ -7,6 +7,8 @@ USE_PROCD=1
 . "$IPKG_INSTROOT/lib/functions/network.sh"
 . "$IPKG_INSTROOT/etc/mihomo/scripts/constants.sh"
 
+extra_command 'update_subscription' 'Update subscription by section id'
+
 boot() {
 	# prepare log
 	prepare_log
@@ -141,7 +143,13 @@ start_service() {
 	# get profile
 	if [[ "$profile" == "file:"* ]]; then
 		local profile_name; profile_name=$(basename "${profile/file:/}")
-		cp -f "$PROFILES_DIR/$profile_name" "$RUN_PROFILE_PATH"
+		local profile_file; profile_file="$PROFILES_DIR/$profile_name"
+		if [ ! -f "$profile_file" ]; then
+			log "File not found."
+			log "Exiting..."
+			return
+		fi
+		cp -f "$profile_file" "$RUN_PROFILE_PATH"
 		log "Use Profile: $profile_name"
 	elif [[ "$profile" == "subscription:"* ]]; then
 		local subscription_section; subscription_section="${profile/subscription:/}"
@@ -149,12 +157,15 @@ start_service() {
 		config_get subscription_name "$subscription_section" "name"
 		config_get subscription_url "$subscription_section" "url"
 		config_get subscription_user_agent "$subscription_section" "user_agent"
-		curl -s --connect-timeout 15 --retry 3 -o "$RUN_PROFILE_PATH" -L -H "User-Agent: $subscription_user_agent" "$subscription_url"
-		if [ "$?" != 0 ]; then
-			log "Subscription download failed."
-			log "Exiting..."
-			return
+		local subscription_file; subscription_file="$SUBSCRIPTIONS_DIR/$subscription_section.yaml"
+		if [ ! -f "$subscription_file" ]; then
+			if (! curl -s --connect-timeout 15 --retry 3 -o "$subscription_file" -L -H "User-Agent: $subscription_user_agent" "$subscription_url"); then
+				log "Subscription download failed."
+				log "Exiting..."
+				return
+			fi
 		fi
+		cp -f "$subscription_file" "$RUN_PROFILE_PATH"
 		log "Use Subscription: $subscription_name"
 	else
 		log "No profile/subscription selected."
@@ -583,4 +594,18 @@ add_acl_ip6() {
 
 add_acl_mac() {
 	nft add element inet "$FW_TABLE" acl_mac \{ "$1" \}
+}
+
+update_subscription() {
+	local subscription_section; subscription_section="$1"
+	if [ -n "$subscription_section" ]; then
+		config_load mihomo
+		local profile subscription_name subscription_url subscription_user_agent
+		config_get profile "config" "profile"
+		config_get subscription_name "$subscription_section" "name"
+		config_get subscription_url "$subscription_section" "url"
+		config_get subscription_user_agent "$subscription_section" "user_agent"
+		local subscription_file; subscription_file="$SUBSCRIPTIONS_DIR/$subscription_section.yaml"
+		curl -s --connect-timeout 15 --retry 3 -o "$subscription_file" -L -H "User-Agent: $subscription_user_agent" "$subscription_url"
+	fi
 }

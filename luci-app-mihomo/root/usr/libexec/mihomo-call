@@ -16,6 +16,13 @@ case "$action" in
 			;;
 		esac
 	;;
+	subscription)
+		case "$1" in
+			update)
+				/etc/init.d/mihomo update_subscription "$2"
+			;;
+		esac
+	;;
 	load)
 		case "$1" in
 			profile)

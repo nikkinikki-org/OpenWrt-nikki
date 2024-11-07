@@ -48,20 +48,20 @@ return view.extend({
 
         o = s.option(form.Value, '_app_version', _('App Version'));
         o.readonly = true;
-        o.load = function (section_id) {
+        o.load = function () {
             return appVersion.trim();
         };
         o.write = function () { };
 
         o = s.option(form.Value, '_core_version', _('Core Version'));
         o.readonly = true;
-        o.load = function (section_id) {
+        o.load = function () {
             return coreVersion.trim();
         };
         o.write = function () { };
 
         o = s.option(form.DummyValue, '_core_status', _('Core Status'));
-        o.cfgvalue = function (section_id) {
+        o.cfgvalue = function () {
             return renderStatus(running);
         };
         poll.add(function () {
@@ -253,8 +253,15 @@ return view.extend({
         o.value('clash.meta');
         o.value('clash');
 
+        o = s.option(form.Button, 'update_subscription');
+        o.inputstyle = 'positive';
+        o.inputtitle = _('Update');
+        o.onclick = function (_, section_id) {
+            return mihomo.updateSubscription(section_id);
+        }
+
         s = m.section(form.NamedSection, 'mixin', 'mixin', _('Mixin Config'));
-    
+
         s.tab('general', _('General Config'));
 
         o = s.taboption('general', form.ListValue, 'log_level', '*' + ' ' + _('Log Level'));

@@ -1,11 +1,11 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:302
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:307
 msgid "API Port"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:306
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:311
 msgid "API Secret"
 msgstr ""
 
@@ -22,12 +22,12 @@ msgstr ""
 msgid "All Port"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:314
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:319
 msgid "Allow Lan"
 msgstr ""
 
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:178
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:409
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:414
 msgid "Allow Mode"
 msgstr ""
 
@@ -39,7 +39,7 @@ msgstr ""
 msgid "App Version"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:273
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:278
 msgid "Auto"
 msgstr ""
 
@@ -48,7 +48,7 @@ msgid "Basic Config"
 msgstr ""
 
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:179
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:408
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:413
 msgid "Block Mode"
 msgstr ""
 
@@ -61,7 +61,7 @@ msgid "Bypass China Mainland IP"
 msgstr ""
 
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:117
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:24
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:25
 msgid "Choose Profile"
 msgstr ""
 
@@ -95,15 +95,15 @@ msgstr ""
 msgid "Cron Expression"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:380
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:385
 msgid "DNS Config"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:386
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:391
 msgid "DNS Mode"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:382
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:387
 msgid "DNS Port"
 msgstr ""
 
@@ -115,39 +115,39 @@ msgstr ""
 msgid "Destination UDP Port to Proxy"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:270
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:275
 msgid "Direct Mode"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:275
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:280
 msgid "Disable"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:420
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:425
 msgid "DoH Prefer HTTP/3"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:446
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:451
 msgid "Domain Name"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:340
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:345
 msgid "Edit Authentications"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:402
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:407
 msgid "Edit Fake-IP Filters"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:435
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:440
 msgid "Edit Hosts"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:477
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:482
 msgid "Edit Nameserver Policies"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:454
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:459
 msgid "Edit Nameservers"
 msgstr ""
 
@@ -157,32 +157,32 @@ msgstr ""
 
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:102
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:144
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:274
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:348
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:443
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:462
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:485
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:526
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:279
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:353
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:448
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:467
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:490
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:531
 msgid "Enable"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:377
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:382
 msgid "Endpoint Independent NAT"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:291
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:296
 msgid "External Control Config"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:412
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:417
 msgid "Fake-IP Cache"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:406
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:411
 msgid "Fake-IP Filter Mode"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:391
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:396
 msgid "Fake-IP Range"
 msgstr ""
 
@@ -190,72 +190,72 @@ msgstr ""
 msgid "Fast Reload"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:30
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:36
 msgid "File for Mixin"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:32
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:38
 msgid "File for Reserved IP"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:33
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:39
 msgid "File for Reserved IP6"
 msgstr ""
 
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:121
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:28
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:29
 msgid "File:"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:368
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:373
 msgid "GSO"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:371
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:376
 msgid "GSO Max Size"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:258
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:263
 msgid "General Config"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:499
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:504
 msgid "GeoData Loader"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:495
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:500
 msgid "GeoIP Format"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:512
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:517
 msgid "GeoIP(ASN) Url"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:509
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:514
 msgid "GeoIP(DAT) Url"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:506
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:511
 msgid "GeoIP(MMDB) Url"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:503
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:508
 msgid "GeoSite Url"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:515
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:520
 msgid "GeoX Auto Update"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:493
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:498
 msgid "GeoX Config"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:518
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:523
 msgid "GeoX Update Interval"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:268
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:273
 msgid "Global Mode"
 msgstr ""
 
@@ -263,7 +263,7 @@ msgstr ""
 msgid "Grant access to mihomo procedures"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:317
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:322
 msgid "HTTP Port"
 msgstr ""
 
@@ -271,7 +271,7 @@ msgstr ""
 msgid "How To Use"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:449
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:454
 msgid "IP"
 msgstr ""
 
@@ -283,8 +283,8 @@ msgstr ""
 msgid "IPv4 Proxy"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:280
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:423
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:285
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:428
 msgid "IPv6"
 msgstr ""
 
@@ -296,7 +296,7 @@ msgstr ""
 msgid "IPv6 Proxy"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:312
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:317
 msgid "Inbound Config"
 msgstr ""
 
@@ -308,23 +308,23 @@ msgstr ""
 msgid "Log"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:260
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:265
 msgid "Log Level"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:364
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:369
 msgid "MTU"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:272
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:277
 msgid "Match Process"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:488
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:493
 msgid "Matcher"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:501
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:506
 msgid "Memory Conservative Loader"
 msgstr ""
 
@@ -333,7 +333,7 @@ msgstr ""
 msgid "MihomoTProxy"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:325
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:330
 msgid "Mixed Port"
 msgstr ""
 
@@ -341,21 +341,21 @@ msgstr ""
 msgid "Mixin"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:256
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:261
 msgid "Mixin Config"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:524
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:529
 msgid "Mixin File Content"
 msgstr ""
 
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:176
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:267
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:272
 msgid "Mode"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:472
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:491
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:477
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:496
 msgid "Nameserver"
 msgstr ""
 
@@ -367,39 +367,39 @@ msgstr ""
 msgid "Open Dashboard"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:277
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:282
 msgid "Outbound Interface"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:337
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:342
 msgid "Overwrite Authentication"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:397
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:402
 msgid "Overwrite Fake-IP Filter"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:432
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:437
 msgid "Overwrite Hosts"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:451
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:456
 msgid "Overwrite Nameserver"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:474
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:479
 msgid "Overwrite Nameserver Policy"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:354
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:359
 msgid "Password"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:526
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:531
 msgid "Please go to the editor tab to edit the file for mixin"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:31
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:37
 msgid "Profile for Startup"
 msgstr ""
 
@@ -411,7 +411,7 @@ msgstr ""
 msgid "Redirect Mode"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:329
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:334
 msgid "Redirect Port"
 msgstr ""
 
@@ -419,7 +419,7 @@ msgstr ""
 msgid "Reload Service"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:417
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:422
 msgid "Respect Rules"
 msgstr ""
 
@@ -431,7 +431,7 @@ msgstr ""
 msgid "Router Proxy"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:269
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:274
 msgid "Rule Mode"
 msgstr ""
 
@@ -439,11 +439,11 @@ msgstr ""
 msgid "Running"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:321
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:326
 msgid "SOCKS Port"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:309
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:314
 msgid "Save Proxy Selection"
 msgstr ""
 
@@ -456,16 +456,16 @@ msgstr ""
 msgid "Scroll To Bottom"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/tools/mihomo.js:93
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/tools/mihomo.js:111
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/tools/mihomo.js:99
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/tools/mihomo.js:117
 msgid "Service is not running."
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:359
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:364
 msgid "Stack"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:500
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:505
 msgid "Standard Loader"
 msgstr ""
 
@@ -490,14 +490,15 @@ msgid "Subscription Url"
 msgstr ""
 
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:125
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:33
 msgid "Subscription:"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:283
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:288
 msgid "TCP Keep Alive Idle"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:287
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:292
 msgid "TCP Keep Alive Interval"
 msgstr ""
 
@@ -510,11 +511,11 @@ msgstr ""
 msgid "TPROXY Mode"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:333
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:338
 msgid "TPROXY Port"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:357
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:362
 msgid "TUN Config"
 msgstr ""
 
@@ -535,7 +536,7 @@ msgstr ""
 msgid "Transparent Proxy with Mihomo on OpenWrt."
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:465
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:470
 msgid "Type"
 msgstr ""
 
@@ -543,12 +544,21 @@ msgstr ""
 msgid "UDP Proxy Mode"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:293
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:298
 msgid "UI Name"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:296
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:301
 msgid "UI Url"
+msgstr ""
+
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/tools/mihomo.js:80
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/tools/mihomo.js:84
+msgid "Unknown"
+msgstr ""
+
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:256
+msgid "Update"
 msgstr ""
 
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:89
@@ -559,11 +569,11 @@ msgstr ""
 msgid "Upload Profile"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:429
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:434
 msgid "Use Hosts"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:426
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:431
 msgid "Use System Hosts"
 msgstr ""
 
@@ -571,6 +581,6 @@ msgstr ""
 msgid "User Agent"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:351
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:356
 msgid "Username"
 msgstr ""
