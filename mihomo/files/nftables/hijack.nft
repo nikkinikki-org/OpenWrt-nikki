@@ -191,7 +191,7 @@ table inet mihomo {
 		ip6 daddr @china_ip6 counter return
 		meta l4proto . th dport != @acl_dport ip daddr != @fake_ip counter return
 		meta nfproto ipv6 meta l4proto . th dport != @acl_dport counter return
-		meta l4proto { tcp, udp } th dport 53 counter return
+		meta l4proto udp th dport 53 counter return
 	}
 
 	chain mangle_output {
@@ -205,6 +205,6 @@ table inet mihomo {
 		ip6 daddr @china_ip6 counter return
 		meta l4proto . th dport != @acl_dport ip daddr != @fake_ip counter return
 		meta nfproto ipv6 meta l4proto . th dport != @acl_dport counter return
-		meta l4proto { tcp, udp } th dport 53 counter return
+		meta l4proto udp th dport 53 counter return
 	}
 }
