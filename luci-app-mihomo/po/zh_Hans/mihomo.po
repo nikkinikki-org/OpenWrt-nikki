@@ -8,11 +8,11 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:302
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:314
 msgid "API Port"
 msgstr "API 端口"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:306
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:318
 msgid "API Secret"
 msgstr "API 密钥"
 
@@ -29,12 +29,12 @@ msgstr "全部模式"
 msgid "All Port"
 msgstr "全部端口"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:314
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:326
 msgid "Allow Lan"
 msgstr "允许局域网访问"
 
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:178
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:409
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:421
 msgid "Allow Mode"
 msgstr "白名单模式"
 
@@ -46,7 +46,7 @@ msgstr "插件日志"
 msgid "App Version"
 msgstr "插件版本"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:273
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:285
 msgid "Auto"
 msgstr "自动"
 
@@ -55,7 +55,7 @@ msgid "Basic Config"
 msgstr "基础配置"
 
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:179
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:408
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:420
 msgid "Block Mode"
 msgstr "黑名单模式"
 
@@ -68,7 +68,7 @@ msgid "Bypass China Mainland IP"
 msgstr "绕过中国大陆 IP"
 
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:117
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:24
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:25
 msgid "Choose Profile"
 msgstr "选择配置文件"
 
@@ -102,15 +102,15 @@ msgstr "核心版本"
 msgid "Cron Expression"
 msgstr "Cron 表达式"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:380
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:392
 msgid "DNS Config"
 msgstr "DNS 配置"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:386
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:398
 msgid "DNS Mode"
 msgstr "DNS 模式"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:382
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:394
 msgid "DNS Port"
 msgstr "DNS 端口"
 
@@ -122,39 +122,39 @@ msgstr "要代理的 TCP 目标端口"
 msgid "Destination UDP Port to Proxy"
 msgstr "要代理的 UDP 目标端口"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:270
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:282
 msgid "Direct Mode"
 msgstr "直连模式"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:275
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:287
 msgid "Disable"
 msgstr "禁用"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:420
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:432
 msgid "DoH Prefer HTTP/3"
 msgstr "DoH 优先 HTTP/3"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:446
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:458
 msgid "Domain Name"
 msgstr "域名"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:340
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:352
 msgid "Edit Authentications"
 msgstr "编辑身份验证"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:402
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:414
 msgid "Edit Fake-IP Filters"
 msgstr "编辑 Fake-IP 过滤列表"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:435
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:447
 msgid "Edit Hosts"
 msgstr "编辑 Hosts"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:477
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:489
 msgid "Edit Nameserver Policies"
 msgstr "编辑 DNS 服务器查询策略"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:454
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:466
 msgid "Edit Nameservers"
 msgstr "编辑 DNS 服务器"
 
@@ -164,32 +164,32 @@ msgstr "编辑器"
 
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:102
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:144
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:274
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:348
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:443
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:462
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:485
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:526
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:286
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:360
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:455
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:474
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:497
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:538
 msgid "Enable"
 msgstr "启用"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:377
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:389
 msgid "Endpoint Independent NAT"
 msgstr "独立于端点的 NAT"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:291
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:303
 msgid "External Control Config"
 msgstr "外部控制配置"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:412
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:424
 msgid "Fake-IP Cache"
 msgstr "Fake-IP 缓存"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:406
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:418
 msgid "Fake-IP Filter Mode"
 msgstr "Fake-IP 过滤模式"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:391
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:403
 msgid "Fake-IP Range"
 msgstr "Fake-IP 范围"
 
@@ -197,72 +197,72 @@ msgstr "Fake-IP 范围"
 msgid "Fast Reload"
 msgstr "快速重载"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:30
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:36
 msgid "File for Mixin"
 msgstr "用于混入的文件"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:32
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:38
 msgid "File for Reserved IP"
 msgstr "IPv4 保留地址"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:33
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:39
 msgid "File for Reserved IP6"
 msgstr "IPv6 保留地址"
 
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:121
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:28
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:29
 msgid "File:"
 msgstr "文件："
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:368
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:380
 msgid "GSO"
 msgstr "通用分段卸载"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:371
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:383
 msgid "GSO Max Size"
 msgstr "分段最大长度"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:258
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:270
 msgid "General Config"
 msgstr "全局配置"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:499
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:511
 msgid "GeoData Loader"
 msgstr "GeoData 加载器"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:495
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:507
 msgid "GeoIP Format"
 msgstr "GeoIP 格式"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:512
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:524
 msgid "GeoIP(ASN) Url"
 msgstr "GeoIP(ASN) 下载地址"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:509
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:521
 msgid "GeoIP(DAT) Url"
 msgstr "GeoIP(DAT) 下载地址"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:506
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:518
 msgid "GeoIP(MMDB) Url"
 msgstr "GeoIP(MMDB) 下载地址"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:503
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:515
 msgid "GeoSite Url"
 msgstr "GeoSite 下载地址"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:515
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:527
 msgid "GeoX Auto Update"
 msgstr "定时更新GeoX文件"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:493
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:505
 msgid "GeoX Config"
 msgstr "GeoX 配置"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:518
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:530
 msgid "GeoX Update Interval"
 msgstr "GeoX 文件更新间隔"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:268
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:280
 msgid "Global Mode"
 msgstr "全局模式"
 
@@ -270,7 +270,7 @@ msgstr "全局模式"
 msgid "Grant access to mihomo procedures"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:317
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:329
 msgid "HTTP Port"
 msgstr "HTTP 端口"
 
@@ -278,7 +278,7 @@ msgstr "HTTP 端口"
 msgid "How To Use"
 msgstr "使用说明"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:449
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:461
 msgid "IP"
 msgstr ""
 
@@ -290,8 +290,8 @@ msgstr "IPv4 DNS 劫持"
 msgid "IPv4 Proxy"
 msgstr "IPv4 代理"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:280
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:423
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:292
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:435
 msgid "IPv6"
 msgstr ""
 
@@ -303,7 +303,7 @@ msgstr "IPv6 DNS 劫持"
 msgid "IPv6 Proxy"
 msgstr "IPv6 代理"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:312
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:324
 msgid "Inbound Config"
 msgstr "入站配置"
 
@@ -311,27 +311,31 @@ msgstr "入站配置"
 msgid "Lan Proxy"
 msgstr "局域网代理"
 
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:259
+msgid "Local"
+msgstr "本地"
+
 #: mihomo/luci-app-mihomo/root/usr/share/luci/menu.d/luci-app-mihomo.json:30
 msgid "Log"
 msgstr "日志"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:260
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:272
 msgid "Log Level"
 msgstr "日志级别"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:364
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:376
 msgid "MTU"
 msgstr "最大传输单元"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:272
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:284
 msgid "Match Process"
 msgstr "匹配进程"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:488
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:500
 msgid "Matcher"
 msgstr "匹配"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:501
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:513
 msgid "Memory Conservative Loader"
 msgstr "为内存受限设备优化的加载器"
 
@@ -340,7 +344,7 @@ msgstr "为内存受限设备优化的加载器"
 msgid "MihomoTProxy"
 msgstr ""
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:325
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:337
 msgid "Mixed Port"
 msgstr "混合端口"
 
@@ -348,21 +352,21 @@ msgstr "混合端口"
 msgid "Mixin"
 msgstr "混入"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:256
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:268
 msgid "Mixin Config"
 msgstr "混入配置"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:524
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:536
 msgid "Mixin File Content"
 msgstr "混入文件内容"
 
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:176
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:267
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:279
 msgid "Mode"
 msgstr "模式"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:472
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:491
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:484
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:503
 msgid "Nameserver"
 msgstr "DNS 服务器"
 
@@ -374,39 +378,43 @@ msgstr "未在运行"
 msgid "Open Dashboard"
 msgstr "打开面板"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:277
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:289
 msgid "Outbound Interface"
 msgstr "出站接口"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:337
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:349
 msgid "Overwrite Authentication"
 msgstr "覆盖身份验证"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:397
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:409
 msgid "Overwrite Fake-IP Filter"
 msgstr "覆盖 Fake-IP 过滤列表"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:432
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:444
 msgid "Overwrite Hosts"
 msgstr "覆盖 Hosts"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:451
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:463
 msgid "Overwrite Nameserver"
 msgstr "覆盖 DNS 服务器"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:474
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:486
 msgid "Overwrite Nameserver Policy"
 msgstr "覆盖 DNS 服务器查询策略"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:354
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:366
 msgid "Password"
 msgstr "密码"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:526
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:538
 msgid "Please go to the editor tab to edit the file for mixin"
 msgstr "请前往编辑器标签编辑用于混入的文件"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:31
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:256
+msgid "Prefer"
+msgstr "优先"
+
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:37
 msgid "Profile for Startup"
 msgstr "用于启动的配置文件"
 
@@ -418,7 +426,7 @@ msgstr "代理配置"
 msgid "Redirect Mode"
 msgstr "Redirect 模式"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:329
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:341
 msgid "Redirect Port"
 msgstr "Redirect 端口"
 
@@ -426,7 +434,11 @@ msgstr "Redirect 端口"
 msgid "Reload Service"
 msgstr "重载服务"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:417
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:258
+msgid "Remote"
+msgstr "远程"
+
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:429
 msgid "Respect Rules"
 msgstr "遵循分流规则"
 
@@ -438,7 +450,7 @@ msgstr "重启服务"
 msgid "Router Proxy"
 msgstr "路由器代理"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:269
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:281
 msgid "Rule Mode"
 msgstr "规则模式"
 
@@ -446,11 +458,11 @@ msgstr "规则模式"
 msgid "Running"
 msgstr "运行中"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:321
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:333
 msgid "SOCKS Port"
 msgstr "SOCKS 端口"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:309
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:321
 msgid "Save Proxy Selection"
 msgstr "保存节点/策略组选择"
 
@@ -463,16 +475,16 @@ msgstr "定时重启"
 msgid "Scroll To Bottom"
 msgstr "滚动到底部"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/tools/mihomo.js:93
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/tools/mihomo.js:111
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/tools/mihomo.js:99
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/tools/mihomo.js:117
 msgid "Service is not running."
 msgstr "服务未在运行。"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:359
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:371
 msgid "Stack"
 msgstr "栈"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:500
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:512
 msgid "Standard Loader"
 msgstr "标准加载器"
 
@@ -497,14 +509,15 @@ msgid "Subscription Url"
 msgstr "订阅链接"
 
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:125
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/editor.js:33
 msgid "Subscription:"
 msgstr "订阅："
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:283
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:295
 msgid "TCP Keep Alive Idle"
 msgstr "TCP Keep Alive 空闲"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:287
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:299
 msgid "TCP Keep Alive Interval"
 msgstr "TCP Keep Alive 间隔"
 
@@ -517,11 +530,11 @@ msgstr "TCP 代理模式"
 msgid "TPROXY Mode"
 msgstr "TPROXY 模式"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:333
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:345
 msgid "TPROXY Port"
 msgstr "TPROXY 端口"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:357
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:369
 msgid "TUN Config"
 msgstr "TUN 配置"
 
@@ -542,7 +555,7 @@ msgstr "透明代理"
 msgid "Transparent Proxy with Mihomo on OpenWrt."
 msgstr "在 OpenWrt 上使用 Mihomo 进行透明代理。"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:465
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:477
 msgid "Type"
 msgstr "类型"
 
@@ -550,13 +563,22 @@ msgstr "类型"
 msgid "UDP Proxy Mode"
 msgstr "UDP 代理模式"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:293
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:305
 msgid "UI Name"
 msgstr "UI 名称"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:296
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:308
 msgid "UI Url"
 msgstr "UI 下载地址"
+
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/tools/mihomo.js:80
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/tools/mihomo.js:84
+msgid "Unknown"
+msgstr "未知"
+
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:263
+msgid "Update"
+msgstr "更新"
 
 #: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:89
 msgid "Update Dashboard"
@@ -566,11 +588,11 @@ msgstr "更新面板"
 msgid "Upload Profile"
 msgstr "上传配置文件"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:429
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:441
 msgid "Use Hosts"
 msgstr "使用 Hosts"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:426
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:438
 msgid "Use System Hosts"
 msgstr "使用系统的 Hosts"
 
@@ -578,6 +600,6 @@ msgstr "使用系统的 Hosts"
 msgid "User Agent"
 msgstr "用户代理（UA）"
 
-#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:351
+#: mihomo/luci-app-mihomo/htdocs/luci-static/resources/view/mihomo/config.js:363
 msgid "Username"
 msgstr "用户名"

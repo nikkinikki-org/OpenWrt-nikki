@@ -9,6 +9,8 @@
             "file": {
                 "/etc/mihomo/profiles/*.yaml": ["read"],
                 "/etc/mihomo/profiles/*.yml": ["read"],
+                "/etc/mihomo/subscriptions/*.yaml": ["read"],
+                "/etc/mihomo/subscriptions/*.yml": ["read"],
                 "/etc/mihomo/mixin.yaml": ["read"],
                 "/etc/mihomo/run/config.yaml": ["read"],
                 "/etc/mihomo/nftables/reserved_ip.nft": ["read"],
@@ -22,6 +24,8 @@
             "file": {
                 "/etc/mihomo/profiles/*.yaml": ["write"],
                 "/etc/mihomo/profiles/*.yml": ["write"],
+                "/etc/mihomo/subscriptions/*.yaml": ["write"],
+                "/etc/mihomo/subscriptions/*.yml": ["write"],
                 "/etc/mihomo/mixin.yaml": ["write"],
                 "/etc/mihomo/run/config.yaml": ["write"],
                 "/etc/mihomo/nftables/reserved_ip.nft": ["write"],
