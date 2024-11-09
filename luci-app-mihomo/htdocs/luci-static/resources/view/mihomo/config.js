@@ -119,11 +119,11 @@ return view.extend({
 
         for (const profile of profiles) {
             o.value('file:' + profile.name, _('File:') + profile.name);
-        }
+        };
 
         for (const subscription of subscriptions) {
             o.value('subscription:' + subscription['.name'], _('Subscription:') + subscription.name);
-        }
+        };
 
         o = s.option(form.FileUpload, 'upload_profile', _('Upload Profile'));
         o.root_directory = mihomo.profilesDir;
@@ -253,12 +253,17 @@ return view.extend({
         o.value('clash.meta');
         o.value('clash');
 
+        o = s.option(form.ListValue, 'prefer', _('Prefer'));
+        o.default = 'remote';
+        o.value('remote', _('Remote'));
+        o.value('local', _('Local'));
+
         o = s.option(form.Button, 'update_subscription');
         o.inputstyle = 'positive';
         o.inputtitle = _('Update');
         o.onclick = function (_, section_id) {
             return mihomo.updateSubscription(section_id);
-        }
+        };
 
         s = m.section(form.NamedSection, 'mixin', 'mixin', _('Mixin Config'));
 
@@ -302,9 +307,9 @@ return view.extend({
 
         o = s.taboption('external_control', form.Value, 'ui_url', '*' + ' ' + _('UI Url'));
         o.rmempty = false;
-        o.value('https://mirror.ghproxy.com/https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip', 'MetaCubeXD')
-        o.value('https://mirror.ghproxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/refs/heads/gh-pages.zip', 'YACD')
-        o.value('https://mirror.ghproxy.com/https://github.com/MetaCubeX/Razord-meta/archive/refs/heads/gh-pages.zip', 'Razord')
+        o.value('https://mirror.ghproxy.com/https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip', 'MetaCubeXD');
+        o.value('https://mirror.ghproxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/refs/heads/gh-pages.zip', 'YACD');
+        o.value('https://mirror.ghproxy.com/https://github.com/MetaCubeX/Razord-meta/archive/refs/heads/gh-pages.zip', 'Razord');
 
         o = s.taboption('external_control', form.Value, 'api_port', '*' + ' ' + _('API Port'));
         o.datatype = 'port';
@@ -410,7 +415,7 @@ return view.extend({
         o.retain = true;
         o.depends({ 'dns_mode': 'fake-ip', 'fake_ip_filter': '1' });
 
-        o = s.taboption('dns', form.ListValue, 'fake_ip_filter_mode', _('Fake-IP Filter Mode'))
+        o = s.taboption('dns', form.ListValue, 'fake_ip_filter_mode', _('Fake-IP Filter Mode'));
         o.retain = true;
         o.value('blacklist', _('Block Mode'));
         o.value('whitelist', _('Allow Mode'));

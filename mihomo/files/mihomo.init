@@ -144,29 +144,37 @@ start_service() {
 	if [[ "$profile" == "file:"* ]]; then
 		local profile_name; profile_name=$(basename "${profile/file:/}")
 		local profile_file; profile_file="$PROFILES_DIR/$profile_name"
+		log "Use Profile: $profile_name."
 		if [ ! -f "$profile_file" ]; then
 			log "File not found."
 			log "Exiting..."
 			return
 		fi
 		cp -f "$profile_file" "$RUN_PROFILE_PATH"
-		log "Use Profile: $profile_name"
 	elif [[ "$profile" == "subscription:"* ]]; then
 		local subscription_section; subscription_section="${profile/subscription:/}"
-		local subscription_name subscription_url subscription_user_agent
+		local subscription_name subscription_url subscription_user_agent subscription_prefer
 		config_get subscription_name "$subscription_section" "name"
 		config_get subscription_url "$subscription_section" "url"
 		config_get subscription_user_agent "$subscription_section" "user_agent"
+		config_get subscription_prefer "$subscription_section" "prefer" "remote"
+		log "Use Subscription: $subscription_name."
+		local subscription_tmpfile; subscription_tmpfile="/tmp/$subscription_section.yaml"
 		local subscription_file; subscription_file="$SUBSCRIPTIONS_DIR/$subscription_section.yaml"
-		if [ ! -f "$subscription_file" ]; then
-			if (! curl -s --connect-timeout 15 --retry 3 -o "$subscription_file" -L -H "User-Agent: $subscription_user_agent" "$subscription_url"); then
-				log "Subscription download failed."
-				log "Exiting..."
-				return
+		if [ "$subscription_prefer" == "remote" ] || [[ "$subscription_prefer" == "local" && ! -f "$subscription_file" ]]; then
+			if (curl -s -f --connect-timeout 15 --retry 3 -o "$subscription_tmpfile" -L -H "User-Agent: $subscription_user_agent" "$subscription_url"); then
+				log "Subscription download succeed."
+				cp -f "$subscription_tmpfile" "$subscription_file"
+			else
+				log "Subscription download failed, fallback to subscription file."
 			fi
 		fi
+		if [ ! -f "$subscription_file" ]; then
+			log "Subscription file not found."
+			log "Exiting..."
+			return
+		fi
 		cp -f "$subscription_file" "$RUN_PROFILE_PATH"
-		log "Use Subscription: $subscription_name"
 	else
 		log "No profile/subscription selected."
 		log "Exiting..."
@@ -331,10 +339,6 @@ start_service() {
 		nft -f "$HIJACK_NFT" -D FW_MARK="$FW_MARK" -D FW_MARK_MASK="$FW_MARK_MASK" -D TUN_DEVICE="$TUN_DEVICE" -D DNS_PORT="$dns_port" -D REDIR_PORT="$redir_port" -D TPROXY_PORT="$tproxy_port"
 		nft -f "$RESERVED_IP_NFT"
 		nft -f "$RESERVED_IP6_NFT"
-		if [ "$tcp_transparent_proxy_mode" != "redirect" ]; then
-			nft flush chain inet "$FW_TABLE" nat_output
-			nft flush chain inet "$FW_TABLE" dstnat
-		fi
 		nft add element inet "$FW_TABLE" bypass_group \{ "$MIHOMO_GROUP" \}
 		nft add element inet "$FW_TABLE" fake_ip \{ "$fake_ip_range" \}
 		# dns hijack
@@ -378,10 +382,12 @@ start_service() {
 		# router proxy
 		if [ "$router_proxy" == 1 ]; then
 			log "Transparent Proxy: Router Proxy is enabled, set proxy for router."
-			nft insert rule inet "$FW_TABLE" nat_output jump router_dns_hijack
 			if [ "$tcp_transparent_proxy_mode" == "redirect" ]; then
-				nft add rule inet "$FW_TABLE" nat_output meta l4proto tcp jump router_redirect
+				nft insert rule inet "$FW_TABLE" nat_output jump router_dns_hijack
+				nft add rule inet "$FW_TABLE" nat_output meta l4proto tcp jump router_${tcp_transparent_proxy_mode}
 			else
+				nft flush chain inet "$FW_TABLE" nat_output
+				nft add rule inet "$FW_TABLE" nat_output jump router_dns_hijack
 				nft add rule inet "$FW_TABLE" mangle_output meta l4proto tcp jump router_reroute
 			fi
 			nft add rule inet "$FW_TABLE" mangle_output meta l4proto udp jump router_reroute
@@ -400,10 +406,12 @@ start_service() {
 			config_list_foreach "proxy" "acl_ip" add_acl_ip
 			config_list_foreach "proxy" "acl_ip6" add_acl_ip6
 			config_list_foreach "proxy" "acl_mac" add_acl_mac
-			nft insert rule inet "$FW_TABLE" dstnat jump "${access_control_mode}_dns_hijack"
 			if [ "$tcp_transparent_proxy_mode" == "redirect" ]; then
-				nft add rule inet "$FW_TABLE" dstnat meta l4proto tcp jump "${access_control_mode}_redirect"
+				nft insert rule inet "$FW_TABLE" dstnat jump "${access_control_mode}_dns_hijack"
+				nft add rule inet "$FW_TABLE" dstnat meta l4proto tcp jump "${access_control_mode}_${tcp_transparent_proxy_mode}"
 			else
+				nft flush chain inet "$FW_TABLE" dstnat
+				nft add rule inet "$FW_TABLE" dstnat jump "${access_control_mode}_dns_hijack"
 				nft add rule inet "$FW_TABLE" mangle_prerouting meta l4proto tcp jump "${access_control_mode}_${tcp_transparent_proxy_mode}"
 			fi
 			nft add rule inet "$FW_TABLE" mangle_prerouting meta l4proto udp jump "${access_control_mode}_${udp_transparent_proxy_mode}"
@@ -487,7 +495,7 @@ cleanup() {
 		sysctl -q -w net.bridge.bridge-nf-call-ip6tables=1
 	fi
 	# delete cron
-	sed -i '/#mihomo/d' "/etc/crontabs/root" > /dev/null 2>&1
+	sed -i "/#mihomo/d" "/etc/crontabs/root" > /dev/null 2>&1
 	/etc/init.d/cron restart
 }
 
@@ -508,7 +516,7 @@ prepare_log() {
 }
 
 log() {
-	echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$APP_LOG_PATH"
+	echo "[$(date "+%Y-%m-%d %H:%M:%S")] $1" >> "$APP_LOG_PATH"
 }
 
 mixin_authentications() {
@@ -606,6 +614,6 @@ update_subscription() {
 		config_get subscription_url "$subscription_section" "url"
 		config_get subscription_user_agent "$subscription_section" "user_agent"
 		local subscription_file; subscription_file="$SUBSCRIPTIONS_DIR/$subscription_section.yaml"
-		curl -s --connect-timeout 15 --retry 3 -o "$subscription_file" -L -H "User-Agent: $subscription_user_agent" "$subscription_url"
+		curl -s -f --connect-timeout 15 --retry 3 -o "$subscription_file" -L -H "User-Agent: $subscription_user_agent" "$subscription_url"
 	fi
 }

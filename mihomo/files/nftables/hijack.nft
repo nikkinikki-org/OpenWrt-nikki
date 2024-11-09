@@ -75,7 +75,7 @@ table inet mihomo {
 
 	chain router_dns_hijack {
 		meta skgid @bypass_group counter return
-		meta nfproto @dns_hijack_nfproto meta l4proto { tcp, udp } th dport 53 oifname lo counter redirect to :$DNS_PORT
+		meta nfproto @dns_hijack_nfproto meta l4proto { tcp, udp } th dport 53 counter redirect to :$DNS_PORT
 	}
 
 	chain all_dns_hijack {
@@ -182,7 +182,7 @@ table inet mihomo {
 	chain mangle_prerouting {
 		type filter hook prerouting priority mangle; policy accept;
 		meta l4proto { tcp, udp } iifname lo meta mark & $FW_MARK_MASK == $FW_MARK tproxy to :$TPROXY_PORT counter accept
-		meta l4proto { tcp, udp } iifname $TUN_DEVICE counter return
+		meta l4proto { tcp, udp } iifname $TUN_DEVICE counter accept
 		fib daddr type local counter return
 		ct direction reply counter return
 		ip daddr @reserved_ip counter return
