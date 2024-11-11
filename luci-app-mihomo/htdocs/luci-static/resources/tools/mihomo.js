@@ -117,4 +117,16 @@ return baseclass.extend({
             alert(_('Service is not running.'));
         }
     },
+
+    getUsers: function () {
+        return fs.lines('/etc/passwd').then(function (lines) {
+            return lines.map(function (line) { return line.split(/:/)[0] }).filter(function (user) { return user !== 'root' && user !== 'mihomo' });
+        });
+    },
+
+    getGroups: function () {
+        return fs.lines('/etc/group').then(function (lines) {
+            return lines.map(function (line) { return line.split(/:/)[0] }).filter(function (group) { return group !== 'root' && group !== 'mihomo' });
+        });
+    },
 })

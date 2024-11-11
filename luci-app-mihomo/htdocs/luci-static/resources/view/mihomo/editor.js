@@ -27,11 +27,11 @@ return view.extend({
 
         for (const profile of profiles) {
             o.value(mihomo.profilesDir + '/' + profile.name, _('File:') + profile.name);
-        }
+        };
 
         for (const subscription of subscriptions) {
             o.value(mihomo.subscriptionsDir + '/' + subscription['.name'] + '.yaml', _('Subscription:') + subscription.name);
-        }
+        };
 
         o.value(mihomo.mixinFilePath, _('File for Mixin'));
         o.value(mihomo.runProfilePath, _('Profile for Startup'));

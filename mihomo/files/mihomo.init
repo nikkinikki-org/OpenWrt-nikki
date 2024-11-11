@@ -64,11 +64,11 @@ start_service() {
 	config_get_bool router_proxy "proxy" "router_proxy" 0
 	config_get_bool lan_proxy "proxy" "lan_proxy" 0
 	### access control
-	local access_control_mode bypass_china_mainland_ip acl_tcp_dport acl_udp_dport
+	local access_control_mode bypass_china_mainland_ip proxy_tcp_dport proxy_udp_dport
 	config_get access_control_mode "proxy" "access_control_mode"
 	config_get_bool bypass_china_mainland_ip "proxy" "bypass_china_mainland_ip" 0
-	config_get acl_tcp_dport "proxy" "acl_tcp_dport" "0-65535"
-	config_get acl_udp_dport "proxy" "acl_udp_dport" "0-65535"
+	config_get proxy_tcp_dport "proxy" "proxy_tcp_dport" "0-65535"
+	config_get proxy_udp_dport "proxy" "proxy_udp_dport" "0-65535"
 	## mixin config
 	### general
 	local mode match_process outbound_interface ipv6 tcp_keep_alive_idle tcp_keep_alive_interval log_level
@@ -336,11 +336,9 @@ start_service() {
 				ip -6 rule add pref "$UDP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto udp table "$udp_route_table"
 			fi
 		fi
-		nft -f "$HIJACK_NFT" -D FW_MARK="$FW_MARK" -D FW_MARK_MASK="$FW_MARK_MASK" -D TUN_DEVICE="$TUN_DEVICE" -D DNS_PORT="$dns_port" -D REDIR_PORT="$redir_port" -D TPROXY_PORT="$tproxy_port"
+		nft -f "$HIJACK_NFT" -D MIHOMO_GROUP="$MIHOMO_GROUP" -D FW_MARK="$FW_MARK" -D FW_MARK_MASK="$FW_MARK_MASK" -D TUN_DEVICE="$TUN_DEVICE" -D FAKE_IP="$fake_ip_range" -D DNS_PORT="$dns_port" -D REDIR_PORT="$redir_port" -D TPROXY_PORT="$tproxy_port"
 		nft -f "$RESERVED_IP_NFT"
 		nft -f "$RESERVED_IP6_NFT"
-		nft add element inet "$FW_TABLE" bypass_group \{ "$MIHOMO_GROUP" \}
-		nft add element inet "$FW_TABLE" fake_ip \{ "$fake_ip_range" \}
 		# dns hijack
 		if [ "$ipv4_dns_hijack" == 1 ]; then
 			log "Transparent Proxy: IPv4 DNS Hijack is enabled, IPv4 dns request will redirect to the core."
@@ -359,7 +357,9 @@ start_service() {
 			log "Transparent Proxy: IPv6 Proxy is enabled, set proxy for IPv6 traffic."
 			nft add element inet "$FW_TABLE" proxy_nfproto \{ ipv6 \}
 		fi
-		# bypass china mainland ip
+		# bypass
+		config_list_foreach "proxy" "bypass_user" add_bypass_user
+		config_list_foreach "proxy" "bypass_group" add_bypass_group
 		if [ "$bypass_china_mainland_ip" == 1 ]; then
 			log "Transparent Proxy: Bypass china mainland ip is enabled."
 			if [ "$ipv4_proxy" == 1 ]; then
@@ -369,15 +369,14 @@ start_service() {
 				nft -f "$GEOIP6_CN_NFT"
 			fi
 		fi
-		# destination port to proxy
-		log "Transparent Proxy: Destination TCP Port to Proxy: $acl_tcp_dport."
-		log "Transparent Proxy: Destination UDP Port to Proxy: $acl_udp_dport."
-		local acl_dport
-		for acl_dport in $acl_tcp_dport; do
-			nft add element inet "$FW_TABLE" acl_dport \{ "tcp" . "$acl_dport" \}
+		log "Transparent Proxy: Destination TCP Port to Proxy: $proxy_tcp_dport."
+		log "Transparent Proxy: Destination UDP Port to Proxy: $proxy_udp_dport."
+		local proxy_dport
+		for proxy_dport in $proxy_tcp_dport; do
+			nft add element inet "$FW_TABLE" proxy_dport \{ "tcp" . "$proxy_dport" \}
 		done
-		for acl_dport in $acl_udp_dport; do
-			nft add element inet "$FW_TABLE" acl_dport \{ "udp" . "$acl_dport" \}
+		for proxy_dport in $proxy_udp_dport; do
+			nft add element inet "$FW_TABLE" proxy_dport \{ "udp" . "$proxy_dport" \}
 		done
 		# router proxy
 		if [ "$router_proxy" == 1 ]; then
@@ -406,6 +405,7 @@ start_service() {
 			config_list_foreach "proxy" "acl_ip" add_acl_ip
 			config_list_foreach "proxy" "acl_ip6" add_acl_ip6
 			config_list_foreach "proxy" "acl_mac" add_acl_mac
+			config_list_foreach "proxy" "acl_interface" add_acl_interface
 			if [ "$tcp_transparent_proxy_mode" == "redirect" ]; then
 				nft insert rule inet "$FW_TABLE" dstnat jump "${access_control_mode}_dns_hijack"
 				nft add rule inet "$FW_TABLE" dstnat meta l4proto tcp jump "${access_control_mode}_${tcp_transparent_proxy_mode}"
@@ -592,6 +592,20 @@ mixin_nameserver_policy() {
 	nameserver="$1" matcher="$2" yq -M -i '.dns.nameserver-policy.[env(matcher)] += [env(nameserver)]' "$RUN_PROFILE_PATH"
 }
 
+add_bypass_user() {
+	local user; user="$1"
+	if [ "$user" != "root" ] && (cut -d ':' -f 1 < /etc/passwd | grep -q "$user"); then
+		nft add element inet "$FW_TABLE" bypass_user \{ "$user" \}
+	fi
+}
+
+add_bypass_group() {
+	local group; group="$1"
+	if [ "$group" != "root" ] && (cut -d ':' -f 1 < /etc/group | grep -q "$group"); then
+		nft add element inet "$FW_TABLE" bypass_group \{ "$group" \}
+	fi
+}
+
 add_acl_ip() {
 	nft add element inet "$FW_TABLE" acl_ip \{ "$1" \}
 }
@@ -602,6 +616,14 @@ add_acl_ip6() {
 
 add_acl_mac() {
 	nft add element inet "$FW_TABLE" acl_mac \{ "$1" \}
+}
+
+add_acl_interface() {
+	local interface; interface="$1"
+	local device; network_get_device device "$interface"
+	if [ -n "$device" ]; then
+		nft add element inet "$FW_TABLE" acl_interface \{ "$device" \}
+	fi
 }
 
 update_subscription() {

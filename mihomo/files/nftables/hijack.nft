@@ -1,14 +1,18 @@
 #!/usr/sbin/nft -f
 
 table inet mihomo {
+	set bypass_user {
+		type uid
+		flags interval
+		auto-merge
+	}
+
 	set bypass_group {
 		type gid
 		flags interval
 		auto-merge
 		elements = {
-			ntp,
-			dnsmasq,
-			logd
+			$MIHOMO_GROUP
 		}
 	}
 
@@ -44,12 +48,7 @@ table inet mihomo {
 		auto-merge
 	}
 
-	set fake_ip {
-		type ipv4_addr
-		flags interval
-	}
-
-	set acl_dport {
+	set proxy_dport {
 		type inet_proto . inet_service
 		flags interval
 		auto-merge
@@ -73,7 +72,14 @@ table inet mihomo {
 		auto-merge
 	}
 
+	set acl_interface {
+		type ifname
+		flags interval
+		auto-merge
+	}
+
 	chain router_dns_hijack {
+		meta skuid @bypass_user counter return
 		meta skgid @bypass_group counter return
 		meta nfproto @dns_hijack_nfproto meta l4proto udp th dport 53 counter redirect to :$DNS_PORT
 	}
@@ -86,12 +92,14 @@ table inet mihomo {
 		meta nfproto @dns_hijack_nfproto meta l4proto udp th dport 53 ip saddr @acl_ip counter redirect to :$DNS_PORT
 		meta nfproto @dns_hijack_nfproto meta l4proto udp th dport 53 ip6 saddr @acl_ip6 counter redirect to :$DNS_PORT
 		meta nfproto @dns_hijack_nfproto meta l4proto udp th dport 53 ether saddr @acl_mac counter redirect to :$DNS_PORT
+		meta nfproto @dns_hijack_nfproto meta l4proto udp th dport 53 iifname @acl_interface counter redirect to :$DNS_PORT
 	}
 
 	chain block_dns_hijack {
 		meta nfproto @dns_hijack_nfproto meta l4proto udp th dport 53 ip saddr @acl_ip counter return
 		meta nfproto @dns_hijack_nfproto meta l4proto udp th dport 53 ip6 saddr @acl_ip6 counter return
 		meta nfproto @dns_hijack_nfproto meta l4proto udp th dport 53 ether saddr @acl_mac counter return
+		meta nfproto @dns_hijack_nfproto meta l4proto udp th dport 53 iifname @acl_interface counter return
 		meta nfproto @dns_hijack_nfproto meta l4proto udp th dport 53 counter redirect to :$DNS_PORT
 	}
 
@@ -103,12 +111,14 @@ table inet mihomo {
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ip saddr @acl_ip counter redirect to :$REDIR_PORT
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ip6 saddr @acl_ip6 counter redirect to :$REDIR_PORT
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ether saddr @acl_mac counter redirect to :$REDIR_PORT
+		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } iifname @acl_interface counter redirect to :$REDIR_PORT
 	}
 
 	chain block_redirect {
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ip saddr @acl_ip counter return
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ip6 saddr @acl_ip6 counter return
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ether saddr @acl_mac counter return
+		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } iifname @acl_interface counter return
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } counter redirect to :$REDIR_PORT
 	}
 
@@ -120,12 +130,14 @@ table inet mihomo {
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ip saddr @acl_ip meta mark set mark ^ $FW_MARK tproxy ip to :$TPROXY_PORT counter accept
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ip6 saddr @acl_ip6 meta mark set mark ^ $FW_MARK tproxy ip6 to :$TPROXY_PORT counter accept
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ether saddr @acl_mac meta mark set mark ^ $FW_MARK tproxy to :$TPROXY_PORT counter accept
+		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } iifname @acl_interface meta mark set mark ^ $FW_MARK tproxy to :$TPROXY_PORT counter accept
 	}
 
 	chain block_tproxy {
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ip saddr @acl_ip counter return
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ip6 saddr @acl_ip6 counter return
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ether saddr @acl_mac counter return
+		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } iifname @acl_interface counter return
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } meta mark set mark ^ $FW_MARK tproxy to :$TPROXY_PORT counter accept
 	}
 
@@ -137,12 +149,14 @@ table inet mihomo {
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ip saddr @acl_ip meta mark set mark ^ $FW_MARK counter
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ip6 saddr @acl_ip6 meta mark set mark ^ $FW_MARK counter
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ether saddr @acl_mac meta mark set mark ^ $FW_MARK counter
+		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } iifname @acl_interface meta mark set mark ^ $FW_MARK counter
 	}
 
 	chain block_tun {
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ip saddr @acl_ip counter return
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ip6 saddr @acl_ip6 counter return
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ether saddr @acl_mac counter return
+		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } iifname @acl_interface counter return
 		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } meta mark set mark ^ $FW_MARK counter
 	}
 
@@ -162,12 +176,13 @@ table inet mihomo {
 		ip6 daddr @reserved_ip6 counter return
 		ip daddr @china_ip counter return
 		ip6 daddr @china_ip6 counter return
-		meta l4proto . th dport != @acl_dport ip daddr != @fake_ip counter return
-		meta nfproto ipv6 meta l4proto . th dport != @acl_dport counter return
+		meta nfproto ipv4 meta l4proto . th dport != @proxy_dport ip daddr != $FAKE_IP counter return
+		meta nfproto ipv6 meta l4proto . th dport != @proxy_dport counter return
 	}
 
 	chain nat_output {
 		type nat hook output priority filter; policy accept;
+		meta skuid @bypass_user counter return
 		meta skgid @bypass_group counter return
 		fib daddr type local counter return
 		ct direction reply counter return
@@ -175,8 +190,8 @@ table inet mihomo {
 		ip6 daddr @reserved_ip6 counter return
 		ip daddr @china_ip counter return
 		ip6 daddr @china_ip6 counter return
-		meta l4proto . th dport != @acl_dport ip daddr != @fake_ip counter return
-		meta nfproto ipv6 meta l4proto . th dport != @acl_dport counter return
+		meta nfproto ipv4 meta l4proto . th dport != @proxy_dport ip daddr != $FAKE_IP counter return
+		meta nfproto ipv6 meta l4proto . th dport != @proxy_dport counter return
 	}
 
 	chain mangle_prerouting {
@@ -189,13 +204,14 @@ table inet mihomo {
 		ip6 daddr @reserved_ip6 counter return
 		ip daddr @china_ip counter return
 		ip6 daddr @china_ip6 counter return
-		meta l4proto . th dport != @acl_dport ip daddr != @fake_ip counter return
-		meta nfproto ipv6 meta l4proto . th dport != @acl_dport counter return
+		meta nfproto ipv4 meta l4proto . th dport != @proxy_dport ip daddr != $FAKE_IP counter return
+		meta nfproto ipv6 meta l4proto . th dport != @proxy_dport counter return
 		meta l4proto udp th dport 53 counter return
 	}
 
 	chain mangle_output {
 		type route hook output priority mangle; policy accept;
+		meta skuid @bypass_user counter return
 		meta skgid @bypass_group counter return
 		fib daddr type local counter return
 		ct direction reply counter return
@@ -203,8 +219,8 @@ table inet mihomo {
 		ip6 daddr @reserved_ip6 counter return
 		ip daddr @china_ip counter return
 		ip6 daddr @china_ip6 counter return
-		meta l4proto . th dport != @acl_dport ip daddr != @fake_ip counter return
-		meta nfproto ipv6 meta l4proto . th dport != @acl_dport counter return
+		meta nfproto ipv4 meta l4proto . th dport != @proxy_dport ip daddr != $FAKE_IP counter return
+		meta nfproto ipv6 meta l4proto . th dport != @proxy_dport counter return
 		meta l4proto udp th dport 53 counter return
 	}
 }

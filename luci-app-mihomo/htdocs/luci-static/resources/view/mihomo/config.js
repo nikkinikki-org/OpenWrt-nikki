@@ -29,6 +29,8 @@ return view.extend({
             mihomo.appVersion(),
             mihomo.coreVersion(),
             mihomo.status(),
+            mihomo.getUsers(),
+            mihomo.getGroups(),
             network.getHostHints(),
         ]);
     },
@@ -38,7 +40,9 @@ return view.extend({
         const appVersion = data[2];
         const coreVersion = data[3];
         const running = data[4];
-        const hosts = data[5].hosts;
+        const users = data[5];
+        const groups = data[6];
+        const hosts = data[7].hosts;
 
         let m, s, o, so;
 
@@ -189,8 +193,8 @@ return view.extend({
             for (const ip of host.ipaddrs) {
                 const hint = host.name || mac;
                 o.value(ip, hint ? '%s (%s)'.format(ip, hint) : ip);
-            }
-        }
+            };
+        };
 
         o = s.taboption('access_control', form.DynamicList, 'acl_ip6', 'IP6');
         o.datatype = 'ipmask6';
@@ -203,8 +207,8 @@ return view.extend({
             for (const ip of host.ip6addrs) {
                 const hint = host.name || mac;
                 o.value(ip, hint ? '%s (%s)'.format(ip, hint) : ip);
-            }
-        }
+            };
+        };
 
         o = s.taboption('access_control', form.DynamicList, 'acl_mac', 'MAC');
         o.datatype = 'macaddr';
@@ -216,19 +220,40 @@ return view.extend({
             const host = hosts[mac];
             const hint = host.name || host.ipaddrs[0];
             o.value(mac, hint ? '%s (%s)'.format(mac, hint) : mac);
-        }
+        };
+
+        o = s.taboption('access_control', widgets.NetworkSelect, 'acl_interface', _('Interface'));
+        o.multiple = true;
+        o.optional = true;
+        o.retain = true;
+        o.depends('access_control_mode', 'allow');
+        o.depends('access_control_mode', 'block');
 
         s.tab('bypass', _('Bypass'));
+
+        o = s.taboption('bypass', form.MultiValue, 'bypass_user', _('Bypass User'));
+        o.create = true;
+
+        for (const user of users) {
+            o.value(user);
+        };
+
+        o = s.taboption('bypass', form.MultiValue, 'bypass_group', _('Bypass Group'));
+        o.create = true;
+
+        for (const group of groups) {
+            o.value(group);
+        };
 
         o = s.taboption('bypass', form.Flag, 'bypass_china_mainland_ip', _('Bypass China Mainland IP'));
         o.rmempty = false;
 
-        o = s.taboption('bypass', form.Value, 'acl_tcp_dport', _('Destination TCP Port to Proxy'));
+        o = s.taboption('bypass', form.Value, 'proxy_tcp_dport', _('Destination TCP Port to Proxy'));
         o.rmempty = false;
         o.value('0-65535', _('All Port'));
         o.value('21 22 80 110 143 194 443 465 853 993 995 8080 8443', _('Commonly Used Port'));
 
-        o = s.taboption('bypass', form.Value, 'acl_udp_dport', _('Destination UDP Port to Proxy'));
+        o = s.taboption('bypass', form.Value, 'proxy_udp_dport', _('Destination UDP Port to Proxy'));
         o.rmempty = false;
         o.value('0-65535', _('All Port'));
         o.value('123 443 8443', _('Commonly Used Port'));
@@ -316,6 +341,7 @@ return view.extend({
         o.placeholder = '9090';
 
         o = s.taboption('external_control', form.Value, 'api_secret', '*' + ' ' + _('API Secret'));
+        o.password = true;
         o.rmempty = false;
 
         o = s.taboption('external_control', form.Flag, 'selection_cache', _('Save Proxy Selection'));
@@ -364,6 +390,7 @@ return view.extend({
         so.rmempty = false;
 
         so = o.subsection.option(form.Value, 'password', _('Password'));
+        so.password = true;
         so.rmempty = false;
 
         s.tab('tun', _('TUN Config'));

@@ -7,6 +7,8 @@
                 "service": [ "list" ]
             },
             "file": {
+                "/etc/passwd": ["read"],
+                "/etc/group": ["read"],
                 "/etc/mihomo/profiles/*.yaml": ["read"],
                 "/etc/mihomo/profiles/*.yml": ["read"],
                 "/etc/mihomo/subscriptions/*.yaml": ["read"],
