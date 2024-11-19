@@ -55,4 +55,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mihomo_${{ matrix.arch }}-${{ matrix.branch }}
-          path: bin/packages/${{ matrix.arch }}/mihomo/*.ipk
+          path: bin/packages/${{ matrix.arch }}/mihomo
