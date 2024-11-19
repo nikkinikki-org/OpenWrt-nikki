@@ -565,6 +565,20 @@ return view.extend({
         o = s.taboption('mixin_file_content', form.Flag, 'mixin_file_content', '*' + ' ' + _('Enable'), _('Please go to the editor tab to edit the file for mixin'));
         o.rmempty = false;
 
+        s = m.section(form.NamedSection, 'env', 'env', _('Environment Variable Config'));
+
+        o = s.option(form.Flag, 'disable_safe_path_check', _('Disable Safe Path Check'));
+        o.rmempty = false;
+
+        o = s.option(form.Flag, 'disable_loopback_detector', _('Disable Loopback Detector'));
+        o.rmempty = false;
+
+        o = s.option(form.Flag, 'disable_quic_go_gso', _('Disable GSO of quic-go'));
+        o.rmempty = false;
+
+        o = s.option(form.Flag, 'disable_quic_go_ecn', _('Disable ECN of quic-go'));
+        o.rmempty = false;
+
         return m.render();
     }
 });

@@ -131,6 +131,12 @@ start_service() {
 	### mixin file content
 	local mixin_file_content
 	config_get_bool mixin_file_content "mixin" "mixin_file_content" 0
+	## environment variable
+	local disable_safe_path_check disable_loopback_detector disable_quic_go_gso disable_quic_go_ecn
+	config_get_bool disable_safe_path_check "env" "disable_safe_path_check" 0
+	config_get_bool disable_loopback_detector "env" "disable_loopback_detector" 0
+	config_get_bool disable_quic_go_gso "env" "disable_quic_go_gso" 0
+	config_get_bool disable_quic_go_ecn "env" "disable_quic_go_ecn" 0
 	# prepare
 	local tproxy_enable; tproxy_enable=0
 	if [[ "$tcp_transparent_proxy_mode" == "tproxy" || "$udp_transparent_proxy_mode" == "tproxy" ]]; then
@@ -273,6 +279,7 @@ start_service() {
 
 	procd_set_param command /bin/sh -c "$PROG -d $RUN_DIR >> $CORE_LOG_PATH 2>&1"
 	procd_set_param file "$RUN_PROFILE_PATH"
+	procd_set_param env SKIP_SAFE_PATH_CHECK="$disable_safe_path_check" DISABLE_LOOPBACK_DETECTOR="$disable_loopback_detector" QUIC_GO_DISABLE_GSO="$disable_quic_go_gso" QUIC_GO_DISABLE_ECN="$disable_quic_go_ecn"
 	if [ "$fast_reload" == 1 ]; then
 		procd_set_param reload_signal HUP
 	fi
