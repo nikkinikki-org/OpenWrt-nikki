@@ -103,22 +103,12 @@ return view.extend({
 
         s = m.section(form.NamedSection, 'config', 'config', _('Basic Config'));
 
-        o = s.option(form.Flag, 'enabled', _('Enable'));
+        s.tab('app', _('App Config'));
+
+        o = s.taboption('app', form.Flag, 'enabled', _('Enable'));
         o.rmempty = false;
 
-        o = s.option(form.Value, 'start_delay', _('Start Delay'));
-        o.datatype = 'uinteger';
-        o.placeholder = '0';
-
-        o = s.option(form.Flag, 'scheduled_restart', _('Scheduled Restart'));
-        o.rmempty = false;
-
-        o = s.option(form.Value, 'cron_expression', _('Cron Expression'));
-        o.retain = true;
-        o.rmempty = false;
-        o.depends('scheduled_restart', '1');
-
-        o = s.option(form.ListValue, 'profile', _('Choose Profile'));
+        o = s.taboption('app', form.ListValue, 'profile', _('Choose Profile'));
         o.optional = true;
 
         for (const profile of profiles) {
@@ -129,16 +119,48 @@ return view.extend({
             o.value('subscription:' + subscription['.name'], _('Subscription:') + subscription.name);
         };
 
-        o = s.option(form.FileUpload, 'upload_profile', _('Upload Profile'));
+        o = s.taboption('app', form.FileUpload, 'upload_profile', _('Upload Profile'));
         o.root_directory = mihomo.profilesDir;
 
-        o = s.option(form.Flag, 'mixin', _('Mixin'));
+        o = s.taboption('app', form.Flag, 'mixin', _('Mixin'));
         o.rmempty = false;
 
-        o = s.option(form.Flag, 'test_profile', _('Test Profile'));
+        s.tab('startup', _('Startup Config'));
+
+        o = s.taboption('startup', form.Value, 'start_delay', _('Start Delay'));
+        o.datatype = 'uinteger';
+        o.placeholder = '0';
+
+        o = s.taboption('startup', form.Flag, 'scheduled_restart', _('Scheduled Restart'));
         o.rmempty = false;
 
-        o = s.option(form.Flag, 'fast_reload', _('Fast Reload'));
+        o = s.taboption('startup', form.Value, 'cron_expression', _('Cron Expression'));
+        o.retain = true;
+        o.rmempty = false;
+        o.depends('scheduled_restart', '1');
+
+        o = s.taboption('startup', form.Flag, 'test_profile', _('Test Profile'));
+        o.rmempty = false;
+
+        o = s.taboption('startup', form.Flag, 'fast_reload', _('Fast Reload'));
+        o.rmempty = false;
+
+        s.tab('core_env', _('Core Environment Variable Config'));
+
+        o = s.taboption('core_env', form.Flag, 'disable_safe_path_check', _('Disable Safe Path Check'));
+        o.ucisection = 'env';
+        o.rmempty = false;
+
+        o = s.taboption('core_env', form.Flag, 'disable_loopback_detector', _('Disable Loopback Detector'));
+        o.ucisection = 'env';
+        o.rmempty = false;
+
+        o = s.taboption('core_env', form.Flag, 'disable_quic_go_gso', _('Disable GSO of quic-go'));
+        o.ucisection = 'env';
+        o.rmempty = false;
+
+        o = s.taboption('core_env', form.Flag, 'disable_quic_go_ecn', _('Disable ECN of quic-go'));
+        o.ucisection = 'env';
         o.rmempty = false;
 
         s = m.section(form.NamedSection, 'proxy', 'proxy', _('Proxy Config'));
@@ -563,20 +585,6 @@ return view.extend({
         s.tab('mixin_file_content', _('Mixin File Content'));
 
         o = s.taboption('mixin_file_content', form.Flag, 'mixin_file_content', '*' + ' ' + _('Enable'), _('Please go to the editor tab to edit the file for mixin'));
-        o.rmempty = false;
-
-        s = m.section(form.NamedSection, 'env', 'env', _('Environment Variable Config'));
-
-        o = s.option(form.Flag, 'disable_safe_path_check', _('Disable Safe Path Check'));
-        o.rmempty = false;
-
-        o = s.option(form.Flag, 'disable_loopback_detector', _('Disable Loopback Detector'));
-        o.rmempty = false;
-
-        o = s.option(form.Flag, 'disable_quic_go_gso', _('Disable GSO of quic-go'));
-        o.rmempty = false;
-
-        o = s.option(form.Flag, 'disable_quic_go_ecn', _('Disable ECN of quic-go'));
         o.rmempty = false;
 
         return m.render();
