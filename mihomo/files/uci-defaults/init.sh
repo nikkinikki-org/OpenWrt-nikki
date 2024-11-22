@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. "$IPKG_INSTROOT/etc/mihomo/scripts/constants.sh"
+. "$IPKG_INSTROOT/etc/mihomo/scripts/include.sh"
 
 # check mihomo.config.init
 init=$(uci -q get mihomo.config.init); [ -z "$init" ] && return

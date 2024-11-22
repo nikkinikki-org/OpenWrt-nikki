@@ -29,7 +29,8 @@ CORE_LOG_PATH="$LOG_DIR/core.log"
 
 # scripts
 SH_DIR="$HOME_DIR/scripts"
-TUN_SH="$SH_DIR/tun.sh"
+INCLUDE_SH="$SH_DIR/include.sh"
+FIREWALL_INCLUDE_SH="$SH_DIR/firewall_include.sh"
 
 # nftables
 NFT_DIR="$HOME_DIR/nftables"
@@ -38,3 +39,28 @@ RESERVED_IP_NFT="$NFT_DIR/reserved_ip.nft"
 RESERVED_IP6_NFT="$NFT_DIR/reserved_ip6.nft"
 GEOIP_CN_NFT="$NFT_DIR/geoip_cn.nft"
 GEOIP6_CN_NFT="$NFT_DIR/geoip6_cn.nft"
+
+# functions
+format_filesize() {
+	local kb; kb=1024
+	local mb; mb=$((kb * 1024))
+	local gb; gb=$((mb * 1024))
+	local tb; tb=$((gb * 1024))
+	local pb; pb=$((tb * 1024))
+	local size; size="$1"
+	if [ -z "$size" ]; then
+		echo ""
+	elif [ "$size" -lt "$kb" ]; then
+		echo "$size B"
+	elif [ "$size" -lt "$mb" ]; then
+		echo "$(awk "BEGIN {print $size / $kb}") KB"
+	elif [ "$size" -lt "$gb" ]; then
+		echo "$(awk "BEGIN {print $size / $mb}") MB"
+	elif [ "$size" -lt "$tb" ]; then
+		echo "$(awk "BEGIN {print $size / $gb}") GB"
+	elif [ "$size" -lt "$pb" ]; then
+		echo "$(awk "BEGIN {print $size / $tb}") TB"
+	else
+		echo "$(awk "BEGIN {print $size / $pb}") PB"
+	fi
+}

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. "$IPKG_INSTROOT/etc/mihomo/scripts/constants.sh"
+. "$IPKG_INSTROOT/etc/mihomo/scripts/include.sh"
 
 # since v1.8.4
 

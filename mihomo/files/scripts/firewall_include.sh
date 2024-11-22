@@ -1,7 +1,7 @@
 #!/bin/sh
 
 . "$IPKG_INSTROOT/lib/functions.sh"
-. "$IPKG_INSTROOT/etc/mihomo/scripts/constants.sh"
+. "$IPKG_INSTROOT/etc/mihomo/scripts/include.sh"
 
 config_load mihomo
 config_get enabled "config" "enabled" 0

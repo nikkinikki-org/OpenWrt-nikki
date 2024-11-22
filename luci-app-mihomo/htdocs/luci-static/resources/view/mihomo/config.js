@@ -280,37 +280,56 @@ return view.extend({
         o.value('0-65535', _('All Port'));
         o.value('123 443 8443', _('Commonly Used Port'));
 
-        s = m.section(form.TableSection, 'subscription', _('Subscription Config'));
+        s = m.section(form.GridSection, 'subscription', _('Subscription Config'));
         s.addremove = true;
         s.anonymous = true;
         s.sortable = true;
+        s.modaltitle = _('Edit Subscription');
 
         o = s.option(form.Value, 'name', _('Subscription Name'));
         o.rmempty = false;
-        o.width = '15%';
+
+        o = s.option(form.Value, 'used', _('Used'));
+        o.modalonly = false;
+        o.optional = true;
+        o.readonly = true;
+
+        o = s.option(form.Value, 'total', _('Total'));
+        o.modalonly = false;
+        o.optional = true;
+        o.readonly = true;
+
+        o = s.option(form.Value, 'expire', _('Expire'));
+        o.modalonly = false;
+        o.optional = true;
+        o.readonly = true;
+
+        o = s.option(form.Button, 'update_subscription');
+        o.editable = true;
+        o.inputstyle = 'positive';
+        o.inputtitle = _('Update');
+        o.modalonly = false;
+        o.onclick = function (_, section_id) {
+            return mihomo.updateSubscription(section_id);
+        };
 
         o = s.option(form.Value, 'url', _('Subscription Url'));
+        o.modalonly = true;
         o.rmempty = false;
 
         o = s.option(form.Value, 'user_agent', _('User Agent'));
         o.default = 'clash';
+        o.modalonly = true;
         o.rmempty = false;
-        o.width = '15%';
         o.value('mihomo');
         o.value('clash.meta');
         o.value('clash');
 
         o = s.option(form.ListValue, 'prefer', _('Prefer'));
         o.default = 'remote';
+        o.modalonly = true;
         o.value('remote', _('Remote'));
         o.value('local', _('Local'));
-
-        o = s.option(form.Button, 'update_subscription');
-        o.inputstyle = 'positive';
-        o.inputtitle = _('Update');
-        o.onclick = function (_, section_id) {
-            return mihomo.updateSubscription(section_id);
-        };
 
         s = m.section(form.NamedSection, 'mixin', 'mixin', _('Mixin Config'));
 

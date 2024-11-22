@@ -5,7 +5,7 @@ STOP=10
 USE_PROCD=1
 
 . "$IPKG_INSTROOT/lib/functions/network.sh"
-. "$IPKG_INSTROOT/etc/mihomo/scripts/constants.sh"
+. "$IPKG_INSTROOT/etc/mihomo/scripts/include.sh"
 
 extra_command 'update_subscription' 'Update subscription by section id'
 
@@ -18,7 +18,7 @@ boot() {
 	local enabled start_delay
 	config_get_bool enabled "config" "enabled" 0
 	config_get start_delay "config" "start_delay" 0
-	if [[ "$enabled" == 1 && "$start_delay" > 0 ]]; then
+	if [[ "$enabled" == 1 && "$start_delay" -gt 0 ]]; then
 		log "App will start after $start_delay seconds."
 		sleep "$start_delay"
 	fi
@@ -159,22 +159,8 @@ start_service() {
 		cp -f "$profile_file" "$RUN_PROFILE_PATH"
 	elif [[ "$profile" == "subscription:"* ]]; then
 		local subscription_section; subscription_section="${profile/subscription:/}"
-		local subscription_name subscription_url subscription_user_agent subscription_prefer
-		config_get subscription_name "$subscription_section" "name"
-		config_get subscription_url "$subscription_section" "url"
-		config_get subscription_user_agent "$subscription_section" "user_agent"
-		config_get subscription_prefer "$subscription_section" "prefer" "remote"
-		log "Use Subscription: $subscription_name."
-		local subscription_tmpfile; subscription_tmpfile="/tmp/$subscription_section.yaml"
 		local subscription_file; subscription_file="$SUBSCRIPTIONS_DIR/$subscription_section.yaml"
-		if [ "$subscription_prefer" == "remote" ] || [[ "$subscription_prefer" == "local" && ! -f "$subscription_file" ]]; then
-			if (curl -s -f --connect-timeout 15 --retry 3 -o "$subscription_tmpfile" -L -H "User-Agent: $subscription_user_agent" "$subscription_url"); then
-				log "Subscription download succeed."
-				cp -f "$subscription_tmpfile" "$subscription_file"
-			else
-				log "Subscription download failed, fallback to subscription file."
-			fi
-		fi
+		update_subscription "$subscription_section"
 		if [ ! -f "$subscription_file" ]; then
 			log "Subscription file not found."
 			log "Exiting..."
@@ -244,8 +230,7 @@ start_service() {
 	fi
 	yq -M -i 'del (.bind-address)' "$RUN_PROFILE_PATH"
 	if [ -n "$outbound_interface" ]; then
-		local outbound_device
-		network_get_device outbound_device "$outbound_interface"
+		local outbound_device; network_get_device outbound_device "$outbound_interface"
 		if [ -n "$outbound_device" ]; then
 			outbound_device="$outbound_device" yq -M -i '.interface-name = env(outbound_device)' "$RUN_PROFILE_PATH"
 		fi
@@ -313,7 +298,7 @@ start_service() {
 			if [ "$ipv6_proxy" == 1 ]; then
 				ip -6 route add unicast default dev "$TUN_DEVICE" table "$TUN_ROUTE_TABLE"
 			fi
-			$TUN_SH
+			$FIREWALL_INCLUDE_SH
 		fi
 		local tcp_route_table
 		if [ "$tcp_transparent_proxy_mode" == "tproxy" ]; then
@@ -635,14 +620,55 @@ add_acl_interface() {
 
 update_subscription() {
 	local subscription_section; subscription_section="$1"
-	if [ -n "$subscription_section" ]; then
-		config_load mihomo
-		local profile subscription_name subscription_url subscription_user_agent
-		config_get profile "config" "profile"
-		config_get subscription_name "$subscription_section" "name"
-		config_get subscription_url "$subscription_section" "url"
-		config_get subscription_user_agent "$subscription_section" "user_agent"
-		local subscription_file; subscription_file="$SUBSCRIPTIONS_DIR/$subscription_section.yaml"
-		curl -s -f --connect-timeout 15 --retry 3 -o "$subscription_file" -L -H "User-Agent: $subscription_user_agent" "$subscription_url"
+	if [ -z "$subscription_section" ]; then
+		return
+	fi
+	config_load mihomo
+	local subscription_name subscription_url subscription_user_agent
+	config_get subscription_name "$subscription_section" "name"
+	config_get subscription_url "$subscription_section" "url"
+	config_get subscription_user_agent "$subscription_section" "user_agent"
+	log "Update Subscription: $subscription_name."
+	local subscription_header_tmpfile; subscription_header_tmpfile="/tmp/$subscription_section.header"
+	local subscription_tmpfile; subscription_tmpfile="/tmp/$subscription_section.yaml"
+	local subscription_file; subscription_file="$SUBSCRIPTIONS_DIR/$subscription_section.yaml"
+	if (curl -s -f --connect-timeout 15 --retry 3 -L -X GET -H "User-Agent: $subscription_user_agent" -D "$subscription_header_tmpfile" -o "$subscription_tmpfile" "$subscription_url"); then
+		log "Subscription update succeed."
+		local subscription_expire subscription_upload subscription_download subscription_total subscription_used subscription_avaliable
+		subscription_expire=$(grep "subscription-userinfo: " "$subscription_header_tmpfile" | grep -o -E "expire=[[:digit:]]+" | cut -d '=' -f 2)
+		subscription_upload=$(grep "subscription-userinfo: " "$subscription_header_tmpfile" | grep -o -E "upload=[[:digit:]]+" | cut -d '=' -f 2)
+		subscription_download=$(grep "subscription-userinfo: " "$subscription_header_tmpfile" | grep -o -E "download=[[:digit:]]+" | cut -d '=' -f 2)
+		subscription_total=$(grep "subscription-userinfo: " "$subscription_header_tmpfile" | grep -o -E "total=[[:digit:]]+" | cut -d '=' -f 2)
+		if [[ -n "$subscription_upload" && -n "$subscription_download" ]]; then
+			subscription_used=$((subscription_upload + subscription_download))
+			if [ -n "$subscription_total" ]; then
+				subscription_avaliable=$((subscription_total - subscription_upload - subscription_download))
+			fi
+		fi
+		if [ -n "$subscription_expire" ]; then
+			uci_set "mihomo" "$subscription_section" "expire" "$(date +%Y-%m-%d -d @$subscription_expire)"
+		fi
+		if [ -n "$subscription_upload" ]; then
+			uci_set "mihomo" "$subscription_section" "upload" "$(format_filesize $subscription_upload)"
+		fi
+		if [ -n "$subscription_download" ]; then
+			uci_set "mihomo" "$subscription_section" "download" "$(format_filesize $subscription_download)"
+		fi
+		if [ -n "$subscription_total" ]; then
+			uci_set "mihomo" "$subscription_section" "total" "$(format_filesize $subscription_total)"
+		fi
+		if [ -n "$subscription_used" ]; then
+			uci_set "mihomo" "$subscription_section" "used" "$(format_filesize $subscription_used)"
+		fi
+		if [ -n "$subscription_avaliable" ]; then
+			uci_set "mihomo" "$subscription_section" "avaliable" "$(format_filesize $subscription_avaliable)"
+		fi
+		uci_commit "mihomo"
+		rm -f "$subscription_header_tmpfile"
+		mv -f "$subscription_tmpfile" "$subscription_file"
+	else
+		log "Subscription update failed."
+		rm -f "$subscription_header_tmpfile"
+		rm -f "$subscription_tmpfile"
 	fi
 }

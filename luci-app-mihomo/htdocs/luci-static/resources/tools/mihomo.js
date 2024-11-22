@@ -112,7 +112,7 @@ return baseclass.extend({
             } else {
                 url = `http://${window.location.hostname}:${apiPort}/ui/?host=${window.location.hostname}&hostname=${window.location.hostname}&port=${apiPort}&secret=${apiSecret}`;
             }
-            setTimeout(() => window.open(url, '_blank'), 0);
+            setTimeout(function () { window.open(url, '_blank') }, 0);
         } else {
             alert(_('Service is not running.'));
         }
