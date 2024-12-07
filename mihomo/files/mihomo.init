@@ -23,12 +23,19 @@ boot() {
 		sleep "$start_delay"
 	fi
 	# start
-	start
+	start "boot"
+}
+
+start() {
+    local context="${1:-manual}"
+    start_service "$context"
 }
 
 start_service() {
-	# prepare log
-	prepare_log
+	local context="${1:-manual}"
+	if [[ "$context" != "boot" ]]; then
+        prepare_log
+    fi
 	# load config
 	config_load mihomo
 	# check if enabled
