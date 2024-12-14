@@ -20,9 +20,9 @@ return view.extend({
 
         m = new form.Map('mihomo');
 
-        s = m.section(form.NamedSection, 'editor', 'editor');
+        s = m.section(form.NamedSection, 'editor', 'editor', _('Editor'));
 
-        o = s.option(form.ListValue, '_profile', _('Choose Profile'));
+        o = s.option(form.ListValue, '_file', _('Choose File'));
         o.optional = true;
 
         for (const profile of profiles) {
@@ -43,19 +43,19 @@ return view.extend({
         };
         o.onchange = function (event, section_id, value) {
             return L.resolveDefault(fs.read_direct(value), '').then(function (content) {
-                m.lookupOption('mihomo.editor._profile_content')[0].getUIElement('editor').setValue(content);
+                m.lookupOption('mihomo.editor._file_content')[0].getUIElement('editor').setValue(content);
             });
         };
 
-        o = s.option(form.TextValue, '_profile_content',);
+        o = s.option(form.TextValue, '_file_content',);
         o.rows = 25;
         o.wrap = false;
         o.write = function (section_id, formvalue) {
-            const path = m.lookupOption('mihomo.editor._profile')[0].formvalue('editor');
+            const path = m.lookupOption('mihomo.editor._file')[0].formvalue('editor');
             return fs.write(path, formvalue);
         };
         o.remove = function (section_id) {
-            const path = m.lookupOption('mihomo.editor._profile')[0].formvalue('editor');
+            const path = m.lookupOption('mihomo.editor._file')[0].formvalue('editor');
             return fs.write(path);
         };
 
