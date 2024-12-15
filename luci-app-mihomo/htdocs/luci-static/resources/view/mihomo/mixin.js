@@ -61,7 +61,6 @@ return view.extend({
         s.tab('external_control', _('External Control Config'));
 
         o = s.taboption('external_control', form.Value, 'ui_name', '*' + ' ' + _('UI Name'));
-        o.rmempty = false;
 
         o = s.taboption('external_control', form.Value, 'ui_url', '*' + ' ' + _('UI Url'));
         o.rmempty = false;
