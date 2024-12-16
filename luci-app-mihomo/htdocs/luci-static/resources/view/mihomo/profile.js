@@ -15,9 +15,11 @@ return view.extend({
 
         m = new form.Map('mihomo');
 
-        s = m.section(form.NamedSection, 'config', 'config', _('File'));
+        s = m.section(form.NamedSection, 'config', 'config', _('Profile'));
 
-        o = s.option(form.FileUpload, 'upload_profile', _('Upload Profile'));
+        o = s.option(form.FileUpload, '_upload_profile', _('Upload Profile'));
+        o.browser = true;
+        o.enable_download = true;
         o.root_directory = mihomo.profilesDir;
         o.write = function (section_id, formvalue) {
             return true;
