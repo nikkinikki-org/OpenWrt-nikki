@@ -2,28 +2,27 @@
     "admin/services/mihomo": {
         "title": "MihomoTProxy",
         "action": {
-            "type": "alias",
-            "path": "admin/services/mihomo/status"
+            "type": "firstchild"
         },
         "depends": {
             "acl": [ "luci-app-mihomo" ],
             "uci": { "mihomo": true }
         }
     },
-    "admin/services/mihomo/status": {
-        "title": "Status",
+    "admin/services/mihomo/config": {
+        "title": "App Config",
         "order": 10,
         "action": {
             "type": "view",
-            "path": "mihomo/status"
+            "path": "mihomo/app"
         }
     },
-    "admin/services/mihomo/config": {
-        "title": "App Config",
+    "admin/services/mihomo/profile": {
+        "title": "Profile",
         "order": 20,
         "action": {
             "type": "view",
-            "path": "mihomo/app"
+            "path": "mihomo/profile"
         }
     },
     "admin/services/mihomo/mixin": {
@@ -42,20 +41,20 @@
             "path": "mihomo/proxy"
         }
     },
-    "admin/services/mihomo/profile": {
-        "title": "Profile",
+    "admin/services/mihomo/editor": {
+        "title": "Editor",
         "order": 50,
         "action": {
             "type": "view",
-            "path": "mihomo/profile"
+            "path": "mihomo/editor"
         }
     },
-    "admin/services/mihomo/editor": {
-        "title": "Editor",
+    "admin/services/mihomo/log": {
+        "title": "Log",
         "order": 60,
         "action": {
             "type": "view",
-            "path": "mihomo/editor"
+            "path": "mihomo/log"
         }
     }
 }
