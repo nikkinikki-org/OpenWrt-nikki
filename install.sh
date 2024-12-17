@@ -28,7 +28,7 @@ fi
 # download tarball
 echo "download tarball"
 tarball="mihomo_$arch-$branch.tar.gz"
-curl -s -L -o "$tarball" "https://ghp.ci/https://github.com/morytyann/OpenWrt-mihomo/releases/latest/download/$tarball"
+curl -s -L -o "$tarball" "https://github.com/morytyann/OpenWrt-mihomo/releases/latest/download/$tarball"
 
 # extract tarball
 echo "extract tarball"

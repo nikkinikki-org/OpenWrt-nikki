@@ -29,7 +29,7 @@ if [ -x "/bin/opkg" ]; then
 	# add key
 	echo "add key"
 	key_build_pub_file="key-build.pub"
-	curl -s -L -o "$key_build_pub_file" "https://ghp.ci/https://github.com/morytyann/OpenWrt-mihomo/raw/refs/heads/main/key-build.pub"
+	curl -s -L -o "$key_build_pub_file" "https://github.com/morytyann/OpenWrt-mihomo/raw/refs/heads/main/key-build.pub"
 	opkg-key add "$key_build_pub_file"
 	rm -f "$key_build_pub_file"
 	# add feed
