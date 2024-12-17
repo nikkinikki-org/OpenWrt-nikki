@@ -5,18 +5,6 @@
 'require poll';
 'require tools.mihomo as mihomo';
 
-function renderStatus(running) {
-    return updateStatus(E('input', { id: 'core_status', style: 'border: unset; font-style: italic; font-weight: bold;', readonly: '' }), running);
-}
-
-function updateStatus(element, running) {
-    if (element) {
-        element.style.color = running ? 'green' : 'red';
-        element.value = running ? _('Running') : _('Not Running');
-    }
-    return element;
-}
-
 return view.extend({
     load: function () {
         return Promise.all([
@@ -103,7 +91,7 @@ return view.extend({
 
         return m.render();
     },
-    handleSave: null,
     handleSaveApply: null,
+    handleSave: null,
     handleReset: null,
 });
