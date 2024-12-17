@@ -7,7 +7,7 @@
 return view.extend({
     load: function () {
         return Promise.all([
-            uci.load('mihomo'),
+            uci.load('mihomo')
         ]);
     },
     render: function (data) {

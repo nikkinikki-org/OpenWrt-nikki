@@ -12,7 +12,7 @@ return view.extend({
             uci.load('mihomo'),
             network.getHostHints(),
             mihomo.getUsers(),
-            mihomo.getGroups(),
+            mihomo.getGroups()
         ]);
     },
     render: function (data) {

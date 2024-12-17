@@ -9,7 +9,7 @@ return view.extend({
     load: function () {
         return Promise.all([
             uci.load('mihomo'),
-            mihomo.listProfiles(),
+            mihomo.listProfiles()
         ]);
     },
     render: function (data) {

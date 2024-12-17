@@ -24,7 +24,7 @@ return view.extend({
             mihomo.appVersion(),
             mihomo.coreVersion(),
             mihomo.status(),
-            mihomo.listProfiles(),
+            mihomo.listProfiles()
         ]);
     },
     render: function (data) {
