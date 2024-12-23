@@ -14,16 +14,21 @@ fi
 # get branch/arch
 arch="$DISTRIB_ARCH"
 branch=
-if [[ "$DISTRIB_RELEASE" == *"23.05"* ]]; then
-	branch="openwrt-23.05"
-elif [[ "$DISTRIB_RELEASE" == *"24.10"* ]]; then
-	branch="openwrt-24.10"
-elif [[ "$DISTRIB_RELEASE" == "SNAPSHOT" ]]; then
-	branch="SNAPSHOT"
-else
-	echo "unsupported release: $DISTRIB_RELEASE"
-	exit 1
-fi
+case "$DISTRIB_RELEASE" in
+	*"23.05"*)
+		branch="openwrt-23.05"
+		;;
+	*"24.10"*)
+		branch="openwrt-24.10"
+		;;
+	"SNAPSHOT")
+		branch="SNAPSHOT"
+		;;
+	*)
+		echo "unsupported release: $DISTRIB_RELEASE"
+		exit 1
+		;;
+esac
 
 if [ -x "/bin/opkg" ]; then
 	# add key
@@ -52,7 +57,7 @@ elif [ -x "/usr/bin/apk" ]; then
 	echo "https://morytyann.github.io/OpenWrt-mihomo/$branch/$arch/mihomo/packages.adb" >> /etc/apk/repositories.d/customfeeds.list
 	# update feeds
 	echo "update feeds"
-	apk update
+	apk update --allow-untrusted
 fi
 
 echo "success"
