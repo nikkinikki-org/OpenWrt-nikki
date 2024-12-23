@@ -333,6 +333,10 @@ service_started() {
 	fi
 	# transparent proxy
 	if [ "$transparent_proxy" == 1 ]; then
+		log "Transparent Proxy" "Enabled."
+		log "Transparent Proxy" "TCP Mode: $tcp_transparent_proxy_mode."
+		log "Transparent Proxy" "UDP Mode: $udp_transparent_proxy_mode."
+		# wait for tun device online
 		if [ "$tun_enable" == 1 ]; then
 			log "Transparent Proxy" "Waiting for tun device online..."
 			local tun_timeout; tun_timeout=60
@@ -353,9 +357,6 @@ service_started() {
 				return
 			fi
 		fi
-		log "Transparent Proxy" "Enabled."
-		log "Transparent Proxy" "TCP Mode: $tcp_transparent_proxy_mode."
-		log "Transparent Proxy" "UDP Mode: $udp_transparent_proxy_mode."
 		# prepare
 		if [ "$tproxy_enable" == 1 ]; then
 			if [ "$ipv4_proxy" == 1 ]; then
