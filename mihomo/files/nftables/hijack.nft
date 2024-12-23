@@ -170,7 +170,7 @@ table inet mihomo {
 
 	chain dstnat {
 		type nat hook prerouting priority dstnat + 1; policy accept;
-		fib daddr type local counter return
+		fib daddr type { local, multicast, broadcast, anycast } counter return
 		ct direction reply counter return
 		ip daddr @reserved_ip counter return
 		ip6 daddr @reserved_ip6 counter return
@@ -184,7 +184,7 @@ table inet mihomo {
 		type nat hook output priority filter; policy accept;
 		meta skuid @bypass_user counter return
 		meta skgid @bypass_group counter return
-		fib daddr type local counter return
+		fib daddr type { local, multicast, broadcast, anycast } counter return
 		ct direction reply counter return
 		ip daddr @reserved_ip counter return
 		ip6 daddr @reserved_ip6 counter return
@@ -198,7 +198,7 @@ table inet mihomo {
 		type filter hook prerouting priority mangle; policy accept;
 		meta l4proto { tcp, udp } iifname lo meta mark & $FW_MARK_MASK == $FW_MARK tproxy to :$TPROXY_PORT counter accept
 		meta l4proto { tcp, udp } iifname $TUN_DEVICE counter accept
-		fib daddr type local counter return
+		fib daddr type { local, multicast, broadcast, anycast } counter return
 		ct direction reply counter return
 		ip daddr @reserved_ip counter return
 		ip6 daddr @reserved_ip6 counter return
@@ -213,7 +213,7 @@ table inet mihomo {
 		type route hook output priority mangle; policy accept;
 		meta skuid @bypass_user counter return
 		meta skgid @bypass_group counter return
-		fib daddr type local counter return
+		fib daddr type { local, multicast, broadcast, anycast } counter return
 		ct direction reply counter return
 		ip daddr @reserved_ip counter return
 		ip6 daddr @reserved_ip6 counter return
