@@ -53,22 +53,10 @@ start_service() {
 	config_get_bool fast_reload "config" "fast_reload" 0
 	## proxy config
 	### transparent proxy
-	local transparent_proxy tcp_transparent_proxy_mode udp_transparent_proxy_mode ipv4_dns_hijack ipv6_dns_hijack ipv4_proxy ipv6_proxy router_proxy lan_proxy
+	local tcp_transparent_proxy_mode udp_transparent_proxy_mode
 	config_get_bool transparent_proxy "proxy" "transparent_proxy" 0
 	config_get tcp_transparent_proxy_mode "proxy" "tcp_transparent_proxy_mode" "tproxy"
 	config_get udp_transparent_proxy_mode "proxy" "udp_transparent_proxy_mode" "tproxy"
-	config_get_bool ipv4_dns_hijack "proxy" "ipv4_dns_hijack" 0
-	config_get_bool ipv6_dns_hijack "proxy" "ipv6_dns_hijack" 0
-	config_get_bool ipv4_proxy "proxy" "ipv4_proxy" 0
-	config_get_bool ipv6_proxy "proxy" "ipv6_proxy" 0
-	config_get_bool router_proxy "proxy" "router_proxy" 0
-	config_get_bool lan_proxy "proxy" "lan_proxy" 0
-	### access control
-	local access_control_mode bypass_china_mainland_ip proxy_tcp_dport proxy_udp_dport
-	config_get access_control_mode "proxy" "access_control_mode"
-	config_get_bool bypass_china_mainland_ip "proxy" "bypass_china_mainland_ip" 0
-	config_get proxy_tcp_dport "proxy" "proxy_tcp_dport" "0-65535"
-	config_get proxy_udp_dport "proxy" "proxy_udp_dport" "0-65535"
 	## mixin config
 	### general
 	local mode match_process outbound_interface ipv6 tcp_keep_alive_idle tcp_keep_alive_interval log_level
@@ -285,25 +273,101 @@ start_service() {
 	procd_set_param limits nofile="1048576 1048576"
 
 	procd_close_instance
+	# cron
+	if [[ "$scheduled_restart" == 1 && -n "$cron_expression" ]]; then
+		log "App" "Set scheduled restart."
+		echo "$cron_expression /etc/init.d/mihomo restart #mihomo" >> "/etc/crontabs/root"
+		/etc/init.d/cron restart
+	fi
+}
+
+service_started() {
+	# prepare log
+	prepare_log
+	# load config
+	config_load mihomo
+	# check if enabled
+	local enabled
+	config_get_bool enabled "config" "enabled" 0
+	if [ "$enabled" == 0 ]; then
+		return
+	fi
+	# get config
+	### inbound
+	local http_port socks_port mixed_port redir_port tproxy_port
+	config_get http_port "mixin" "http_port" "8080"
+	config_get socks_port "mixin" "socks_port" "1080"
+	config_get mixed_port "mixin" "mixed_port" "7890"
+	config_get redir_port "mixin" "redir_port" "7891"
+	config_get tproxy_port "mixin" "tproxy_port" "7892"
+	### dns
+	local dns_port fake_ip_range
+	config_get dns_port "mixin" "dns_port" "1053"
+	config_get fake_ip_range "mixin" "fake_ip_range" "198.18.0.1/16"
+	## proxy config
+	### transparent proxy
+	local transparent_proxy tcp_transparent_proxy_mode udp_transparent_proxy_mode ipv4_dns_hijack ipv6_dns_hijack ipv4_proxy ipv6_proxy router_proxy lan_proxy
+	config_get_bool transparent_proxy "proxy" "transparent_proxy" 0
+	config_get tcp_transparent_proxy_mode "proxy" "tcp_transparent_proxy_mode" "tproxy"
+	config_get udp_transparent_proxy_mode "proxy" "udp_transparent_proxy_mode" "tproxy"
+	config_get_bool ipv4_dns_hijack "proxy" "ipv4_dns_hijack" 0
+	config_get_bool ipv6_dns_hijack "proxy" "ipv6_dns_hijack" 0
+	config_get_bool ipv4_proxy "proxy" "ipv4_proxy" 0
+	config_get_bool ipv6_proxy "proxy" "ipv6_proxy" 0
+	config_get_bool router_proxy "proxy" "router_proxy" 0
+	config_get_bool lan_proxy "proxy" "lan_proxy" 0
+	### access control
+	local access_control_mode bypass_china_mainland_ip proxy_tcp_dport proxy_udp_dport
+	config_get access_control_mode "proxy" "access_control_mode"
+	config_get_bool bypass_china_mainland_ip "proxy" "bypass_china_mainland_ip" 0
+	config_get proxy_tcp_dport "proxy" "proxy_tcp_dport" "0-65535"
+	config_get proxy_udp_dport "proxy" "proxy_udp_dport" "0-65535"
+	# prepare
+	local tproxy_enable; tproxy_enable=0
+	if [[ "$tcp_transparent_proxy_mode" == "tproxy" || "$udp_transparent_proxy_mode" == "tproxy" ]]; then
+		tproxy_enable=1
+	fi
+	local tun_enable; tun_enable=0
+	if [[ "$tcp_transparent_proxy_mode" == "tun" || "$udp_transparent_proxy_mode" == "tun" ]]; then
+		tun_enable=1
+	fi
 	# transparent proxy
 	if [ "$transparent_proxy" == 1 ]; then
+		if [ "$tun_enable" == 1 ]; then
+			log "Transparent Proxy" "Waiting for tun device online..."
+			local tun_timeout; tun_timeout=60
+			local tun_interval; tun_interval=1
+			while [ "$tun_timeout" -gt 0 ]; do
+				if (ip link show dev "$TUN_DEVICE" > /dev/null 2>&1); then
+					if [ $(ip -json addr show dev mihomo | yq '.[] | select(.ifname = "mihomo") | .addr_info | length') -gt 0 ]; then
+						log "Transparent Proxy" "Tun device is online."
+						break
+					fi
+				fi
+				tun_timeout=$((tun_timeout - tun_interval))
+				sleep "$tun_interval"
+			done
+			if [ "$tun_timeout" -le 0 ]; then
+				log "Transparent Proxy" "Waiting timeout, tun device is not online."
+				log "App" "Exit."
+				return
+			fi
+		fi
 		log "Transparent Proxy" "Enabled."
 		log "Transparent Proxy" "TCP Mode: $tcp_transparent_proxy_mode."
 		log "Transparent Proxy" "UDP Mode: $udp_transparent_proxy_mode."
 		# prepare
 		if [ "$tproxy_enable" == 1 ]; then
 			if [ "$ipv4_proxy" == 1 ]; then
-				ip route add local default dev lo table "$TPROXY_ROUTE_TABLE"
+				ip -4 route add local default dev lo table "$TPROXY_ROUTE_TABLE"
 			fi
 			if [ "$ipv6_proxy" == 1 ]; then
 				ip -6 route add local default dev lo table "$TPROXY_ROUTE_TABLE"
 			fi
 		fi
 		if [ "$tun_enable" == 1 ]; then
-			ip tuntap add dev "$TUN_DEVICE" mode tun vnet_hdr
-			ip link set "$TUN_DEVICE" up
 			if [ "$ipv4_proxy" == 1 ]; then
-				ip route add unicast default dev "$TUN_DEVICE" table "$TUN_ROUTE_TABLE"
+				ip -4 route add unicast default dev "$TUN_DEVICE" table "$TUN_ROUTE_TABLE"
 			fi
 			if [ "$ipv6_proxy" == 1 ]; then
 				ip -6 route add unicast default dev "$TUN_DEVICE" table "$TUN_ROUTE_TABLE"
@@ -318,7 +382,7 @@ start_service() {
 		fi
 		if [ -n "$tcp_route_table" ]; then
 			if [ "$ipv4_proxy" == 1 ]; then
-				ip rule add pref "$TCP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto tcp table "$tcp_route_table"
+				ip -4 rule add pref "$TCP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto tcp table "$tcp_route_table"
 			fi
 			if [ "$ipv6_proxy" == 1 ]; then
 				ip -6 rule add pref "$TCP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto tcp table "$tcp_route_table"
@@ -332,7 +396,7 @@ start_service() {
 		fi
 		if [ -n "$udp_route_table" ]; then
 			if [ "$ipv4_proxy" == 1 ]; then
-				ip rule add pref "$UDP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto udp table "$udp_route_table"
+				ip -4 rule add pref "$UDP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto udp table "$udp_route_table"
 			fi
 			if [ "$ipv6_proxy" == 1 ]; then
 				ip -6 rule add pref "$UDP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto udp table "$udp_route_table"
@@ -436,13 +500,6 @@ start_service() {
 			fi
 		fi
 	fi
-	# cron
-	if [[ "$scheduled_restart" == 1 && -n "$cron_expression" ]]; then
-		log "App" "Set scheduled restart."
-		echo "$cron_expression /etc/init.d/mihomo restart #mihomo" >> "/etc/crontabs/root"
-		/etc/init.d/cron restart
-	fi
-	log "App" "Start Successful."
 }
 
 service_stopped() {
@@ -462,22 +519,19 @@ cleanup() {
 	# clear log
 	clear_log
 	# delete routing policy
-	ip rule del ipproto tcp table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
-	ip rule del ipproto udp table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
-	ip rule del ipproto tcp table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
-	ip rule del ipproto udp table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
+	ip -4 rule del ipproto tcp table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
+	ip -4 rule del ipproto udp table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
+	ip -4 rule del ipproto tcp table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
+	ip -4 rule del ipproto udp table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
 	ip -6 rule del ipproto tcp table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
 	ip -6 rule del ipproto udp table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
 	ip -6 rule del ipproto tcp table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
 	ip -6 rule del ipproto udp table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
 	# delete routing table
-	ip route flush table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
-	ip route flush table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
+	ip -4 route flush table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
+	ip -4 route flush table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
 	ip -6 route flush table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
 	ip -6 route flush table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
-	# delete tun
-	ip link set "$TUN_DEVICE" down > /dev/null 2>&1
-	ip tuntap del dev "$TUN_DEVICE" mode tun > /dev/null 2>&1
 	# delete hijack
 	nft delete table inet "$FW_TABLE" > /dev/null 2>&1
 	local handles handle
@@ -501,27 +555,6 @@ cleanup() {
 	# delete cron
 	sed -i "/#mihomo/d" "/etc/crontabs/root" > /dev/null 2>&1
 	/etc/init.d/cron restart
-}
-
-prepare_log() {
-	if [ ! -d "$LOG_DIR" ]; then
-		mkdir -p "$LOG_DIR"
-	fi
-	if [ ! -f "$APP_LOG_PATH" ]; then
-		touch "$APP_LOG_PATH"
-	fi
-	if [ ! -f "$CORE_LOG_PATH" ]; then
-		touch "$CORE_LOG_PATH"
-	fi
-}
-
-clear_log() {
-	echo -n > "$APP_LOG_PATH"
-	echo -n > "$CORE_LOG_PATH"
-}
-
-log() {
-	echo "[$(date "+%Y-%m-%d %H:%M:%S")] [$1] $2" >> "$APP_LOG_PATH"
 }
 
 mixin_authentications() {

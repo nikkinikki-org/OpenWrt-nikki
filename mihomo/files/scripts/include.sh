@@ -64,3 +64,24 @@ format_filesize() {
 		echo "$(awk "BEGIN {print $size / $pb}") PB"
 	fi
 }
+
+prepare_log() {
+	if [ ! -d "$LOG_DIR" ]; then
+		mkdir -p "$LOG_DIR"
+	fi
+	if [ ! -f "$APP_LOG_PATH" ]; then
+		touch "$APP_LOG_PATH"
+	fi
+	if [ ! -f "$CORE_LOG_PATH" ]; then
+		touch "$CORE_LOG_PATH"
+	fi
+}
+
+clear_log() {
+	echo -n > "$APP_LOG_PATH"
+	echo -n > "$CORE_LOG_PATH"
+}
+
+log() {
+	echo "[$(date "+%Y-%m-%d %H:%M:%S")] [$1] $2" >> "$APP_LOG_PATH"
+}
