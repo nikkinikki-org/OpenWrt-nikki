@@ -9,10 +9,10 @@ init=$(uci -q get mihomo.config.init); [ -z "$init" ] && return
 random=$(awk 'BEGIN{srand(); print int(rand() * 1000000)}')
 
 # set mihomo.mixin.api_secret
-uci set mihomo.mixin.api_secret="$random"
+api_secret=$(uci -q get mihomo.mixin.api_secret); [ -z "$api_secret" ] && uci set mihomo.mixin.api_secret="$random"
 
 # set mihomo.@authentication[0].password
-uci set mihomo.@authentication[0].password="$random"
+password=$(uci -q get mihomo.@authentication[0].password); [ -z "$password" ] && uci set mihomo.@authentication[0].password="$random"
 
 # remove mihomo.config.init
 uci del mihomo.config.init
