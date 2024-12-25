@@ -308,8 +308,8 @@ service_started() {
 	### transparent proxy
 	local transparent_proxy tcp_transparent_proxy_mode udp_transparent_proxy_mode ipv4_dns_hijack ipv6_dns_hijack ipv4_proxy ipv6_proxy router_proxy lan_proxy
 	config_get_bool transparent_proxy "proxy" "transparent_proxy" 0
-	config_get tcp_transparent_proxy_mode "proxy" "tcp_transparent_proxy_mode" "tproxy"
-	config_get udp_transparent_proxy_mode "proxy" "udp_transparent_proxy_mode" "tproxy"
+	config_get tcp_transparent_proxy_mode "proxy" "tcp_transparent_proxy_mode" "redirect"
+	config_get udp_transparent_proxy_mode "proxy" "udp_transparent_proxy_mode" "tun"
 	config_get_bool ipv4_dns_hijack "proxy" "ipv4_dns_hijack" 0
 	config_get_bool ipv6_dns_hijack "proxy" "ipv6_dns_hijack" 0
 	config_get_bool ipv4_proxy "proxy" "ipv4_proxy" 0
