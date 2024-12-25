@@ -129,7 +129,7 @@ return view.extend({
         s.tab('tun', _('TUN Config'));
 
         o = s.taboption('tun', form.Value, 'tun_device', '*' + ' ' + _('Device'));
-        o.value('mihomo');
+        o.rmempty = false;
 
         o = s.taboption('tun', form.ListValue, 'tun_stack', '*' + ' ' + _('Stack'));
         o.value('system', 'System');
