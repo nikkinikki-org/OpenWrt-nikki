@@ -50,6 +50,7 @@ env=$(uci -q get mihomo.env); [ -z "$env" ] && {
     uci set mihomo.env.disable_quic_go_ecn=0
 }
 
+# since v1.15.0
 tun_device=$(uci -q get mihomo.mixin.tun_device); [ -z "$tun_device" ] && uci set mihomo.mixin.tun_device=mihomo
 
 # commit
