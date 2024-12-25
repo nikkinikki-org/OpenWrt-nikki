@@ -128,6 +128,9 @@ return view.extend({
 
         s.tab('tun', _('TUN Config'));
 
+        o = s.taboption('tun', form.Value, 'tun_device', '*' + ' ' + _('Device'));
+        o.value('mihomo');
+
         o = s.taboption('tun', form.ListValue, 'tun_stack', '*' + ' ' + _('Stack'));
         o.value('system', 'System');
         o.value('gvisor', 'gVisor');

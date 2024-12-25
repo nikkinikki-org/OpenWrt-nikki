@@ -84,7 +84,8 @@ start_service() {
 	config_get tproxy_port "mixin" "tproxy_port" "7892"
 	config_get_bool authentication "mixin" "authentication" 0
 	### tun
-	local tun_stack tun_mtu tun_gso tun_gso_max_size tun_endpoint_independent_nat
+	local tun_device tun_stack tun_mtu tun_gso tun_gso_max_size tun_endpoint_independent_nat
+	config_get tun_device "mixin" "tun_device" "mihomo"
 	config_get tun_stack "mixin" "tun_stack" "system"
 	config_get tun_mtu "mixin" "tun_mtu" "9000"
 	config_get_bool tun_gso "mixin" "tun_gso" 0
@@ -174,7 +175,7 @@ start_service() {
 		log_level="$log_level" ipv6="$ipv6" \
 		ui_path="ui" ui_name="$ui_name" ui_url="$ui_url" api_listen="0.0.0.0:$api_port" api_secret="$api_secret" \
 		allow_lan="$allow_lan" http_port="$http_port" socks_port="$socks_port" mixed_port="$mixed_port" redir_port="$redir_port" tproxy_port="$tproxy_port" \
-		tun_enable="$tun_enable" tun_stack="$tun_stack" tun_device="$TUN_DEVICE" tun_mtu="$tun_mtu" tun_gso="$tun_gso" tun_gso_max_size="$tun_gso_max_size" tun_endpoint_independent_nat="$tun_endpoint_independent_nat" \
+		tun_enable="$tun_enable" tun_stack="$tun_stack" tun_device="$tun_device" tun_mtu="$tun_mtu" tun_gso="$tun_gso" tun_gso_max_size="$tun_gso_max_size" tun_endpoint_independent_nat="$tun_endpoint_independent_nat" \
 		dns_enable="true" dns_listen="0.0.0.0:$dns_port" dns_mode="$dns_mode" fake_ip_range="$fake_ip_range" \
 		yq -M -i '
 		.log-level = strenv(log_level) | .ipv6 = env(ipv6) == 1 |
@@ -190,7 +191,7 @@ start_service() {
 		log_level="$log_level" mode="$mode" match_process="$match_process" tcp_keep_alive_idle="$tcp_keep_alive_idle" tcp_keep_alive_interval="$tcp_keep_alive_interval" ipv6="$ipv6" \
 		ui_path="ui" ui_name="$ui_name" ui_url="$ui_url" api_listen="0.0.0.0:$api_port" api_secret="$api_secret" selection_cache="$selection_cache" \
 		allow_lan="$allow_lan" http_port="$http_port" socks_port="$socks_port" mixed_port="$mixed_port" redir_port="$redir_port" tproxy_port="$tproxy_port" \
-		tun_enable="$tun_enable" tun_stack="$tun_stack" tun_device="$TUN_DEVICE" tun_mtu="$tun_mtu" tun_gso="$tun_gso" tun_gso_max_size="$tun_gso_max_size" tun_endpoint_independent_nat="$tun_endpoint_independent_nat" \
+		tun_enable="$tun_enable" tun_stack="$tun_stack" tun_device="$tun_device" tun_mtu="$tun_mtu" tun_gso="$tun_gso" tun_gso_max_size="$tun_gso_max_size" tun_endpoint_independent_nat="$tun_endpoint_independent_nat" \
 		dns_enable="true" dns_listen="0.0.0.0:$dns_port" dns_mode="$dns_mode" fake_ip_range="$fake_ip_range" fake_ip_cache="$fake_ip_cache" \
 		dns_respect_rules="$dns_respect_rules" dns_doh_prefer_http3="$dns_doh_prefer_http3" dns_ipv6="$dns_ipv6" dns_system_hosts="$dns_system_hosts" dns_hosts="$dns_hosts" \
 		geoip_format="$geoip_format" geodata_loader="$geodata_loader" geosite_url="$geosite_url" geoip_mmdb_url="$geoip_mmdb_url" geoip_dat_url="$geoip_dat_url" geoip_asn_url="$geoip_asn_url" \
@@ -304,6 +305,9 @@ service_started() {
 	local dns_port fake_ip_range
 	config_get dns_port "mixin" "dns_port" "1053"
 	config_get fake_ip_range "mixin" "fake_ip_range" "198.18.0.1/16"
+	### tun
+	local tun_device
+	config_get tun_device "mixin" "tun_device" "mihomo"
 	## proxy config
 	### transparent proxy
 	local transparent_proxy tcp_transparent_proxy_mode udp_transparent_proxy_mode ipv4_dns_hijack ipv6_dns_hijack ipv4_proxy ipv6_proxy router_proxy lan_proxy
@@ -342,7 +346,7 @@ service_started() {
 			local tun_timeout; tun_timeout=60
 			local tun_interval; tun_interval=1
 			while [ "$tun_timeout" -gt 0 ]; do
-				if (ip link show dev "$TUN_DEVICE" > /dev/null 2>&1); then
+				if (ip link show dev "$tun_device" > /dev/null 2>&1); then
 					if [ $(ip -json addr show dev mihomo | yq '.[] | select(.ifname = "mihomo") | .addr_info | length') -gt 0 ]; then
 						log "Transparent Proxy" "Tun device is online."
 						break
@@ -368,10 +372,10 @@ service_started() {
 		fi
 		if [ "$tun_enable" == 1 ]; then
 			if [ "$ipv4_proxy" == 1 ]; then
-				ip -4 route add unicast default dev "$TUN_DEVICE" table "$TUN_ROUTE_TABLE"
+				ip -4 route add unicast default dev "$tun_device" table "$TUN_ROUTE_TABLE"
 			fi
 			if [ "$ipv6_proxy" == 1 ]; then
-				ip -6 route add unicast default dev "$TUN_DEVICE" table "$TUN_ROUTE_TABLE"
+				ip -6 route add unicast default dev "$tun_device" table "$TUN_ROUTE_TABLE"
 			fi
 			$FIREWALL_INCLUDE_SH
 		fi
@@ -403,7 +407,7 @@ service_started() {
 				ip -6 rule add pref "$UDP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto udp table "$udp_route_table"
 			fi
 		fi
-		nft -f "$HIJACK_NFT" -D MIHOMO_GROUP="$MIHOMO_GROUP" -D FW_MARK="$FW_MARK" -D FW_MARK_MASK="$FW_MARK_MASK" -D TUN_DEVICE="$TUN_DEVICE" -D FAKE_IP="$fake_ip_range" -D DNS_PORT="$dns_port" -D REDIR_PORT="$redir_port" -D TPROXY_PORT="$tproxy_port"
+		nft -f "$HIJACK_NFT" -D MIHOMO_GROUP="$MIHOMO_GROUP" -D FW_MARK="$FW_MARK" -D FW_MARK_MASK="$FW_MARK_MASK" -D TUN_DEVICE="$tun_device" -D FAKE_IP="$fake_ip_range" -D DNS_PORT="$dns_port" -D REDIR_PORT="$redir_port" -D TPROXY_PORT="$tproxy_port"
 		nft -f "$RESERVED_IP_NFT"
 		nft -f "$RESERVED_IP6_NFT"
 		# dns hijack

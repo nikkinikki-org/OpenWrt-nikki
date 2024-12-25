@@ -12,7 +12,6 @@ TCP_RULE_PREF="1024"
 UDP_RULE_PREF="1025"
 TPROXY_ROUTE_TABLE="80"
 TUN_ROUTE_TABLE="81"
-TUN_DEVICE="mihomo"
 
 # paths
 PROG="/usr/bin/mihomo"
