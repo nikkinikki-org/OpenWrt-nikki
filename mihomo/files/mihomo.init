@@ -10,8 +10,8 @@ USE_PROCD=1
 extra_command 'update_subscription' 'Update subscription by section id'
 
 boot() {
-	# prepare log
-	prepare_log
+	# prepare files
+	prepare_files
 	# load config
 	config_load mihomo
 	# start delay
@@ -27,8 +27,8 @@ boot() {
 }
 
 start_service() {
-	# prepare log
-	prepare_log
+	# prepare files
+	prepare_files
 	# load config
 	config_load mihomo
 	# check if enabled
@@ -280,17 +280,21 @@ start_service() {
 		echo "$cron_expression /etc/init.d/mihomo restart #mihomo" >> "/etc/crontabs/root"
 		/etc/init.d/cron restart
 	fi
+	# set started flag
+	touch "$STARTED_FLAG"
 }
 
 service_started() {
-	# prepare log
-	prepare_log
+	# check if started
+	if [ ! -f "$STARTED_FLAG" ]; then
+		return
+	fi
 	# load config
 	config_load mihomo
-	# check if enabled
-	local enabled
-	config_get_bool enabled "config" "enabled" 0
-	if [ "$enabled" == 0 ]; then
+	# check if transparent proxy enabled
+	local transparent_proxy
+	config_get_bool transparent_proxy "proxy" "transparent_proxy" 0
+	if [ "$transparent_proxy" == 0 ]; then
 		return
 	fi
 	# get config
@@ -310,8 +314,7 @@ service_started() {
 	config_get tun_device "mixin" "tun_device" "mihomo"
 	## proxy config
 	### transparent proxy
-	local transparent_proxy tcp_transparent_proxy_mode udp_transparent_proxy_mode ipv4_dns_hijack ipv6_dns_hijack ipv4_proxy ipv6_proxy router_proxy lan_proxy
-	config_get_bool transparent_proxy "proxy" "transparent_proxy" 0
+	local tcp_transparent_proxy_mode udp_transparent_proxy_mode ipv4_dns_hijack ipv6_dns_hijack ipv4_proxy ipv6_proxy router_proxy lan_proxy
 	config_get tcp_transparent_proxy_mode "proxy" "tcp_transparent_proxy_mode" "redirect"
 	config_get udp_transparent_proxy_mode "proxy" "udp_transparent_proxy_mode" "tun"
 	config_get_bool ipv4_dns_hijack "proxy" "ipv4_dns_hijack" 0
@@ -336,172 +339,170 @@ service_started() {
 		tun_enable=1
 	fi
 	# transparent proxy
-	if [ "$transparent_proxy" == 1 ]; then
-		log "Transparent Proxy" "Enabled."
-		log "Transparent Proxy" "TCP Mode: $tcp_transparent_proxy_mode."
-		log "Transparent Proxy" "UDP Mode: $udp_transparent_proxy_mode."
-		# wait for tun device online
-		if [ "$tun_enable" == 1 ]; then
-			log "Transparent Proxy" "Waiting for tun device online..."
-			local tun_timeout; tun_timeout=60
-			local tun_interval; tun_interval=1
-			while [ "$tun_timeout" -gt 0 ]; do
-				if (ip link show dev "$tun_device" > /dev/null 2>&1); then
-					if [ $(ip -json addr show dev mihomo | yq '.[] | select(.ifname = "mihomo") | .addr_info | length') -gt 0 ]; then
-						log "Transparent Proxy" "Tun device is online."
-						break
-					fi
+	log "Transparent Proxy" "Enabled."
+	log "Transparent Proxy" "TCP Mode: $tcp_transparent_proxy_mode."
+	log "Transparent Proxy" "UDP Mode: $udp_transparent_proxy_mode."
+	# wait for tun device online
+	if [ "$tun_enable" == 1 ]; then
+		log "Transparent Proxy" "Waiting for tun device online..."
+		local tun_timeout; tun_timeout=60
+		local tun_interval; tun_interval=1
+		while [ "$tun_timeout" -gt 0 ]; do
+			if (ip link show dev "$tun_device" > /dev/null 2>&1); then
+				if [ $(ip -json addr show dev mihomo | yq '.[] | select(.ifname = "mihomo") | .addr_info | length') -gt 0 ]; then
+					log "Transparent Proxy" "Tun device is online."
+					break
 				fi
-				tun_timeout=$((tun_timeout - tun_interval))
-				sleep "$tun_interval"
-			done
-			if [ "$tun_timeout" -le 0 ]; then
-				log "Transparent Proxy" "Waiting timeout, tun device is not online."
-				log "App" "Exit."
-				return
 			fi
+			tun_timeout=$((tun_timeout - tun_interval))
+			sleep "$tun_interval"
+		done
+		if [ "$tun_timeout" -le 0 ]; then
+			log "Transparent Proxy" "Waiting timeout, tun device is not online."
+			log "App" "Exit."
+			return
 		fi
-		# prepare
-		if [ "$tproxy_enable" == 1 ]; then
-			if [ "$ipv4_proxy" == 1 ]; then
-				ip -4 route add local default dev lo table "$TPROXY_ROUTE_TABLE"
-			fi
-			if [ "$ipv6_proxy" == 1 ]; then
-				ip -6 route add local default dev lo table "$TPROXY_ROUTE_TABLE"
-			fi
-		fi
-		if [ "$tun_enable" == 1 ]; then
-			if [ "$ipv4_proxy" == 1 ]; then
-				ip -4 route add unicast default dev "$tun_device" table "$TUN_ROUTE_TABLE"
-			fi
-			if [ "$ipv6_proxy" == 1 ]; then
-				ip -6 route add unicast default dev "$tun_device" table "$TUN_ROUTE_TABLE"
-			fi
-			$FIREWALL_INCLUDE_SH
-		fi
-		local tcp_route_table
-		if [ "$tcp_transparent_proxy_mode" == "tproxy" ]; then
-			tcp_route_table="$TPROXY_ROUTE_TABLE"
-		elif [ "$tcp_transparent_proxy_mode" == "tun" ]; then
-			tcp_route_table="$TUN_ROUTE_TABLE"
-		fi
-		if [ -n "$tcp_route_table" ]; then
-			if [ "$ipv4_proxy" == 1 ]; then
-				ip -4 rule add pref "$TCP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto tcp table "$tcp_route_table"
-			fi
-			if [ "$ipv6_proxy" == 1 ]; then
-				ip -6 rule add pref "$TCP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto tcp table "$tcp_route_table"
-			fi
-		fi
-		local udp_route_table
-		if [ "$udp_transparent_proxy_mode" == "tproxy" ]; then
-			udp_route_table="$TPROXY_ROUTE_TABLE"
-		elif [ "$udp_transparent_proxy_mode" == "tun" ]; then
-			udp_route_table="$TUN_ROUTE_TABLE"
-		fi
-		if [ -n "$udp_route_table" ]; then
-			if [ "$ipv4_proxy" == 1 ]; then
-				ip -4 rule add pref "$UDP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto udp table "$udp_route_table"
-			fi
-			if [ "$ipv6_proxy" == 1 ]; then
-				ip -6 rule add pref "$UDP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto udp table "$udp_route_table"
-			fi
-		fi
-		nft -f "$HIJACK_NFT" -D MIHOMO_GROUP="$MIHOMO_GROUP" -D FW_MARK="$FW_MARK" -D FW_MARK_MASK="$FW_MARK_MASK" -D TUN_DEVICE="$tun_device" -D FAKE_IP="$fake_ip_range" -D DNS_PORT="$dns_port" -D REDIR_PORT="$redir_port" -D TPROXY_PORT="$tproxy_port"
-		nft -f "$RESERVED_IP_NFT"
-		nft -f "$RESERVED_IP6_NFT"
-		# dns hijack
-		if [ "$ipv4_dns_hijack" == 1 ]; then
-			log "Transparent Proxy" "Hijack IPv4 dns request."
-			nft add element inet "$FW_TABLE" dns_hijack_nfproto \{ ipv4 \}
-		fi
-		if [ "$ipv6_dns_hijack" == 1 ]; then
-			log "Transparent Proxy" "Hijack IPv6 dns request."
-			nft add element inet "$FW_TABLE" dns_hijack_nfproto \{ ipv6 \}
-		fi
-		# proxy
+	fi
+	# prepare
+	if [ "$tproxy_enable" == 1 ]; then
 		if [ "$ipv4_proxy" == 1 ]; then
-			log "Transparent Proxy" "Proxy IPv4 traffic."
-			nft add element inet "$FW_TABLE" proxy_nfproto \{ ipv4 \}
+			ip -4 route add local default dev lo table "$TPROXY_ROUTE_TABLE"
 		fi
 		if [ "$ipv6_proxy" == 1 ]; then
-			log "Transparent Proxy" "Proxy IPv6 traffic."
-			nft add element inet "$FW_TABLE" proxy_nfproto \{ ipv6 \}
+			ip -6 route add local default dev lo table "$TPROXY_ROUTE_TABLE"
 		fi
-		# bypass
-		config_list_foreach "proxy" "bypass_user" add_bypass_user
-		config_list_foreach "proxy" "bypass_group" add_bypass_group
-		if [ "$bypass_china_mainland_ip" == 1 ]; then
-			log "Transparent Proxy" "Bypass china mainland ip."
-			if [ "$ipv4_proxy" == 1 ]; then
-				nft -f "$GEOIP_CN_NFT"
-			fi
-			if [ "$ipv6_proxy" == 1 ]; then
-				nft -f "$GEOIP6_CN_NFT"
+	fi
+	if [ "$tun_enable" == 1 ]; then
+		if [ "$ipv4_proxy" == 1 ]; then
+			ip -4 route add unicast default dev "$tun_device" table "$TUN_ROUTE_TABLE"
+		fi
+		if [ "$ipv6_proxy" == 1 ]; then
+			ip -6 route add unicast default dev "$tun_device" table "$TUN_ROUTE_TABLE"
+		fi
+		$FIREWALL_INCLUDE_SH
+	fi
+	local tcp_route_table
+	if [ "$tcp_transparent_proxy_mode" == "tproxy" ]; then
+		tcp_route_table="$TPROXY_ROUTE_TABLE"
+	elif [ "$tcp_transparent_proxy_mode" == "tun" ]; then
+		tcp_route_table="$TUN_ROUTE_TABLE"
+	fi
+	if [ -n "$tcp_route_table" ]; then
+		if [ "$ipv4_proxy" == 1 ]; then
+			ip -4 rule add pref "$TCP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto tcp table "$tcp_route_table"
+		fi
+		if [ "$ipv6_proxy" == 1 ]; then
+			ip -6 rule add pref "$TCP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto tcp table "$tcp_route_table"
+		fi
+	fi
+	local udp_route_table
+	if [ "$udp_transparent_proxy_mode" == "tproxy" ]; then
+		udp_route_table="$TPROXY_ROUTE_TABLE"
+	elif [ "$udp_transparent_proxy_mode" == "tun" ]; then
+		udp_route_table="$TUN_ROUTE_TABLE"
+	fi
+	if [ -n "$udp_route_table" ]; then
+		if [ "$ipv4_proxy" == 1 ]; then
+			ip -4 rule add pref "$UDP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto udp table "$udp_route_table"
+		fi
+		if [ "$ipv6_proxy" == 1 ]; then
+			ip -6 rule add pref "$UDP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto udp table "$udp_route_table"
+		fi
+	fi
+	nft -f "$HIJACK_NFT" -D MIHOMO_GROUP="$MIHOMO_GROUP" -D FW_MARK="$FW_MARK" -D FW_MARK_MASK="$FW_MARK_MASK" -D TUN_DEVICE="$tun_device" -D FAKE_IP="$fake_ip_range" -D DNS_PORT="$dns_port" -D REDIR_PORT="$redir_port" -D TPROXY_PORT="$tproxy_port"
+	nft -f "$RESERVED_IP_NFT"
+	nft -f "$RESERVED_IP6_NFT"
+	# dns hijack
+	if [ "$ipv4_dns_hijack" == 1 ]; then
+		log "Transparent Proxy" "Hijack IPv4 dns request."
+		nft add element inet "$FW_TABLE" dns_hijack_nfproto \{ ipv4 \}
+	fi
+	if [ "$ipv6_dns_hijack" == 1 ]; then
+		log "Transparent Proxy" "Hijack IPv6 dns request."
+		nft add element inet "$FW_TABLE" dns_hijack_nfproto \{ ipv6 \}
+	fi
+	# proxy
+	if [ "$ipv4_proxy" == 1 ]; then
+		log "Transparent Proxy" "Proxy IPv4 traffic."
+		nft add element inet "$FW_TABLE" proxy_nfproto \{ ipv4 \}
+	fi
+	if [ "$ipv6_proxy" == 1 ]; then
+		log "Transparent Proxy" "Proxy IPv6 traffic."
+		nft add element inet "$FW_TABLE" proxy_nfproto \{ ipv6 \}
+	fi
+	# bypass
+	config_list_foreach "proxy" "bypass_user" add_bypass_user
+	config_list_foreach "proxy" "bypass_group" add_bypass_group
+	if [ "$bypass_china_mainland_ip" == 1 ]; then
+		log "Transparent Proxy" "Bypass china mainland ip."
+		if [ "$ipv4_proxy" == 1 ]; then
+			nft -f "$GEOIP_CN_NFT"
+		fi
+		if [ "$ipv6_proxy" == 1 ]; then
+			nft -f "$GEOIP6_CN_NFT"
+		fi
+	fi
+	log "Transparent Proxy" "Destination TCP Port to Proxy: $proxy_tcp_dport."
+	log "Transparent Proxy" "Destination UDP Port to Proxy: $proxy_udp_dport."
+	local proxy_dport
+	for proxy_dport in $proxy_tcp_dport; do
+		nft add element inet "$FW_TABLE" proxy_dport \{ "tcp" . "$proxy_dport" \}
+	done
+	for proxy_dport in $proxy_udp_dport; do
+		nft add element inet "$FW_TABLE" proxy_dport \{ "udp" . "$proxy_dport" \}
+	done
+	# router proxy
+	if [ "$router_proxy" == 1 ]; then
+		log "Transparent Proxy" "Set proxy for router."
+		if [ "$tcp_transparent_proxy_mode" == "redirect" ]; then
+			nft insert rule inet "$FW_TABLE" nat_output jump router_dns_hijack
+			nft add rule inet "$FW_TABLE" nat_output meta l4proto tcp jump router_${tcp_transparent_proxy_mode}
+		else
+			nft flush chain inet "$FW_TABLE" nat_output
+			nft add rule inet "$FW_TABLE" nat_output jump router_dns_hijack
+			nft add rule inet "$FW_TABLE" mangle_output meta l4proto tcp jump router_reroute
+		fi
+		nft add rule inet "$FW_TABLE" mangle_output meta l4proto udp jump router_reroute
+	fi
+	# lan proxy
+	if [ "$lan_proxy" == 1 ]; then
+		log "Transparent Proxy" "Set proxy for lan."
+		# access control
+		if [ "$access_control_mode" == "all" ]; then
+			log "Transparent Proxy" "Access Control is using all mode, set proxy for all client."
+		elif [ "$access_control_mode" == "allow" ]; then
+			log "Transparent Proxy" "Access Control is using allow mode, set proxy for client which is in acl."
+		elif [ "$access_control_mode" == "block" ]; then
+			log "Transparent Proxy" "Access Control is using block mode, set proxy for client which is not in acl."
+		fi
+		config_list_foreach "proxy" "acl_ip" add_acl_ip
+		config_list_foreach "proxy" "acl_ip6" add_acl_ip6
+		config_list_foreach "proxy" "acl_mac" add_acl_mac
+		config_list_foreach "proxy" "acl_interface" add_acl_interface
+		if [ "$tcp_transparent_proxy_mode" == "redirect" ]; then
+			nft insert rule inet "$FW_TABLE" dstnat jump "${access_control_mode}_dns_hijack"
+			nft add rule inet "$FW_TABLE" dstnat meta l4proto tcp jump "${access_control_mode}_${tcp_transparent_proxy_mode}"
+		else
+			nft flush chain inet "$FW_TABLE" dstnat
+			nft add rule inet "$FW_TABLE" dstnat jump "${access_control_mode}_dns_hijack"
+			nft add rule inet "$FW_TABLE" mangle_prerouting meta l4proto tcp jump "${access_control_mode}_${tcp_transparent_proxy_mode}"
+		fi
+		nft add rule inet "$FW_TABLE" mangle_prerouting meta l4proto udp jump "${access_control_mode}_${udp_transparent_proxy_mode}"
+	fi
+	# fix compatible between tproxy and dockerd (kmod-br-netfilter)
+	if [ "$tproxy_enable" == 1 ] && (lsmod | grep -q br_netfilter); then
+		if [ "$ipv4_proxy" == 1 ]; then
+			local bridge_nf_call_iptables; bridge_nf_call_iptables=$(sysctl -e -n net.bridge.bridge-nf-call-iptables)
+			if [ "$bridge_nf_call_iptables" == 1 ]; then
+				touch "$BRIDGE_NF_CALL_IPTABLES_FLAG"
+				sysctl -q -w net.bridge.bridge-nf-call-iptables=0
 			fi
 		fi
-		log "Transparent Proxy" "Destination TCP Port to Proxy: $proxy_tcp_dport."
-		log "Transparent Proxy" "Destination UDP Port to Proxy: $proxy_udp_dport."
-		local proxy_dport
-		for proxy_dport in $proxy_tcp_dport; do
-			nft add element inet "$FW_TABLE" proxy_dport \{ "tcp" . "$proxy_dport" \}
-		done
-		for proxy_dport in $proxy_udp_dport; do
-			nft add element inet "$FW_TABLE" proxy_dport \{ "udp" . "$proxy_dport" \}
-		done
-		# router proxy
-		if [ "$router_proxy" == 1 ]; then
-			log "Transparent Proxy" "Set proxy for router."
-			if [ "$tcp_transparent_proxy_mode" == "redirect" ]; then
-				nft insert rule inet "$FW_TABLE" nat_output jump router_dns_hijack
-				nft add rule inet "$FW_TABLE" nat_output meta l4proto tcp jump router_${tcp_transparent_proxy_mode}
-			else
-				nft flush chain inet "$FW_TABLE" nat_output
-				nft add rule inet "$FW_TABLE" nat_output jump router_dns_hijack
-				nft add rule inet "$FW_TABLE" mangle_output meta l4proto tcp jump router_reroute
-			fi
-			nft add rule inet "$FW_TABLE" mangle_output meta l4proto udp jump router_reroute
-		fi
-		# lan proxy
-		if [ "$lan_proxy" == 1 ]; then
-			log "Transparent Proxy" "Set proxy for lan."
-			# access control
-			if [ "$access_control_mode" == "all" ]; then
-				log "Transparent Proxy" "Access Control is using all mode, set proxy for all client."
-			elif [ "$access_control_mode" == "allow" ]; then
-				log "Transparent Proxy" "Access Control is using allow mode, set proxy for client which is in acl."
-			elif [ "$access_control_mode" == "block" ]; then
-				log "Transparent Proxy" "Access Control is using block mode, set proxy for client which is not in acl."
-			fi
-			config_list_foreach "proxy" "acl_ip" add_acl_ip
-			config_list_foreach "proxy" "acl_ip6" add_acl_ip6
-			config_list_foreach "proxy" "acl_mac" add_acl_mac
-			config_list_foreach "proxy" "acl_interface" add_acl_interface
-			if [ "$tcp_transparent_proxy_mode" == "redirect" ]; then
-				nft insert rule inet "$FW_TABLE" dstnat jump "${access_control_mode}_dns_hijack"
-				nft add rule inet "$FW_TABLE" dstnat meta l4proto tcp jump "${access_control_mode}_${tcp_transparent_proxy_mode}"
-			else
-				nft flush chain inet "$FW_TABLE" dstnat
-				nft add rule inet "$FW_TABLE" dstnat jump "${access_control_mode}_dns_hijack"
-				nft add rule inet "$FW_TABLE" mangle_prerouting meta l4proto tcp jump "${access_control_mode}_${tcp_transparent_proxy_mode}"
-			fi
-			nft add rule inet "$FW_TABLE" mangle_prerouting meta l4proto udp jump "${access_control_mode}_${udp_transparent_proxy_mode}"
-		fi
-		# fix compatible between tproxy and dockerd (kmod-br-netfilter)
-		if [ "$tproxy_enable" == 1 ] && (lsmod | grep -q br_netfilter); then
-			if [ "$ipv4_proxy" == 1 ]; then
-				local bridge_nf_call_iptables; bridge_nf_call_iptables=$(sysctl -e -n net.bridge.bridge-nf-call-iptables)
-				if [ "$bridge_nf_call_iptables" == 1 ]; then
-					touch /tmp/bridge_nf_call_iptables.flag
-					sysctl -q -w net.bridge.bridge-nf-call-iptables=0
-				fi
-			fi
-			if [ "$ipv6_proxy" == 1 ]; then
-				local bridge_nf_call_ip6tables; bridge_nf_call_ip6tables=$(sysctl -e -n net.bridge.bridge-nf-call-ip6tables)
-				if [ "$bridge_nf_call_ip6tables" == 1 ]; then
-					touch /tmp/bridge_nf_call_ip6tables.flag
-					sysctl -q -w net.bridge.bridge-nf-call-ip6tables=0
-				fi
+		if [ "$ipv6_proxy" == 1 ]; then
+			local bridge_nf_call_ip6tables; bridge_nf_call_ip6tables=$(sysctl -e -n net.bridge.bridge-nf-call-ip6tables)
+			if [ "$bridge_nf_call_ip6tables" == 1 ]; then
+				touch "$BRIDGE_NF_CALL_IP6TABLES_FLAG"
+				sysctl -q -w net.bridge.bridge-nf-call-ip6tables=0
 			fi
 		fi
 	fi
@@ -548,13 +549,15 @@ cleanup() {
 	for handle in $handles; do
 		nft delete rule inet fw4 forward handle "$handle"
 	done
+	# delete started flag
+	rm -f "$STARTED_FLAG"
 	# revert fix compatible between tproxy and dockerd (kmod-br-netfilter)
 	if [ -f "/tmp/bridge_nf_call_iptables.flag" ]; then
-		rm -f /tmp/bridge_nf_call_iptables.flag
+		rm -f "$BRIDGE_NF_CALL_IPTABLES_FLAG"
 		sysctl -q -w net.bridge.bridge-nf-call-iptables=1
 	fi
 	if [ -f "/tmp/bridge_nf_call_ip6tables.flag" ]; then
-		rm -f /tmp/bridge_nf_call_ip6tables.flag
+		rm -f "$BRIDGE_NF_CALL_IP6TABLES_FLAG"
 		sysctl -q -w net.bridge.bridge-nf-call-ip6tables=1
 	fi
 	# delete cron
