@@ -295,6 +295,7 @@ service_started() {
 	local transparent_proxy
 	config_get_bool transparent_proxy "proxy" "transparent_proxy" 0
 	if [ "$transparent_proxy" == 0 ]; then
+		log "Transparent Proxy" "Disabled."
 		return
 	fi
 	# get config
