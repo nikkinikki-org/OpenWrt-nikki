@@ -553,11 +553,11 @@ cleanup() {
 	# delete started flag
 	rm -f "$STARTED_FLAG"
 	# revert fix compatible between tproxy and dockerd (kmod-br-netfilter)
-	if [ -f "/tmp/bridge_nf_call_iptables.flag" ]; then
+	if [ -f "$BRIDGE_NF_CALL_IPTABLES_FLAG" ]; then
 		rm -f "$BRIDGE_NF_CALL_IPTABLES_FLAG"
 		sysctl -q -w net.bridge.bridge-nf-call-iptables=1
 	fi
-	if [ -f "/tmp/bridge_nf_call_ip6tables.flag" ]; then
+	if [ -f "$BRIDGE_NF_CALL_IP6TABLES_FLAG" ]; then
 		rm -f "$BRIDGE_NF_CALL_IP6TABLES_FLAG"
 		sysctl -q -w net.bridge.bridge-nf-call-ip6tables=1
 	fi
