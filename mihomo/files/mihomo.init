@@ -59,13 +59,14 @@ start_service() {
 	config_get udp_transparent_proxy_mode "proxy" "udp_transparent_proxy_mode" "tproxy"
 	## mixin config
 	### general
-	local mode match_process outbound_interface ipv6 tcp_keep_alive_idle tcp_keep_alive_interval log_level
+	local mode match_process outbound_interface ipv6 tcp_keep_alive_idle tcp_keep_alive_interval enable_unified_delay log_level
 	config_get mode "mixin" "mode" "rule"
 	config_get match_process "mixin" "match_process" "off"
 	config_get outbound_interface "mixin" "outbound_interface"
 	config_get_bool ipv6 "mixin" "ipv6" 0
 	config_get tcp_keep_alive_idle "mixin" "tcp_keep_alive_idle" 600
 	config_get tcp_keep_alive_interval "mixin" "tcp_keep_alive_interval" 15
+	config_get_bool enable_unified_delay "mixin" "enable_unified_delay" 0
 	config_get log_level "mixin" "log_level" "info"
 	### external control
 	local ui_name ui_url api_port api_secret selection_cache
@@ -195,7 +196,7 @@ start_service() {
 		dns_enable="true" dns_listen="0.0.0.0:$dns_port" dns_mode="$dns_mode" fake_ip_range="$fake_ip_range" fake_ip_cache="$fake_ip_cache" \
 		dns_respect_rules="$dns_respect_rules" dns_doh_prefer_http3="$dns_doh_prefer_http3" dns_ipv6="$dns_ipv6" dns_system_hosts="$dns_system_hosts" dns_hosts="$dns_hosts" \
 		geoip_format="$geoip_format" geodata_loader="$geodata_loader" geosite_url="$geosite_url" geoip_mmdb_url="$geoip_mmdb_url" geoip_dat_url="$geoip_dat_url" geoip_asn_url="$geoip_asn_url" \
-		geox_auto_update="$geox_auto_update" geox_update_interval="$geox_update_interval" \
+		geox_auto_update="$geox_auto_update" geox_update_interval="$geox_update_interval enable_unified_delay="$enable_unified_delay" \
 		yq -M -i '
 		.log-level = strenv(log_level) | .mode = strenv(mode) | .find-process-mode = strenv(match_process) | .keep-alive-idle = env(tcp_keep_alive_idle) | .keep-alive-interval = env(tcp_keep_alive_interval) | .ipv6 = env(ipv6) == 1 |
 		.external-ui = strenv(ui_path) | .external-ui-name = strenv(ui_name) | .external-ui-url = strenv(ui_url) | .external-controller = strenv(api_listen) | .secret = strenv(api_secret) | .profile.store-selected = env(selection_cache) == 1 |
@@ -204,7 +205,7 @@ start_service() {
 		.dns.enable = env(dns_enable) | .dns.listen = strenv(dns_listen) | .dns.enhanced-mode = strenv(dns_mode) | .dns.fake-ip-range = strenv(fake_ip_range) | .profile.store-fake-ip = env(fake_ip_cache) == 1 |
 		.dns.respect-rules = env(dns_respect_rules) == 1 | .dns.prefer-h3 = env(dns_doh_prefer_http3) == 1 | .dns.ipv6 = env(dns_ipv6) == 1 | .dns.use-system-hosts = env(dns_system_hosts) == 1 | .dns.use-hosts = env(dns_hosts) == 1 |
 		.geodata-mode = strenv(geoip_format) == "dat" | .geodata-loader = strenv(geodata_loader) | .geox-url.geosite = strenv(geosite_url) | .geox-url.mmdb = strenv(geoip_mmdb_url) | .geox-url.geoip = strenv(geoip_dat_url) | .geox-url.asn = strenv(geoip_asn_url) |
-		.geo-auto-update = env(geox_auto_update) == 1 | .geo-update-interval = env(geox_update_interval)
+		.geo-auto-update = env(geox_auto_update) == 1 | .geo-update-interval = env(geox_update_interval) | .unified-delay = env(enable_unified_delay) == 1
 		' "$RUN_PROFILE_PATH"
 
 		if [ "$fake_ip_filter" == 1 ]; then
