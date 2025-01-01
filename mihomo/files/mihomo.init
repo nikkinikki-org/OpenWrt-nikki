@@ -59,11 +59,13 @@ start_service() {
 	config_get udp_transparent_proxy_mode "proxy" "udp_transparent_proxy_mode" "tproxy"
 	## mixin config
 	### general
-	local mode match_process outbound_interface ipv6 tcp_keep_alive_idle tcp_keep_alive_interval log_level
+	local mode match_process outbound_interface ipv6 unify_delay tcp_concurrent tcp_keep_alive_idle tcp_keep_alive_interval log_level
 	config_get mode "mixin" "mode" "rule"
 	config_get match_process "mixin" "match_process" "off"
 	config_get outbound_interface "mixin" "outbound_interface"
 	config_get_bool ipv6 "mixin" "ipv6" 0
+	config_get_bool unify_delay "mixin" "unify_delay" 0
+	config_get_bool tcp_concurrent "mixin" "tcp_concurrent" 0
 	config_get tcp_keep_alive_idle "mixin" "tcp_keep_alive_idle" 600
 	config_get tcp_keep_alive_interval "mixin" "tcp_keep_alive_interval" 15
 	config_get log_level "mixin" "log_level" "info"
@@ -107,6 +109,15 @@ start_service() {
 	config_get_bool hosts "mixin" "hosts" 0
 	config_get_bool dns_nameserver "mixin" "dns_nameserver" 0
 	config_get_bool dns_nameserver_policy "mixin" "dns_nameserver_policy" 0
+	### sniffer
+	local sniffer sniffer_sniff_dns_mapping sniffer_sniff_pure_ip sniffer_overwrite_destination sniffer_force_domain_name sniffer_ignore_domain_name sniffer_sniff
+	config_get_bool sniffer "mixin" sniffer 0
+	config_get_bool sniffer_sniff_dns_mapping "mixin" sniffer_sniff_dns_mapping 0
+	config_get_bool sniffer_sniff_pure_ip "mixin" sniffer_sniff_pure_ip 0
+	config_get_bool sniffer_overwrite_destination "mixin" sniffer_overwrite_destination 0
+	config_get_bool sniffer_force_domain_name "mixin" sniffer_force_domain_name 0
+	config_get_bool sniffer_ignore_domain_name "mixin" sniffer_ignore_domain_name 0
+	config_get_bool sniffer_sniff "mixin" sniffer_sniff 0
 	### geox
 	local geoip_format geodata_loader geosite_url geoip_mmdb_url geoip_dat_url geoip_asn_url geox_auto_update geox_update_interval
 	config_get geoip_format "mixin" "geoip_format" "mmdb"
@@ -172,13 +183,13 @@ start_service() {
 		log "Mixin" "Disabled."
 		log "Mixin" "Mixin neccesary config."
 		# do mixin
-		log_level="$log_level" ipv6="$ipv6" \
+		log_level="$log_level" mode="$mode" match_process="$match_process" ipv6="$ipv6" \
 		ui_path="ui" ui_name="$ui_name" ui_url="$ui_url" api_listen="0.0.0.0:$api_port" api_secret="$api_secret" \
 		allow_lan="$allow_lan" http_port="$http_port" socks_port="$socks_port" mixed_port="$mixed_port" redir_port="$redir_port" tproxy_port="$tproxy_port" \
 		tun_enable="$tun_enable" tun_stack="$tun_stack" tun_device="$tun_device" tun_mtu="$tun_mtu" tun_gso="$tun_gso" tun_gso_max_size="$tun_gso_max_size" tun_endpoint_independent_nat="$tun_endpoint_independent_nat" \
 		dns_enable="true" dns_listen="0.0.0.0:$dns_port" dns_mode="$dns_mode" fake_ip_range="$fake_ip_range" \
 		yq -M -i '
-		.log-level = strenv(log_level) | .ipv6 = env(ipv6) == 1 |
+		.log-level = strenv(log_level) | .mode = strenv(mode) | .find-process-mode = strenv(match_process) | .ipv6 = env(ipv6) == 1 |
 		.external-ui = strenv(ui_path) | .external-ui-name = strenv(ui_name) | .external-ui-url = strenv(ui_url) | .external-controller = strenv(api_listen) | .secret = strenv(api_secret) |
 		.allow-lan = env(allow_lan) == 1 | .port = env(http_port) | .socks-port = env(socks_port) | .mixed-port = env(mixed_port) | .redir-port = env(redir_port) | .tproxy-port = env(tproxy_port) |
 		.tun.enable = env(tun_enable) == 1 | .tun.stack = strenv(tun_stack) | .tun.device = strenv(tun_device) | .tun.mtu = env(tun_mtu) | .tun.gso = env(tun_gso) == 1 | .tun.gso-max-size = env(tun_gso_max_size) | .tun.endpoint-independent-nat = env(tun_endpoint_independent_nat) == 1 |
@@ -188,21 +199,23 @@ start_service() {
 		log "Mixin" "Enabled."
 		log "Mixin" "Mixin all config."
 		# do mixin
-		log_level="$log_level" mode="$mode" match_process="$match_process" tcp_keep_alive_idle="$tcp_keep_alive_idle" tcp_keep_alive_interval="$tcp_keep_alive_interval" ipv6="$ipv6" \
+		log_level="$log_level" mode="$mode" match_process="$match_process" ipv6="$ipv6" unify_delay="$unify_delay" tcp_concurrent="$tcp_concurrent" tcp_keep_alive_idle="$tcp_keep_alive_idle" tcp_keep_alive_interval="$tcp_keep_alive_interval" \
 		ui_path="ui" ui_name="$ui_name" ui_url="$ui_url" api_listen="0.0.0.0:$api_port" api_secret="$api_secret" selection_cache="$selection_cache" \
 		allow_lan="$allow_lan" http_port="$http_port" socks_port="$socks_port" mixed_port="$mixed_port" redir_port="$redir_port" tproxy_port="$tproxy_port" \
 		tun_enable="$tun_enable" tun_stack="$tun_stack" tun_device="$tun_device" tun_mtu="$tun_mtu" tun_gso="$tun_gso" tun_gso_max_size="$tun_gso_max_size" tun_endpoint_independent_nat="$tun_endpoint_independent_nat" \
 		dns_enable="true" dns_listen="0.0.0.0:$dns_port" dns_mode="$dns_mode" fake_ip_range="$fake_ip_range" fake_ip_cache="$fake_ip_cache" \
 		dns_respect_rules="$dns_respect_rules" dns_doh_prefer_http3="$dns_doh_prefer_http3" dns_ipv6="$dns_ipv6" dns_system_hosts="$dns_system_hosts" dns_hosts="$dns_hosts" \
+		sniffer="$sniffer" sniffer_sniff_dns_mapping="$sniffer_sniff_dns_mapping" sniffer_sniff_pure_ip="$sniffer_sniff_pure_ip" sniffer_overwrite_destination="$sniffer_overwrite_destination" \
 		geoip_format="$geoip_format" geodata_loader="$geodata_loader" geosite_url="$geosite_url" geoip_mmdb_url="$geoip_mmdb_url" geoip_dat_url="$geoip_dat_url" geoip_asn_url="$geoip_asn_url" \
 		geox_auto_update="$geox_auto_update" geox_update_interval="$geox_update_interval" \
 		yq -M -i '
-		.log-level = strenv(log_level) | .mode = strenv(mode) | .find-process-mode = strenv(match_process) | .keep-alive-idle = env(tcp_keep_alive_idle) | .keep-alive-interval = env(tcp_keep_alive_interval) | .ipv6 = env(ipv6) == 1 |
+		.log-level = strenv(log_level) | .mode = strenv(mode) | .find-process-mode = strenv(match_process) | .ipv6 = env(ipv6) == 1 | .unified-delay = env(unify_delay) == 1 | .tcp-concurrent = env(tcp_concurrent) == 1 | .keep-alive-idle = env(tcp_keep_alive_idle) | .keep-alive-interval = env(tcp_keep_alive_interval) |
 		.external-ui = strenv(ui_path) | .external-ui-name = strenv(ui_name) | .external-ui-url = strenv(ui_url) | .external-controller = strenv(api_listen) | .secret = strenv(api_secret) | .profile.store-selected = env(selection_cache) == 1 |
 		.allow-lan = env(allow_lan) == 1 | .port = env(http_port) | .socks-port = env(socks_port) | .mixed-port = env(mixed_port) | .redir-port = env(redir_port) | .tproxy-port = env(tproxy_port) |
 		.tun.enable = env(tun_enable) == 1 | .tun.stack = strenv(tun_stack) | .tun.device = strenv(tun_device) | .tun.mtu = env(tun_mtu) | .tun.gso = env(tun_gso) == 1 | .tun.gso-max-size = env(tun_gso_max_size) | .tun.endpoint-independent-nat = env(tun_endpoint_independent_nat) == 1 |
 		.dns.enable = env(dns_enable) | .dns.listen = strenv(dns_listen) | .dns.enhanced-mode = strenv(dns_mode) | .dns.fake-ip-range = strenv(fake_ip_range) | .profile.store-fake-ip = env(fake_ip_cache) == 1 |
 		.dns.respect-rules = env(dns_respect_rules) == 1 | .dns.prefer-h3 = env(dns_doh_prefer_http3) == 1 | .dns.ipv6 = env(dns_ipv6) == 1 | .dns.use-system-hosts = env(dns_system_hosts) == 1 | .dns.use-hosts = env(dns_hosts) == 1 |
+		.sniffer.enable = env(sniffer) == 1 | .sniffer.force-dns-mapping = env(sniffer_sniff_dns_mapping) == 1 | .sniffer.parse-pure-ip = env(sniffer_sniff_pure_ip) == 1 | .sniffer.override-destination = env(sniffer_overwrite_destination) == 1 |
 		.geodata-mode = strenv(geoip_format) == "dat" | .geodata-loader = strenv(geodata_loader) | .geox-url.geosite = strenv(geosite_url) | .geox-url.mmdb = strenv(geoip_mmdb_url) | .geox-url.geoip = strenv(geoip_dat_url) | .geox-url.asn = strenv(geoip_asn_url) |
 		.geo-auto-update = env(geox_auto_update) == 1 | .geo-update-interval = env(geox_update_interval)
 		' "$RUN_PROFILE_PATH"
@@ -223,6 +236,18 @@ start_service() {
 		if [ "$dns_nameserver_policy" == 1 ]; then
 			yq -M -i 'del(.dns.nameserver-policy)' "$RUN_PROFILE_PATH"
 			config_foreach mixin_nameserver_policies "nameserver_policy"
+		fi
+		if [ "$sniffer_force_domain_name" == 1 ]; then
+			yq -M -i 'del(.sniffer.force-domain)' "$RUN_PROFILE_PATH"
+			config_list_foreach "mixin" "sniffer_force_domain_names" mixin_sniffer_domain_names "force-domain"
+		fi
+		if [ "$sniffer_ignore_domain_name" == 1 ]; then
+			yq -M -i 'del(.sniffer.skip-domain)' "$RUN_PROFILE_PATH"
+			config_list_foreach "mixin" "sniffer_ignore_domain_names" mixin_sniffer_domain_names "skip-domain"
+		fi
+		if [ "$sniffer_sniff" == 1 ]; then
+			yq -M -i 'del(.sniffer.sniff)' "$RUN_PROFILE_PATH"
+			config_foreach mixin_sniffs "sniff"
 		fi
 	fi
 	yq -M -i 'del (.bind-address)' "$RUN_PROFILE_PATH"
@@ -637,6 +662,27 @@ mixin_nameserver_policies() {
 
 mixin_nameserver_policy() {
 	nameserver="$1" matcher="$2" yq -M -i '.dns.nameserver-policy.[strenv(matcher)] += [strenv(nameserver)]' "$RUN_PROFILE_PATH"
+}
+
+mixin_sniffer_domain_names() {
+	domain_name="$1" type="$2" yq -M -i '.sniffer.[env(type)] += [env(domain_name)]' "$RUN_PROFILE_PATH"
+}
+
+mixin_sniffs() {
+	local section="$1"
+	local enabled protocol overwrite_destination
+	config_get_bool enabled "$section" "enabled" 0
+	config_get protocol "$section" "protocol"
+	config_get_bool overwrite_destination "$section" "overwrite_destination" 0
+	if [ "$enabled" == 0 ]; then
+		return
+	fi
+	protocol="$protocol" overwrite_destination="$overwrite_destination" yq -M -i '.sniffer.sniff.[env(protocol)].override-destination = env(overwrite_destination) == 1' "$RUN_PROFILE_PATH"
+	config_list_foreach "$section" "port" mixin_sniff "$protocol"
+}
+
+mixin_sniff() {
+	port="$1" protocol="$2" yq -M -i '.sniffer.sniff.[env(protocol)].ports += [env(port)]' "$RUN_PROFILE_PATH"
 }
 
 add_bypass_user() {

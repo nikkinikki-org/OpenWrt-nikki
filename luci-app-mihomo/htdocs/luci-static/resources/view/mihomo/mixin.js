@@ -34,12 +34,12 @@ return view.extend({
         o.value('info');
         o.value('debug');
 
-        o = s.taboption('general', form.ListValue, 'mode', _('Mode'));
+        o = s.taboption('general', form.ListValue, 'mode', '*' + ' ' + _('Mode'));
         o.value('global', _('Global Mode'));
         o.value('rule', _('Rule Mode'));
         o.value('direct', _('Direct Mode'));
 
-        o = s.taboption('general', form.ListValue, 'match_process', _('Match Process'));
+        o = s.taboption('general', form.ListValue, 'match_process', '*' + ' ' + _('Match Process'));
         o.value('strict', _('Auto'));
         o.value('always', _('Enable'));
         o.value('off', _('Disable'));
@@ -48,6 +48,12 @@ return view.extend({
         o.optional = true;
 
         o = s.taboption('general', form.Flag, 'ipv6', '*' + ' ' + _('IPv6'));
+        o.rmempty = false;
+
+        o = s.taboption('general', form.Flag, 'unify_delay', _('Unify Delay'));
+        o.rmempty = false;
+
+        o = s.taboption('general', form.Flag, 'tcp_concurrent', _('TCP Concurrent'));
         o.rmempty = false;
 
         o = s.taboption('general', form.Value, 'tcp_keep_alive_idle', _('TCP Keep Alive Idle'));
@@ -207,7 +213,7 @@ return view.extend({
         o = s.taboption('dns', form.Flag, 'hosts', _('Overwrite Hosts'));
         o.rmempty = false;
 
-        o = s.taboption('dns', form.SectionValue, '_hosts', form.TableSection, 'host', _('Edit Hosts'));
+        o = s.taboption('dns', form.SectionValue, '_hosts', form.TableSection, 'hosts', _('Edit Hosts'));
         o.retain = true;
         o.depends('hosts', '1');
 
@@ -226,7 +232,7 @@ return view.extend({
         o = s.taboption('dns', form.Flag, 'dns_nameserver', _('Overwrite Nameserver'));
         o.rmempty = false;
 
-        o = s.taboption('dns', form.SectionValue, '_dns_nameserver', form.TableSection, 'nameserver', _('Edit Nameservers'));
+        o = s.taboption('dns', form.SectionValue, '_dns_nameservers', form.TableSection, 'nameserver', _('Edit Nameservers'));
         o.retain = true;
         o.depends('dns_nameserver', '1');
 
@@ -264,6 +270,55 @@ return view.extend({
         so.rmempty = false;
 
         so = o.subsection.option(form.DynamicList, 'nameserver', _('Nameserver'));
+
+        s.tab('sniffer', _('Sniffer Config'));
+
+        o = s.taboption('sniffer', form.Flag, 'sniffer', _('Enable'));
+        o.rmempty = false;
+
+        o = s.taboption('sniffer', form.Flag, 'sniffer_sniff_dns_mapping', _('Sniff Redir-Host'));
+        o.rmempty = false;
+
+        o = s.taboption('sniffer', form.Flag, 'sniffer_sniff_pure_ip', _('Sniff Pure IP'));
+        o.rmempty = false;
+
+        o = s.taboption('sniffer', form.Flag, 'sniffer_overwrite_destination', _('Overwrite Destination'));
+        o.rmempty = false;
+
+        o = s.taboption('sniffer', form.Flag, 'sniffer_force_domain_name', _('Overwrite Force Sniff Domain Name'));
+        o.rmempty = false;
+
+        o = s.taboption('sniffer', form.DynamicList, 'sniffer_force_domain_names', _('Force Sniff Domain Name'));
+        o.depends('sniffer_force_domain_name', '1');
+
+        o = s.taboption('sniffer', form.Flag, 'sniffer_ignore_domain_name', _('Overwrite Ignore Sniff Domain Name'));
+        o.rmempty = false;
+
+        o = s.taboption('sniffer', form.DynamicList, 'sniffer_ignore_domain_names', _('Ignore Sniff Domain Name'));
+        o.depends('sniffer_ignore_domain_name', '1');
+
+        o = s.taboption('sniffer', form.Flag, 'sniffer_sniff', _('Overwrite Sniff By Protocol'));
+        o.rmempty = false;
+
+        o = s.taboption('sniffer', form.SectionValue, '_sniffer_sniffs', form.TableSection, 'sniff', _('Sniff By Protocol'));
+        o.subsection.anonymous = true;
+        o.subsection.addremove = false;
+        o.depends('sniffer_sniff', '1');
+
+        so = o.subsection.option(form.Flag, 'enabled', _('Enable'));
+        so.rmempty = false;
+
+        so = o.subsection.option(form.ListValue, 'protocol', _('Protocol'));
+        so.value('HTTP');
+        so.value('TLS');
+        so.value('QUIC');
+        so.readonly = true;
+
+        so = o.subsection.option(form.DynamicList, 'port', _('Port'));
+        so.datatype = 'portrange';
+
+        so = o.subsection.option(form.Flag, 'overwrite_destination', _('Overwrite Destination'));
+        so.rmempty = false;
 
         s.tab('geox', _('GeoX Config'));
 
