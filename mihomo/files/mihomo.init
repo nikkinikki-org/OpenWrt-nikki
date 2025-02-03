@@ -617,7 +617,7 @@ mixin_authentications() {
 }
 
 mixin_tun_dns_hijacks() {
-	dns_hijack="$1" yq -M -i '.tun.dns_hijack += [strenv(dns_hijack)]' "$RUN_PROFILE_PATH"
+	dns_hijack="$1" yq -M -i '.tun.dns-hijack += [strenv(dns_hijack)]' "$RUN_PROFILE_PATH"
 }
 
 mixin_fake_ip_filters() {
