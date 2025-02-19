@@ -311,9 +311,11 @@ return view.extend({
         o.rmempty = false;
 
         o = s.taboption('sniffer', form.SectionValue, '_sniffer_sniffs', form.TableSection, 'sniff', _('Sniff By Protocol'));
+        o.retain = true;
+        o.depends('sniffer_sniff', '1');
+
         o.subsection.anonymous = true;
         o.subsection.addremove = false;
-        o.depends('sniffer_sniff', '1');
 
         so = o.subsection.option(form.Flag, 'enabled', _('Enable'));
         so.rmempty = false;
@@ -329,6 +331,122 @@ return view.extend({
 
         so = o.subsection.option(form.Flag, 'overwrite_destination', _('Overwrite Destination'));
         so.rmempty = false;
+
+        s.tab('rule', _('Rule Config'));
+
+        o = s.taboption('rule', form.Flag, 'rule_provider', '*' + ' ' + _('Append Rule Provider'));
+        o.rmempty = false;
+
+        o = s.taboption('rule', form.SectionValue, '_rule_providers', form.GridSection, 'rule_provider', _('Edit Rule Providers'));
+        o.retain = true;
+        o.depends('rule_provider', '1');
+
+        o.subsection.anonymous = true;
+        o.subsection.addremove = true;
+        o.subsection.sortable = true;
+
+        so = o.subsection.option(form.Flag, 'enabled', _('Enable'));
+        so.default = 1;
+        so.editable = true;
+        so.modalonly = false;
+        so.rmempty = false;
+
+        so = o.subsection.option(form.Value, 'name', _('Name'));
+        so.rmempty = false;
+
+        so = o.subsection.option(form.ListValue, 'type', _('Type'));
+        so.default = 'http';
+        so.rmempty = false;
+        so.value('http');
+        so.value('file');
+
+        so = o.subsection.option(form.Value, 'url', _('Url'));
+        so.modalonly = true;
+        so.rmempty = false;
+        so.depends('type', 'http');
+
+        so = o.subsection.option(form.Value, 'node', _('Node'));
+        so.default = 'DIRECT';
+        so.modalonly = true;
+        so.depends('type', 'http');
+        so.value('GLOBAL');
+        so.value('DIRECT');
+
+        so = o.subsection.option(form.Value, 'file_size_limit', _('File Size Limit'));
+        so.datatype = 'uinteger';
+        so.default = 0;
+        so.modalonly = true;
+        so.depends('type', 'http');
+
+        so = o.subsection.option(form.FileUpload, 'file_path', _('File Path'));
+        so.modalonly = true;
+        so.rmempty = false;
+        so.root_directory = nikki.ruleProvidersDir;
+        so.depends('type', 'file');
+
+        so = o.subsection.option(form.ListValue, 'file_format', _('File Format'));
+        so.default = 'yaml';
+        so.value('mrs');
+        so.value('yaml');
+        so.value('text');
+
+        so = o.subsection.option(form.ListValue, 'behavior', _('Behavior'));
+        so.default = 'classical';
+        so.rmempty = false;
+        so.value('classical');
+        so.value('domain');
+        so.value('ipcidr');
+
+        so = o.subsection.option(form.Value, 'update_interval', _('Update Interval'));
+        so.datatype = 'uinteger';
+        so.default = 0;
+        so.modalonly = true;
+        so.depends('type', 'http');
+
+        o = s.taboption('rule', form.Flag, 'rule', '*' + ' ' + _('Append Rule'));
+        o.rmempty = false;
+
+        o = s.taboption('rule', form.SectionValue, '_rules', form.TableSection, 'rule', _('Edit Rules'));
+        o.retain = true;
+        o.depends('rule', '1');
+
+        o.subsection.anonymous = true;
+        o.subsection.addremove = true;
+        o.subsection.sortable = true;
+
+        so = o.subsection.option(form.Flag, 'enabled', _('Enable'));
+        so.default = 1;
+        so.rmempty = false;
+
+        so = o.subsection.option(form.Value, 'type', _('Type'));
+        so.optional = true;
+        so.rmempty = true;
+        so.value('RULE-SET', _('Rule Set'));
+        so.value('DOMAIN', _('Domain Name'));
+        so.value('DOMAIN-SUFFIX', _('Domain Name Suffix'));
+        so.value('DOMAIN-KEYWORD', _('Domain Name Keyword'));
+        so.value('DOMAIN-REGEX', _('Domain Name Regex'));
+        so.value('IP-CIDR', _('Destination IP'));
+        so.value('DST-PORT', _('Destination Port'));
+        so.value('PROCESS-NAME', _('Process Name'));
+        so.value('GEOSITE', _('Domain Name Geo'));
+        so.value('GEOIP', _('Destination IP Geo'));
+
+        so = o.subsection.option(form.Value, 'match', _('Matcher'));
+        so.rmempty = false;
+
+        so = o.subsection.option(form.Value, 'node', _('Node'));
+        so.default = 'GLOBAL';
+        so.value('GLOBAL');
+        so.value('DIRECT');
+        so.value('REJECT');
+        so.value('REJECT-DROP');
+
+        so = o.subsection.option(form.Flag, 'no_resolve', _('No Resolve'));
+        so.rmempty = false;
+        so.depends('type', 'IP-CIDR');
+        so.depends('type', 'IP-CIDR6');
+        so.depends('type', 'GEOIP');
 
         s.tab('geox', _('GeoX Config'));
 

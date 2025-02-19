@@ -51,9 +51,21 @@ msgstr "插件日志"
 msgid "App Version"
 msgstr "插件版本"
 
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:406
+msgid "Append Rule"
+msgstr "追加规则"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:337
+msgid "Append Rule Provider"
+msgstr "追加规则提供者"
+
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:43
 msgid "Auto"
 msgstr "自动"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:393
+msgid "Behavior"
+msgstr "行为"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:199
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:66
@@ -80,7 +92,7 @@ msgstr "绕过用户组"
 msgid "Bypass User"
 msgstr "绕过用户"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:25
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:29
 msgid "Choose File"
 msgstr "选择文件"
 
@@ -130,6 +142,18 @@ msgstr "DNS 模式"
 msgid "DNS Port"
 msgstr "DNS 端口"
 
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:429
+msgid "Destination IP"
+msgstr "目标 IP"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:433
+msgid "Destination IP Geo"
+msgstr "目标 IP（Geo）"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:430
+msgid "Destination Port"
+msgstr "目标端口"
+
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:134
 msgid "Destination TCP Port to Proxy"
 msgstr "要代理的 TCP 目标端口"
@@ -171,8 +195,25 @@ msgid "DoH Prefer HTTP/3"
 msgstr "DoH 优先 HTTP/3"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:237
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:425
 msgid "Domain Name"
 msgstr "域名"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:432
+msgid "Domain Name Geo"
+msgstr "域名（Geo）"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:427
+msgid "Domain Name Keyword"
+msgstr "域名（关键字）"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:428
+msgid "Domain Name Regex"
+msgstr "域名（正则表达式）"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:426
+msgid "Domain Name Suffix"
+msgstr "域名（后缀）"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:117
 msgid "Edit Authentications"
@@ -198,11 +239,19 @@ msgstr "编辑 DNS 服务器查询策略"
 msgid "Edit Nameservers"
 msgstr "编辑 DNS 服务器"
 
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:340
+msgid "Edit Rule Providers"
+msgstr "编辑规则提供者"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:409
+msgid "Edit Rules"
+msgstr "编辑规则"
+
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:32
 msgid "Edit Subscription"
 msgstr "编辑订阅"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:23
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:27
 #: applications/luci-app-nikki/root/usr/share/luci/menu.d/luci-app-nikki.json:45
 msgid "Editor"
 msgstr "编辑器"
@@ -215,8 +264,10 @@ msgstr "编辑器"
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:253
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:276
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:286
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:318
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:366
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:320
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:348
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:417
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:484
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:31
 msgid "Enable"
 msgstr "启用"
@@ -249,20 +300,32 @@ msgstr "Fake-IP 范围"
 msgid "Fast Reload"
 msgstr "快速重载"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:36
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:387
+msgid "File Format"
+msgstr "文件格式"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:381
+msgid "File Path"
+msgstr "文件路径"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:375
+msgid "File Size Limit"
+msgstr "文件大小限制"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:48
 msgid "File for Mixin"
 msgstr "用于混入的文件"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:38
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:50
 msgid "File for Reserved IP"
 msgstr "IPv4 保留地址"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:39
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:51
 msgid "File for Reserved IP6"
 msgstr "IPv6 保留地址"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/app.js:103
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:29
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:33
 msgid "File:"
 msgstr "文件："
 
@@ -282,39 +345,39 @@ msgstr "分段最大长度"
 msgid "General Config"
 msgstr "全局配置"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:339
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:457
 msgid "GeoData Loader"
 msgstr "GeoData 加载器"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:335
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:453
 msgid "GeoIP Format"
 msgstr "GeoIP 格式"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:352
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:470
 msgid "GeoIP(ASN) Url"
 msgstr "GeoIP(ASN) 下载地址"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:349
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:467
 msgid "GeoIP(DAT) Url"
 msgstr "GeoIP(DAT) 下载地址"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:346
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:464
 msgid "GeoIP(MMDB) Url"
 msgstr "GeoIP(MMDB) 下载地址"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:343
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:461
 msgid "GeoSite Url"
 msgstr "GeoSite 下载地址"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:355
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:473
 msgid "GeoX Auto Update"
 msgstr "定时更新GeoX文件"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:333
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:451
 msgid "GeoX Config"
 msgstr "GeoX 配置"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:358
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:476
 msgid "GeoX Update Interval"
 msgstr "GeoX 文件更新间隔"
 
@@ -397,10 +460,11 @@ msgid "Match Process"
 msgstr "匹配进程"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:279
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:435
 msgid "Matcher"
 msgstr "匹配"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:341
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:459
 msgid "Memory Conservative Loader"
 msgstr "为内存受限设备优化的加载器"
 
@@ -413,7 +477,7 @@ msgstr "混合端口"
 msgid "Mixin Config"
 msgstr "混入配置"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:364
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:482
 msgid "Mixin File Content"
 msgstr "混入文件内容"
 
@@ -426,6 +490,10 @@ msgstr "混入选项"
 msgid "Mode"
 msgstr "模式"
 
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:354
+msgid "Name"
+msgstr "名称"
+
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:263
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:282
 msgid "Nameserver"
@@ -435,6 +503,15 @@ msgstr "DNS 服务器"
 #: applications/luci-app-nikki/root/usr/share/luci/menu.d/luci-app-nikki.json:3
 msgid "Nikki"
 msgstr ""
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:445
+msgid "No Resolve"
+msgstr "不解析"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:368
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:438
+msgid "Node"
+msgstr "节点"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/app.js:15
 msgid "Not Running"
@@ -457,7 +534,7 @@ msgid "Overwrite DNS Hijack"
 msgstr "覆盖 DNS 劫持"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:295
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:330
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:332
 msgid "Overwrite Destination"
 msgstr "将嗅探结果作为连接目标"
 
@@ -493,11 +570,11 @@ msgstr "覆盖按协议嗅探"
 msgid "Password"
 msgstr "密码"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:366
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:484
 msgid "Please go to the editor tab to edit the file for mixin"
 msgstr "请前往编辑器标签编辑用于混入的文件"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:327
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:329
 msgid "Port"
 msgstr "端口"
 
@@ -505,16 +582,20 @@ msgstr "端口"
 msgid "Prefer"
 msgstr "优先"
 
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:431
+msgid "Process Name"
+msgstr "进程名"
+
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:18
 #: applications/luci-app-nikki/root/usr/share/luci/menu.d/luci-app-nikki.json:21
 msgid "Profile"
 msgstr "配置文件"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:37
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:49
 msgid "Profile for Startup"
 msgstr "用于启动的配置文件"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:321
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:323
 msgid "Protocol"
 msgstr "协议"
 
@@ -522,6 +603,10 @@ msgstr "协议"
 #: applications/luci-app-nikki/root/usr/share/luci/menu.d/luci-app-nikki.json:37
 msgid "Proxy Config"
 msgstr "代理配置"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:45
+msgid "Proxy Provider:"
+msgstr "代理提供者："
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:35
 msgid "Redirect Mode"
@@ -551,9 +636,21 @@ msgstr "重启服务"
 msgid "Router Proxy"
 msgstr "路由器代理"
 
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:335
+msgid "Rule Config"
+msgstr "规则配置"
+
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:39
 msgid "Rule Mode"
 msgstr "规则模式"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:41
+msgid "Rule Provider:"
+msgstr "规则提供者："
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:424
+msgid "Rule Set"
+msgstr "规则集"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/app.js:15
 msgid "Running"
@@ -576,8 +673,8 @@ msgstr "定时重启"
 msgid "Scroll To Bottom"
 msgstr "滚动到底部"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/tools/nikki.js:100
-#: applications/luci-app-nikki/htdocs/luci-static/resources/tools/nikki.js:118
+#: applications/luci-app-nikki/htdocs/luci-static/resources/tools/nikki.js:113
+#: applications/luci-app-nikki/htdocs/luci-static/resources/tools/nikki.js:131
 msgid "Service is not running."
 msgstr "服务未在运行。"
 
@@ -601,7 +698,7 @@ msgstr "嗅探器配置"
 msgid "Stack"
 msgstr "栈"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:340
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:458
 msgid "Standard Loader"
 msgstr "标准加载器"
 
@@ -626,7 +723,7 @@ msgid "Subscription Url"
 msgstr "订阅链接"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/app.js:107
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:33
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:37
 msgid "Subscription:"
 msgstr "订阅："
 
@@ -681,6 +778,8 @@ msgid "Transparent Proxy with Mihomo on OpenWrt."
 msgstr "在 OpenWrt 上使用 Mihomo 进行透明代理。"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:256
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:357
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:421
 msgid "Type"
 msgstr "类型"
 
@@ -700,8 +799,8 @@ msgstr "UI 下载地址"
 msgid "Unify Delay"
 msgstr "统一延迟"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/tools/nikki.js:80
-#: applications/luci-app-nikki/htdocs/luci-static/resources/tools/nikki.js:84
+#: applications/luci-app-nikki/htdocs/luci-static/resources/tools/nikki.js:93
+#: applications/luci-app-nikki/htdocs/luci-static/resources/tools/nikki.js:97
 msgid "Unknown"
 msgstr "未知"
 
@@ -717,9 +816,17 @@ msgstr "更新时间"
 msgid "Update Dashboard"
 msgstr "更新面板"
 
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:400
+msgid "Update Interval"
+msgstr "更新间隔"
+
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:20
 msgid "Upload Profile"
 msgstr "上传配置文件"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:363
+msgid "Url"
+msgstr "下载地址"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:220
 msgid "Use Hosts"
@@ -740,3 +847,18 @@ msgstr "用户代理（UA）"
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:128
 msgid "Username"
 msgstr "用户名"
+
+#~ msgid "File"
+#~ msgstr "文件"
+
+#~ msgid "Proxy Provider"
+#~ msgstr "代理提供者"
+
+#~ msgid "Rule Provider"
+#~ msgstr "规则提供者"
+
+#~ msgid ": "
+#~ msgstr "："
+
+#~ msgid "Custom"
+#~ msgstr "自定义"

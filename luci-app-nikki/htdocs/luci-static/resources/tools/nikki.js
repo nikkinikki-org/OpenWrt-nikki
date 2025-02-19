@@ -10,6 +10,9 @@ const subscriptionsDir = `${homeDir}/subscriptions`;
 const mixinFilePath = `${homeDir}/mixin.yaml`;
 const runDir = `${homeDir}/run`;
 const runProfilePath = `${runDir}/config.yaml`;
+const providersDir = `${runDir}/providers`;
+const ruleProvidersDir = `${providersDir}/rule`;
+const proxyProvidersDir = `${providersDir}/proxy`;
 const logDir = `/var/log/nikki`;
 const appLogPath = `${logDir}/app.log`;
 const coreLogPath = `${logDir}/core.log`;
@@ -21,6 +24,8 @@ return baseclass.extend({
     homeDir: homeDir,
     profilesDir: profilesDir,
     subscriptionsDir: subscriptionsDir,
+    ruleProvidersDir: ruleProvidersDir,
+    proxyProvidersDir: proxyProvidersDir,
     mixinFilePath: mixinFilePath,
     runDir: runDir,
     appLogPath: appLogPath,
@@ -54,6 +59,14 @@ return baseclass.extend({
 
     listProfiles: function () {
         return L.resolveDefault(fs.list(this.profilesDir), []);
+    },
+
+    listRuleProviders: function () {
+        return L.resolveDefault(fs.list(this.ruleProvidersDir), []);
+    },
+
+    listProxyProviders: function () {
+        return L.resolveDefault(fs.list(this.proxyProvidersDir), []);
     },
 
     updateSubscription: function (section_id) {

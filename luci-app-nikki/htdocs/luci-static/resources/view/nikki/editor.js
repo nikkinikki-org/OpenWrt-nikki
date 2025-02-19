@@ -9,12 +9,16 @@ return view.extend({
     load: function () {
         return Promise.all([
             uci.load('nikki'),
-            nikki.listProfiles()
+            nikki.listProfiles(),
+            nikki.listRuleProviders(),
+            nikki.listProxyProviders(),
         ]);
     },
     render: function (data) {
         const subscriptions = uci.sections('nikki', 'subscription');
         const profiles = data[1];
+        const ruleProviders = data[2];
+        const proxyProviders = data[3];
 
         let m, s, o;
 
@@ -31,6 +35,14 @@ return view.extend({
 
         for (const subscription of subscriptions) {
             o.value(nikki.subscriptionsDir + '/' + subscription['.name'] + '.yaml', _('Subscription:') + subscription.name);
+        };
+
+        for (const ruleProvider of ruleProviders) {
+            o.value(nikki.ruleProvidersDir + '/' + ruleProvider.name, _('Rule Provider:') + ruleProvider.name);
+        };
+
+        for (const proxyProvider of proxyProviders) {
+            o.value(nikki.proxyProvidersDir + '/' + proxyProvider.name, _('Proxy Provider:') + proxyProvider.name);
         };
 
         o.value(nikki.mixinFilePath, _('File for Mixin'));

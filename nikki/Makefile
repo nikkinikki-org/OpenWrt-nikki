@@ -56,6 +56,9 @@ define Package/nikki/install
 	$(INSTALL_DIR) $(1)/etc/nikki/profiles
 	$(INSTALL_DIR) $(1)/etc/nikki/subscriptions
 	$(INSTALL_DIR) $(1)/etc/nikki/run
+	$(INSTALL_DIR) $(1)/etc/nikki/run/providers
+	$(INSTALL_DIR) $(1)/etc/nikki/run/providers/rule
+	$(INSTALL_DIR) $(1)/etc/nikki/run/providers/proxy
 	$(INSTALL_DIR) $(1)/etc/nikki/run/ui
 
 	$(INSTALL_DATA) $(CURDIR)/files/mixin.yaml $(1)/etc/nikki/mixin.yaml

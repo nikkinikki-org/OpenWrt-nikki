@@ -119,6 +119,10 @@ start_service() {
 	config_get_bool sniffer_force_domain_name "mixin" sniffer_force_domain_name 0
 	config_get_bool sniffer_ignore_domain_name "mixin" sniffer_ignore_domain_name 0
 	config_get_bool sniffer_sniff "mixin" sniffer_sniff 0
+	### rule
+	local rule rule_provider
+	config_get_bool rule "mixin" "rule" 0
+	config_get_bool rule_provider "mixin" "rule_provider" 0
 	### geox
 	local geoip_format geodata_loader geosite_url geoip_mmdb_url geoip_dat_url geoip_asn_url geox_auto_update geox_update_interval
 	config_get geoip_format "mixin" "geoip_format" "mmdb"
@@ -265,7 +269,16 @@ start_service() {
 		config_foreach mixin_authentications "authentication"
 	fi
 	if [ "$tun_dns_hijack" == 1 ]; then
+		yq -M -i 'del(.tun.dns-hijack)' "$RUN_PROFILE_PATH"
 		config_list_foreach "mixin" "tun_dns_hijacks" mixin_tun_dns_hijacks
+	fi
+	if [ "$rule_provider" == 1 ]; then
+		config_foreach mixin_rule_providers "rule_provider"
+	fi
+	if [ "$rule" == 1 ]; then
+		yq -M -i 'del(.nikki-rules)' "$RUN_PROFILE_PATH"
+		config_foreach mixin_rules "rule"
+		yq -M -i '.rules = .nikki-rules + .rules | del(.nikki-rules)' "$RUN_PROFILE_PATH"
 	fi
 	if [ "$mixin_file_content" == 1 ]; then
 		if [ -s "$MIXIN_FILE_PATH" ]; then
@@ -697,6 +710,69 @@ mixin_sniffs() {
 
 mixin_sniff() {
 	port="$1" protocol="$2" yq -M -i '.sniffer.sniff.[strenv(protocol)].ports += [env(port)]' "$RUN_PROFILE_PATH"
+}
+
+mixin_rule_providers() {
+	local section="$1"
+	local enabled
+	config_get_bool enabled "$section" "enabled" 0
+	if [ "$enabled" == 0 ]; then
+		return
+	fi
+	local name type url node file_size_limit file_path file_format behavior update_interval
+	config_get name "$section" "name"
+	config_get type "$section" "type"
+	config_get url "$section" "url"
+	config_get node "$section" "node"
+	config_get file_size_limit "$section" "file_size_limit" 0
+	config_get file_path "$section" "file_path"
+	config_get file_format "$section" "file_format"
+	config_get behavior "$section" "behavior"
+	config_get update_interval "$section" "update_interval" 0
+	if [ "$type" == "http" ]; then
+		name="$name" type="$type" url="$url" node="$node" file_size_limit="$file_size_limit" file_format="$file_format" behavior="$behavior" update_interval="$update_interval" \
+		yq -M -i '
+		.rule-providers.[strenv(name)].type = strenv(type) |
+		.rule-providers.[strenv(name)].url = strenv(url) |
+		.rule-providers.[strenv(name)].proxy = strenv(node) |
+		.rule-providers.[strenv(name)].size_limit = env(file_size_limit) |
+		.rule-providers.[strenv(name)].format = strenv(file_format) |
+		.rule-providers.[strenv(name)].behavior = strenv(behavior) |
+		.rule-providers.[strenv(name)].interval = env(update_interval)
+		' "$RUN_PROFILE_PATH"
+	elif [ "$type" == "file" ]; then
+		name="$name" type="$type" file_path="$file_path" file_format="$file_format" behavior="$behavior" \
+		yq -M -i '
+		.rule-providers.[strenv(name)].type = strenv(type) |
+		.rule-providers.[strenv(name)].path = strenv(file_path) |
+		.rule-providers.[strenv(name)].format = strenv(file_format) |
+		.rule-providers.[strenv(name)].behavior = strenv(behavior)
+		' "$RUN_PROFILE_PATH"
+	fi
+}
+
+mixin_rules() {
+	local section="$1"
+	local enabled
+	config_get_bool enabled "$section" "enabled" 0
+	if [ "$enabled" == 0 ]; then
+		return
+	fi
+	local type match node no_resolve
+	config_get type "$section" "type"
+	config_get match "$section" "match"
+	config_get node "$section" "node"
+	config_get_bool no_resolve "$section" "no_resolve" 0
+	local rule
+	if [ -z "$type" ]; then
+		rule="$match,$node" 
+	else
+		rule="$type,$match,$node"
+	fi
+	if [ "$no_resolve" == 1 ]; then
+		rule="$rule,no-resolve"
+	fi
+	rule="$rule" yq -M -i '.nikki-rules += [strenv(rule)]' "$RUN_PROFILE_PATH"
 }
 
 add_bypass_user() {
