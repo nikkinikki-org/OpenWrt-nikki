@@ -24,7 +24,6 @@ RUN_PROFILE_PATH="$RUN_DIR/config.yaml"
 PROVIDERS_DIR="$RUN_DIR/providers"
 RULE_PROVIDERS_DIR="$PROVIDERS_DIR/rule"
 PROXY_PROVIDERS_DIR="$PROVIDERS_DIR/proxy"
-RUN_UI_DIR="$RUN_DIR/ui"
 
 # log
 LOG_DIR="/var/log/nikki"
@@ -41,6 +40,7 @@ BRIDGE_NF_CALL_IP6TABLES_FLAG="$FLAG_DIR/bridge_nf_call_ip6tables.flag"
 SH_DIR="$HOME_DIR/scripts"
 INCLUDE_SH="$SH_DIR/include.sh"
 FIREWALL_INCLUDE_SH="$SH_DIR/firewall_include.sh"
+MIXIN_YQ="$SH_DIR/mixin.yq"
 
 # nftables
 NFT_DIR="$HOME_DIR/nftables"
