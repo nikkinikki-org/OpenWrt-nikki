@@ -304,17 +304,7 @@ service_started() {
 		return
 	fi
 	# get config
-	### inbound
-	local http_port socks_port mixed_port redir_port tproxy_port
-	config_get http_port "mixin" "http_port" "8080"
-	config_get socks_port "mixin" "socks_port" "1080"
-	config_get mixed_port "mixin" "mixed_port" "7890"
-	config_get redir_port "mixin" "redir_port" "7891"
-	config_get tproxy_port "mixin" "tproxy_port" "7892"
-	### dns
-	local dns_port fake_ip_range
-	config_get dns_port "mixin" "dns_port" "1053"
-	config_get fake_ip_range "mixin" "fake_ip_range" "198.18.0.1/16"
+	## mixin
 	### tun
 	local tun_device
 	config_get tun_device "mixin" "tun_device" "nikki"
@@ -330,8 +320,12 @@ service_started() {
 	config_get_bool router_proxy "proxy" "router_proxy" 0
 	config_get_bool lan_proxy "proxy" "lan_proxy" 0
 	### access control
-	local access_control_mode bypass_china_mainland_ip proxy_tcp_dport proxy_udp_dport bypass_dscp
+	local access_control_mode 
 	config_get access_control_mode "proxy" "access_control_mode"
+	### bypass
+	local bypass_user bypass_group bypass_china_mainland_ip proxy_tcp_dport proxy_udp_dport bypass_dscp
+	config_get bypass_user "proxy" "bypass_user"
+	config_get bypass_group "proxy" "bypass_group"
 	config_get_bool bypass_china_mainland_ip "proxy" "bypass_china_mainland_ip" 0
 	config_get proxy_tcp_dport "proxy" "proxy_tcp_dport" "0-65535"
 	config_get proxy_udp_dport "proxy" "proxy_udp_dport" "0-65535"
@@ -374,72 +368,48 @@ service_started() {
 	if [ "$tproxy_enable" == 1 ]; then
 		if [ "$ipv4_proxy" == 1 ]; then
 			ip -4 route add local default dev lo table "$TPROXY_ROUTE_TABLE"
+			ip -4 rule add pref "$TPROXY_RULE_PREF" fwmark "$TPROXY_FW_MARK" table "$TPROXY_ROUTE_TABLE"
 		fi
 		if [ "$ipv6_proxy" == 1 ]; then
 			ip -6 route add local default dev lo table "$TPROXY_ROUTE_TABLE"
+			ip -4 rule add pref "$TPROXY_RULE_PREF" fwmark "$TPROXY_FW_MARK" table "$TPROXY_ROUTE_TABLE"
 		fi
 	fi
 	if [ "$tun_enable" == 1 ]; then
 		if [ "$ipv4_proxy" == 1 ]; then
 			ip -4 route add unicast default dev "$tun_device" table "$TUN_ROUTE_TABLE"
+			ip -4 rule add pref "$TUN_RULE_PREF" fwmark "$TUN_FW_MARK" table "$TUN_ROUTE_TABLE"
 		fi
 		if [ "$ipv6_proxy" == 1 ]; then
 			ip -6 route add unicast default dev "$tun_device" table "$TUN_ROUTE_TABLE"
+			ip -4 rule add pref "$TUN_RULE_PREF" fwmark "$TUN_FW_MARK" table "$TUN_ROUTE_TABLE"
 		fi
 		$FIREWALL_INCLUDE_SH
 	fi
-	local tcp_route_table
-	if [ "$tcp_transparent_proxy_mode" == "tproxy" ]; then
-		tcp_route_table="$TPROXY_ROUTE_TABLE"
-	elif [ "$tcp_transparent_proxy_mode" == "tun" ]; then
-		tcp_route_table="$TUN_ROUTE_TABLE"
-	fi
-	if [ -n "$tcp_route_table" ]; then
-		if [ "$ipv4_proxy" == 1 ]; then
-			ip -4 rule add pref "$TCP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto tcp table "$tcp_route_table"
-		fi
-		if [ "$ipv6_proxy" == 1 ]; then
-			ip -6 rule add pref "$TCP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto tcp table "$tcp_route_table"
-		fi
-	fi
-	local udp_route_table
-	if [ "$udp_transparent_proxy_mode" == "tproxy" ]; then
-		udp_route_table="$TPROXY_ROUTE_TABLE"
-	elif [ "$udp_transparent_proxy_mode" == "tun" ]; then
-		udp_route_table="$TUN_ROUTE_TABLE"
-	fi
-	if [ -n "$udp_route_table" ]; then
-		if [ "$ipv4_proxy" == 1 ]; then
-			ip -4 rule add pref "$UDP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto udp table "$udp_route_table"
-		fi
-		if [ "$ipv6_proxy" == 1 ]; then
-			ip -6 rule add pref "$UDP_RULE_PREF" fwmark "$FW_MARK/$FW_MARK_MASK" ipproto udp table "$udp_route_table"
-		fi
-	fi
-	nft -f "$HIJACK_NFT" -D NIKKI_GROUP="$NIKKI_GROUP" -D FW_MARK="$FW_MARK" -D FW_MARK_MASK="$FW_MARK_MASK" -D TUN_DEVICE="$tun_device" -D FAKE_IP="$fake_ip_range" -D DNS_PORT="$dns_port" -D REDIR_PORT="$redir_port" -D TPROXY_PORT="$tproxy_port"
+	utpl -D nikki_group="$NIKKI_GROUP" -D tproxy_fw_mark="$TPROXY_FW_MARK" -D tun_fw_mark="$TUN_FW_MARK" -S "$HIJACK_UT" | nft -f -
 	nft -f "$RESERVED_IP_NFT"
 	nft -f "$RESERVED_IP6_NFT"
 	# dns hijack
 	if [ "$ipv4_dns_hijack" == 1 ]; then
 		log "Transparent Proxy" "Hijack IPv4 dns request."
-		nft add element inet "$FW_TABLE" dns_hijack_nfproto \{ ipv4 \}
 	fi
 	if [ "$ipv6_dns_hijack" == 1 ]; then
 		log "Transparent Proxy" "Hijack IPv6 dns request."
-		nft add element inet "$FW_TABLE" dns_hijack_nfproto \{ ipv6 \}
 	fi
 	# proxy
 	if [ "$ipv4_proxy" == 1 ]; then
 		log "Transparent Proxy" "Proxy IPv4 traffic."
-		nft add element inet "$FW_TABLE" proxy_nfproto \{ ipv4 \}
 	fi
 	if [ "$ipv6_proxy" == 1 ]; then
 		log "Transparent Proxy" "Proxy IPv6 traffic."
-		nft add element inet "$FW_TABLE" proxy_nfproto \{ ipv6 \}
 	fi
 	# bypass
-	config_list_foreach "proxy" "bypass_user" add_bypass_user
-	config_list_foreach "proxy" "bypass_group" add_bypass_group
+	if [  -n "$bypass_user" ]; then
+		log "Transparent Proxy" "Bypass user: $bypass_user."
+	fi
+	if [  -n "$bypass_group" ]; then
+		log "Transparent Proxy" "Bypass group: $bypass_group."
+	fi
 	if [ "$bypass_china_mainland_ip" == 1 ]; then
 		log "Transparent Proxy" "Bypass china mainland ip."
 		if [ "$ipv4_proxy" == 1 ]; then
@@ -451,32 +421,12 @@ service_started() {
 	fi
 	log "Transparent Proxy" "Destination TCP Port to Proxy: $proxy_tcp_dport."
 	log "Transparent Proxy" "Destination UDP Port to Proxy: $proxy_udp_dport."
-	local proxy_dport
-	for proxy_dport in $proxy_tcp_dport; do
-		nft add element inet "$FW_TABLE" proxy_dport \{ "tcp" . "$proxy_dport" \}
-	done
-	for proxy_dport in $proxy_udp_dport; do
-		nft add element inet "$FW_TABLE" proxy_dport \{ "udp" . "$proxy_dport" \}
-	done
 	if [ -n "$bypass_dscp" ]; then
 		log "Transparent Proxy" "Bypass DSCP: $bypass_dscp."
-		local dscp
-		for dscp in $bypass_dscp; do
-			nft add element inet "$FW_TABLE" bypass_dscp \{ "$dscp" \}
-		done
 	fi
 	# router proxy
 	if [ "$router_proxy" == 1 ]; then
 		log "Transparent Proxy" "Set proxy for router."
-		if [ "$tcp_transparent_proxy_mode" == "redirect" ]; then
-			nft insert rule inet "$FW_TABLE" nat_output jump router_dns_hijack
-			nft add rule inet "$FW_TABLE" nat_output meta l4proto tcp jump "router_${tcp_transparent_proxy_mode}"
-		else
-			nft flush chain inet "$FW_TABLE" nat_output
-			nft add rule inet "$FW_TABLE" nat_output jump router_dns_hijack
-			nft add rule inet "$FW_TABLE" mangle_output meta l4proto tcp jump "router_${tcp_transparent_proxy_mode}"
-		fi
-		nft add rule inet "$FW_TABLE" mangle_output meta l4proto udp jump "router_${udp_transparent_proxy_mode}"
 	fi
 	# lan proxy
 	if [ "$lan_proxy" == 1 ]; then
@@ -489,19 +439,6 @@ service_started() {
 		elif [ "$access_control_mode" == "block" ]; then
 			log "Transparent Proxy" "Access Control is using block mode, set proxy for client which is not in acl."
 		fi
-		config_list_foreach "proxy" "acl_ip" add_acl_ip
-		config_list_foreach "proxy" "acl_ip6" add_acl_ip6
-		config_list_foreach "proxy" "acl_mac" add_acl_mac
-		config_list_foreach "proxy" "acl_interface" add_acl_interface
-		if [ "$tcp_transparent_proxy_mode" == "redirect" ]; then
-			nft insert rule inet "$FW_TABLE" dstnat jump "${access_control_mode}_dns_hijack"
-			nft add rule inet "$FW_TABLE" dstnat meta l4proto tcp jump "${access_control_mode}_${tcp_transparent_proxy_mode}"
-		else
-			nft flush chain inet "$FW_TABLE" dstnat
-			nft add rule inet "$FW_TABLE" dstnat jump "${access_control_mode}_dns_hijack"
-			nft add rule inet "$FW_TABLE" mangle_prerouting meta l4proto tcp jump "${access_control_mode}_${tcp_transparent_proxy_mode}"
-		fi
-		nft add rule inet "$FW_TABLE" mangle_prerouting meta l4proto udp jump "${access_control_mode}_${udp_transparent_proxy_mode}"
 	fi
 	# fix compatible between tproxy and dockerd (kmod-br-netfilter)
 	if [ "$tproxy_enable" == 1 ] && (lsmod | grep -q br_netfilter); then
@@ -539,21 +476,17 @@ cleanup() {
 	# clear log
 	clear_log
 	# delete routing policy
-	ip -4 rule del ipproto tcp table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
-	ip -4 rule del ipproto udp table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
-	ip -4 rule del ipproto tcp table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
-	ip -4 rule del ipproto udp table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
-	ip -6 rule del ipproto tcp table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
-	ip -6 rule del ipproto udp table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
-	ip -6 rule del ipproto tcp table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
-	ip -6 rule del ipproto udp table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
+	ip -4 rule del table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
+	ip -4 rule del table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
+	ip -6 rule del table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
+	ip -6 rule del table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
 	# delete routing table
 	ip -4 route flush table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
 	ip -4 route flush table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
 	ip -6 route flush table "$TPROXY_ROUTE_TABLE" > /dev/null 2>&1
 	ip -6 route flush table "$TUN_ROUTE_TABLE" > /dev/null 2>&1
 	# delete hijack
-	nft delete table inet "$FW_TABLE" > /dev/null 2>&1
+	nft delete table inet nikki > /dev/null 2>&1
 	local handles handle
 	handles=$(nft --json list table inet fw4 | yq -M '.nftables[] | select(has("rule")) | .rule | select(.chain == "input" and .comment == "nikki") | .handle')
 	for handle in $handles; do
@@ -738,40 +671,6 @@ mixin_rules() {
 		rule="$rule,no-resolve"
 	fi
 	rule="$rule" yq -M -i '.nikki-rules += [strenv(rule)]' "$RUN_PROFILE_PATH"
-}
-
-add_bypass_user() {
-	local user; user="$1"
-	if [ "$user" != "root" ] && (cut -d ':' -f 1 < /etc/passwd | grep -q "$user"); then
-		nft add element inet "$FW_TABLE" bypass_user \{ "$user" \}
-	fi
-}
-
-add_bypass_group() {
-	local group; group="$1"
-	if [ "$group" != "root" ] && (cut -d ':' -f 1 < /etc/group | grep -q "$group"); then
-		nft add element inet "$FW_TABLE" bypass_group \{ "$group" \}
-	fi
-}
-
-add_acl_ip() {
-	nft add element inet "$FW_TABLE" acl_ip \{ "$1" \}
-}
-
-add_acl_ip6() {
-	nft add element inet "$FW_TABLE" acl_ip6 \{ "$1" \}
-}
-
-add_acl_mac() {
-	nft add element inet "$FW_TABLE" acl_mac \{ "$1" \}
-}
-
-add_acl_interface() {
-	local interface; interface="$1"
-	local device; network_get_device device "$interface"
-	if [ -n "$device" ]; then
-		nft add element inet "$FW_TABLE" acl_interface \{ "$device" \}
-	fi
 }
 
 update_subscription() {

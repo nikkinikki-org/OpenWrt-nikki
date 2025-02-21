@@ -66,7 +66,7 @@ define Package/nikki/install
 	$(INSTALL_BIN) $(CURDIR)/files/scripts/firewall_include.sh $(1)/etc/nikki/scripts/firewall_include.sh
 	$(INSTALL_BIN) $(CURDIR)/files/scripts/mixin.yq $(1)/etc/nikki/scripts/mixin.yq
 
-	$(INSTALL_BIN) $(CURDIR)/files/nftables/hijack.nft $(1)/etc/nikki/nftables/hijack.nft
+	$(INSTALL_BIN) $(CURDIR)/files/nftables/hijack.ut $(1)/etc/nikki/nftables/hijack.ut
 	$(INSTALL_BIN) $(CURDIR)/files/nftables/reserved_ip.nft $(1)/etc/nikki/nftables/reserved_ip.nft
 	$(INSTALL_BIN) $(CURDIR)/files/nftables/reserved_ip6.nft $(1)/etc/nikki/nftables/reserved_ip6.nft
 	$(INSTALL_BIN) $(CURDIR)/files/nftables/geoip_cn.nft $(1)/etc/nikki/nftables/geoip_cn.nft

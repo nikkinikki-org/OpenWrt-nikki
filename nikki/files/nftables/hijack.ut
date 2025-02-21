@@ -1,0 +1,408 @@
+#!/usr/bin/utpl
+
+{%-
+	'use strict';
+
+	import { cursor } from 'uci';
+
+	function ensure_array(obj) {
+		if (obj == null) {
+			return [];
+		}
+		if (type(obj) == 'array') {
+			return obj;
+		}
+		return [obj];
+	}
+
+	const uci = cursor();
+
+	uci.load('nikki');
+
+	const redir_port = uci.get('nikki', 'mixin', 'redir_port');
+	const tproxy_port = uci.get('nikki', 'mixin', 'tproxy_port');
+
+	const dns_port = uci.get('nikki', 'mixin', 'dns_port');
+	const fake_ip_range = uci.get('nikki', 'mixin', 'fake_ip_range');
+
+	const tun_device = uci.get('nikki', 'mixin', 'tun_device');
+
+	const tcp_transparent_proxy_mode = uci.get('nikki', 'proxy', 'tcp_transparent_proxy_mode');
+	const udp_transparent_proxy_mode = uci.get('nikki', 'proxy', 'udp_transparent_proxy_mode');
+	const ipv4_dns_hijack = uci.get('nikki', 'proxy', 'ipv4_dns_hijack');
+	const ipv6_dns_hijack = uci.get('nikki', 'proxy', 'ipv6_dns_hijack');
+	const ipv4_proxy = uci.get('nikki', 'proxy', 'ipv4_proxy');
+	const ipv6_proxy = uci.get('nikki', 'proxy', 'ipv6_proxy');
+	const router_proxy = uci.get('nikki', 'proxy', 'router_proxy');
+	const lan_proxy = uci.get('nikki', 'proxy', 'lan_proxy');
+
+	const access_control_mode = uci.get('nikki', 'proxy', 'access_control_mode');
+	const acl_ip = ensure_array(uci.get('nikki', 'proxy', 'acl_ip'));
+	const acl_ip6 = ensure_array(uci.get('nikki', 'proxy', 'acl_ip6'));
+	const acl_mac = ensure_array(uci.get('nikki', 'proxy', 'acl_mac'));
+	const acl_interface = ensure_array(uci.get('nikki', 'proxy', 'acl_interface'));
+
+	const bypass_user = ensure_array(uci.get('nikki', 'proxy', 'bypass_user'));
+	const bypass_group = ensure_array(uci.get('nikki', 'proxy', 'bypass_group'));
+	const proxy_tcp_dport = ensure_array(uci.get('nikki', 'proxy', 'proxy_tcp_dport'));
+	const proxy_udp_dport = ensure_array(uci.get('nikki', 'proxy', 'proxy_udp_dport'));
+	const bypass_dscp = ensure_array(uci.get('nikki', 'proxy', 'bypass_dscp'));
+
+	const dns_hijack_nfproto = [];
+	if (ipv4_dns_hijack == '1') {
+		push(dns_hijack_nfproto, 'ipv4')
+	}
+	if (ipv6_dns_hijack == '1') {
+		push(dns_hijack_nfproto, 'ipv6')
+	}
+
+	const proxy_nfproto = [];
+	if (ipv4_proxy == '1') {
+		push(proxy_nfproto, 'ipv4')
+	}
+	if (ipv6_proxy == '1') {
+		push(proxy_nfproto, 'ipv6')
+	}
+
+	const proxy_dport = [];
+	for (let port in proxy_tcp_dport) {
+		push(proxy_dport, `tcp . ${port}`)
+	}
+	for (let port in proxy_udp_dport) {
+		push(proxy_dport, `udp . ${port}`)
+	}
+
+	push(bypass_group, nikki_group);
+-%}
+
+table inet nikki {
+	set bypass_user {
+		type uid
+		flags interval
+		auto-merge
+		{% if (length(bypass_user) > 0): %}
+		elements = {
+			{% for (let x in bypass_user): %}
+			{{ x }},
+			{% endfor %}
+		}
+		{% endif %}
+	}
+
+	set bypass_group {
+		type gid
+		flags interval
+		auto-merge
+		{% if (length(bypass_group) > 0): %}
+		elements = {
+			{% for (let x in bypass_group): %}
+			{{ x }},
+			{% endfor %}
+		}
+		{% endif %}
+	}
+
+	set bypass_dscp {
+		type dscp
+		flags interval
+		auto-merge
+		{% if (length(bypass_dscp) > 0): %}
+		elements = {
+			{% for (let x in bypass_dscp): %}
+			{{ x }},
+			{% endfor %}
+		}
+		{% endif %}
+	}
+
+	set dns_hijack_nfproto {
+		type nf_proto
+		flags interval
+		{% if (length(dns_hijack_nfproto) > 0): %}
+		elements = {
+			{% for (let x in dns_hijack_nfproto): %}
+			{{ x }},
+			{% endfor %}
+		}
+		{% endif %}
+	}
+
+	set proxy_nfproto {
+		type nf_proto
+		flags interval
+		{% if (length(proxy_nfproto) > 0): %}
+		elements = {
+			{% for (let x in proxy_nfproto): %}
+			{{ x }},
+			{% endfor %}
+		}
+		{% endif %}
+	}
+
+	set china_ip {
+		type ipv4_addr
+		flags interval
+	}
+
+	set china_ip6 {
+		type ipv6_addr
+		flags interval
+	}
+
+	set reserved_ip {
+		type ipv4_addr
+		flags interval
+		auto-merge
+	}
+
+	set reserved_ip6 {
+		type ipv6_addr
+		flags interval
+		auto-merge
+	}
+
+	set proxy_dport {
+		type inet_proto . inet_service
+		flags interval
+		auto-merge
+		{% if (length(proxy_dport) > 0): %}
+		elements = {
+			{% for (let x in proxy_dport): %}
+			{{ x }},
+			{% endfor %}
+		}
+		{% endif %}
+	}
+
+	set acl_ip {
+		type ipv4_addr
+		flags interval
+		auto-merge
+		{% if (length(acl_ip) > 0): %}
+		elements = {
+			{% for (let x in acl_ip): %}
+			{{ x }},
+			{% endfor %}
+		}
+		{% endif %}
+	}
+
+	set acl_ip6 {
+		type ipv6_addr
+		flags interval
+		auto-merge
+		{% if (length(acl_ip6) > 0): %}
+		elements = {
+			{% for (let x in acl_ip6): %}
+			{{ x }},
+			{% endfor %}
+		}
+		{% endif %}
+	}
+
+	set acl_mac {
+		type ether_addr
+		flags interval
+		auto-merge
+		{% if (length(acl_mac) > 0): %}
+		elements = {
+			{% for (let x in acl_mac): %}
+			{{ x }},
+			{% endfor %}
+		}
+		{% endif %}
+	}
+
+	set acl_interface {
+		type ifname
+		flags interval
+		auto-merge
+		{% if (length(acl_interface) > 0): %}
+		elements = {
+			{% for (let x in acl_interface): %}
+			{{ x }},
+			{% endfor %}
+		}
+		{% endif %}
+	}
+
+	chain all_dns_hijack {
+		meta l4proto { tcp, udp } th dport 53 counter redirect to :{{ dns_port }}
+	}
+
+	chain allow_dns_hijack {
+		meta l4proto { tcp, udp } th dport 53 ip saddr @acl_ip counter redirect to :{{ dns_port }}
+		meta l4proto { tcp, udp } th dport 53 ip6 saddr @acl_ip6 counter redirect to :{{ dns_port }}
+		meta l4proto { tcp, udp } th dport 53 ether saddr @acl_mac counter redirect to :{{ dns_port }}
+		meta l4proto { tcp, udp } th dport 53 iifname @acl_interface counter redirect to :{{ dns_port }}
+	}
+
+	chain block_dns_hijack {
+		meta l4proto { tcp, udp } th dport 53 ip saddr @acl_ip counter return
+		meta l4proto { tcp, udp } th dport 53 ip6 saddr @acl_ip6 counter return
+		meta l4proto { tcp, udp } th dport 53 ether saddr @acl_mac counter return
+		meta l4proto { tcp, udp } th dport 53 iifname @acl_interface counter return
+		meta l4proto { tcp, udp } th dport 53 counter redirect to :{{ dns_port }}
+	}
+
+	chain all_redirect {
+		meta l4proto tcp counter redirect to :{{ redir_port }}
+	}
+
+	chain allow_redirect {
+		meta l4proto tcp ip saddr @acl_ip counter redirect to :{{ redir_port }}
+		meta l4proto tcp ip6 saddr @acl_ip6 counter redirect to :{{ redir_port }}
+		meta l4proto tcp ether saddr @acl_mac counter redirect to :{{ redir_port }}
+		meta l4proto tcp iifname @acl_interface counter redirect to :{{ redir_port }}
+	}
+
+	chain block_redirect {
+		meta l4proto tcp ip saddr @acl_ip counter return
+		meta l4proto tcp ip6 saddr @acl_ip6 counter return
+		meta l4proto tcp ether saddr @acl_mac counter return
+		meta l4proto tcp iifname @acl_interface counter return
+		meta l4proto tcp counter redirect to :{{ redir_port }}
+	}
+
+	chain all_tproxy {
+		meta l4proto { tcp, udp } meta mark set {{ tproxy_fw_mark }} tproxy to :{{ tproxy_port }} counter accept
+	}
+
+	chain allow_tproxy {
+		meta l4proto { tcp, udp } ip saddr @acl_ip meta mark set {{ tproxy_fw_mark }} tproxy ip to :{{ tproxy_port }} counter accept
+		meta l4proto { tcp, udp } ip6 saddr @acl_ip6 meta mark set {{ tproxy_fw_mark }} tproxy ip6 to :{{ tproxy_port }} counter accept
+		meta l4proto { tcp, udp } ether saddr @acl_mac meta mark set {{ tproxy_fw_mark }} tproxy to :{{ tproxy_port }} counter accept
+		meta l4proto { tcp, udp } iifname @acl_interface meta mark set {{ tproxy_fw_mark }} tproxy to :{{ tproxy_port }} counter accept
+	}
+
+	chain block_tproxy {
+		meta l4proto { tcp, udp } ip saddr @acl_ip counter return
+		meta l4proto { tcp, udp } ip6 saddr @acl_ip6 counter return
+		meta l4proto { tcp, udp } ether saddr @acl_mac counter return
+		meta l4proto { tcp, udp } iifname @acl_interface counter return
+		meta l4proto { tcp, udp } meta mark set {{ tproxy_fw_mark }} tproxy to :{{ tproxy_port }} counter accept
+	}
+
+	chain all_tun {
+		meta l4proto { tcp, udp } meta mark set {{ tun_fw_mark }} counter
+	}
+
+	chain allow_tun {
+		meta l4proto { tcp, udp } ip saddr @acl_ip meta mark set {{ tun_fw_mark }} counter
+		meta l4proto { tcp, udp } ip6 saddr @acl_ip6 meta mark set {{ tun_fw_mark }} counter
+		meta l4proto { tcp, udp } ether saddr @acl_mac meta mark set {{ tun_fw_mark }} counter
+		meta l4proto { tcp, udp } iifname @acl_interface meta mark set {{ tun_fw_mark }} counter
+	}
+
+	chain block_tun {
+		meta l4proto { tcp, udp } ip saddr @acl_ip counter return
+		meta l4proto { tcp, udp } ip6 saddr @acl_ip6 counter return
+		meta l4proto { tcp, udp } ether saddr @acl_mac counter return
+		meta l4proto { tcp, udp } iifname @acl_interface counter return
+		meta l4proto { tcp, udp } meta mark set {{ tun_fw_mark }} counter
+	}
+
+	{% if (router_proxy == '1'): %}
+	chain nat_output {
+		type nat hook output priority filter; policy accept;
+		meta skuid @bypass_user counter return
+		meta skgid @bypass_group counter return
+		meta nfproto @dns_hijack_nfproto meta l4proto { tcp, udp } th dport 53 counter redirect to :{{ dns_port }}
+		{% if (tcp_transparent_proxy_mode == 'redirect'): %}
+		fib daddr type { local, multicast, broadcast, anycast } counter return
+		ct direction reply counter return
+		ip daddr @reserved_ip counter return
+		ip6 daddr @reserved_ip6 counter return
+		ip daddr @china_ip counter return
+		ip6 daddr @china_ip6 counter return
+		meta nfproto ipv4 meta l4proto . th dport != @proxy_dport ip daddr != {{ fake_ip_range }} counter return
+		meta nfproto ipv6 meta l4proto . th dport != @proxy_dport counter return
+		meta l4proto { tcp, udp } ip dscp == @bypass_dscp ip daddr != {{ fake_ip_range }} counter return
+		meta l4proto { tcp, udp } ip6 dscp == @bypass_dscp counter return
+		meta nfproto @proxy_nfproto meta l4proto tcp counter redirect to :{{ redir_port }}
+		{% endif %}
+	}
+
+	chain mangle_output {
+		type route hook output priority mangle; policy accept;
+		meta skuid @bypass_user counter return
+		meta skgid @bypass_group counter return
+		fib daddr type { local, multicast, broadcast, anycast } counter return
+		ct direction reply counter return
+		ip daddr @reserved_ip counter return
+		ip6 daddr @reserved_ip6 counter return
+		ip daddr @china_ip counter return
+		ip6 daddr @china_ip6 counter return
+		meta nfproto ipv4 meta l4proto . th dport != @proxy_dport ip daddr != {{ fake_ip_range }} counter return
+		meta nfproto ipv6 meta l4proto . th dport != @proxy_dport counter return
+		meta l4proto { tcp, udp } ip dscp == @bypass_dscp ip daddr != {{ fake_ip_range }} counter return
+		meta l4proto { tcp, udp } ip6 dscp == @bypass_dscp counter return
+		meta nfproto @dns_hijack_nfproto meta l4proto { tcp, udp } th dport 53 counter return
+		{% if (tcp_transparent_proxy_mode == 'tproxy'): %}
+		meta nfproto @proxy_nfproto meta l4proto tcp meta mark set {{ tproxy_fw_mark }} counter
+		{% elif (tcp_transparent_proxy_mode == 'tun'): %}
+		meta nfproto @proxy_nfproto meta l4proto tcp meta mark set {{ tun_fw_mark }} counter
+		{% endif %}
+		{% if (udp_transparent_proxy_mode == 'tproxy'): %}
+		meta nfproto @proxy_nfproto meta l4proto udp meta mark set {{ tproxy_fw_mark }} counter
+		{% elif (udp_transparent_proxy_mode == 'tun'): %}
+		meta nfproto @proxy_nfproto meta l4proto udp meta mark set {{ tun_fw_mark }} counter
+		{% endif %}
+	}
+
+	chain mangle_prerouting_router {
+		type filter hook prerouting priority mangle - 1; policy accept;
+		{% if (tcp_transparent_proxy_mode == 'tproxy' || udp_transparent_proxy_mode == 'tproxy'): %}
+		meta l4proto { tcp, udp } iifname lo meta mark {{ tproxy_fw_mark }} tproxy to :{{ tproxy_port }} counter accept
+		{% endif %}
+		{% if (tcp_transparent_proxy_mode == 'tun' || udp_transparent_proxy_mode == 'tun'): %}
+		meta l4proto { tcp, udp } iifname {{ tun_device }} counter accept
+		{% endif %}
+	}
+	{% endif %}
+
+	{% if (lan_proxy == '1'): %}
+	chain dstnat {
+		type nat hook prerouting priority dstnat + 1; policy accept;
+		meta nfproto @dns_hijack_nfproto jump {{ access_control_mode }}_dns_hijack
+		{% if (tcp_transparent_proxy_mode == 'redirect'): %}
+		fib daddr type { local, multicast, broadcast, anycast } counter return
+		ct direction reply counter return
+		ip daddr @reserved_ip counter return
+		ip6 daddr @reserved_ip6 counter return
+		ip daddr @china_ip counter return
+		ip6 daddr @china_ip6 counter return
+		meta nfproto ipv4 meta l4proto . th dport != @proxy_dport ip daddr != {{ fake_ip_range }} counter return
+		meta nfproto ipv6 meta l4proto . th dport != @proxy_dport counter return
+		meta l4proto { tcp, udp } ip dscp == @bypass_dscp ip daddr != {{ fake_ip_range }} counter return
+		meta l4proto { tcp, udp } ip6 dscp == @bypass_dscp counter return
+		meta nfproto @proxy_nfproto jump {{ access_control_mode }}_redirect
+		{% endif %}
+	}
+
+	chain mangle_prerouting_lan {
+		type filter hook prerouting priority mangle; policy accept;
+		fib daddr type { local, multicast, broadcast, anycast } counter return
+		ct direction reply counter return
+		ip daddr @reserved_ip counter return
+		ip6 daddr @reserved_ip6 counter return
+		ip daddr @china_ip counter return
+		ip6 daddr @china_ip6 counter return
+		meta nfproto ipv4 meta l4proto . th dport != @proxy_dport ip daddr != {{ fake_ip_range }} counter return
+		meta nfproto ipv6 meta l4proto . th dport != @proxy_dport counter return
+		meta l4proto { tcp, udp } ip dscp == @bypass_dscp ip daddr != {{ fake_ip_range }} counter return
+		meta l4proto { tcp, udp } ip6 dscp == @bypass_dscp counter return
+		meta nfproto @dns_hijack_nfproto meta l4proto { tcp, udp } th dport 53 counter return
+		{% if (tcp_transparent_proxy_mode == 'tproxy'): %}
+		meta nfproto @proxy_nfproto meta l4proto tcp jump {{ access_control_mode }}_tproxy
+		{% elif (tcp_transparent_proxy_mode == 'tun'): %}
+		meta nfproto @proxy_nfproto meta l4proto tcp jump {{ access_control_mode }}_tun
+		{% endif %}
+		{% if (udp_transparent_proxy_mode == 'tproxy'): %}
+		meta nfproto @proxy_nfproto meta l4proto udp jump {{ access_control_mode }}_tproxy
+		{% elif (udp_transparent_proxy_mode == 'tun'): %}
+		meta nfproto @proxy_nfproto meta l4proto udp jump {{ access_control_mode }}_tun
+		{% endif %}
+	}
+	{% endif %}
+}

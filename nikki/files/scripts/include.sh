@@ -5,11 +5,10 @@ NIKKI_USER="root"
 NIKKI_GROUP="nikki"
 
 # routing
-FW_TABLE="nikki"
-FW_MARK="0x80"
-FW_MARK_MASK="0xFF"
-TCP_RULE_PREF="1024"
-UDP_RULE_PREF="1025"
+TPROXY_FW_MARK="0x80"
+TUN_FW_MARK="0x81"
+TPROXY_RULE_PREF="1024"
+TUN_RULE_PREF="1025"
 TPROXY_ROUTE_TABLE="80"
 TUN_ROUTE_TABLE="81"
 
@@ -44,7 +43,7 @@ MIXIN_YQ="$SH_DIR/mixin.yq"
 
 # nftables
 NFT_DIR="$HOME_DIR/nftables"
-HIJACK_NFT="$NFT_DIR/hijack.nft"
+HIJACK_UT="$NFT_DIR/hijack.ut"
 RESERVED_IP_NFT="$NFT_DIR/reserved_ip.nft"
 RESERVED_IP6_NFT="$NFT_DIR/reserved_ip6.nft"
 GEOIP_CN_NFT="$NFT_DIR/geoip_cn.nft"
