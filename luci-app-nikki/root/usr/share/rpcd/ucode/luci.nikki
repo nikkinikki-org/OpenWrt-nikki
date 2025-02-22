@@ -2,7 +2,7 @@
 
 'use strict';
 
-import { writefile, popen } from 'fs';
+import { popen } from 'fs';
 
 const methods = {
 	version: {
@@ -37,26 +37,17 @@ const methods = {
             let success = false;
             if (req.args?.section_id) {
                 const section_id = req.args?.section_id;
-                const success = system(['service', 'nikki', 'update_subscription', section_id]) == 0;
+                success = system(['service', 'nikki', 'update_subscription', section_id]) == 0;
             }
             return { success: success };
         }
     },
-	clear_log: {
-		args: { type: 'type' },
-		call: function(req) {
-            let success = false;
-            if (req.args?.type) {
-                const type = req.args?.type;
-                if (type == 'app') {
-                    success = writefile('/var/log/nikki/app.log', null) != null;
-                } else if (type == 'core') {
-                    success = writefile('/var/log/nikki/core.log', null) != null;
-                }
-            }
+    debug: {
+        call: function() {
+            const success = system('/etc/nikki/scripts/debug.sh > /var/run/nikki/debug.md') == 0;
             return { success: success };
-		}
-	}
+        }
+    }
 };
 
 return { 'luci.nikki': methods };

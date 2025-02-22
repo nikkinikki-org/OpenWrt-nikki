@@ -31,10 +31,9 @@ const callNikkiUpdateSubscription = rpc.declare({
     expect: { '': {} }
 });
 
-const callNikkiClearLog = rpc.declare({
+const callNikkiDebug = rpc.declare({
     object: 'luci.nikki',
-    method: 'clear_log',
-    params: ['type'],
+    method: 'debug',
     expect: { '': {} }
 });
 
@@ -145,11 +144,15 @@ return baseclass.extend({
     },
 
     clearAppLog: function () {
-        return callNikkiClearLog('app');
+        return fs.write(this.appLogPath);
     },
 
     clearCoreLog: function () {
-        return callNikkiClearLog('core');
+        return fs.write(this.coreLogPath);
+    },
+
+    debug: function () {
+        return callNikkiDebug();
     },
 
     getUsers: function () {

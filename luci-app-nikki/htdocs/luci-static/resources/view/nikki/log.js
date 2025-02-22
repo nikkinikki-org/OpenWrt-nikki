@@ -2,6 +2,7 @@
 'require form';
 'require view';
 'require uci';
+'require fs';
 'require poll';
 'require tools.nikki as nikki';
 
@@ -87,6 +88,30 @@ return view.extend({
         o.onclick = function () {
             const element = m.lookupOption('nikki.log._core_log')[0].getUIElement('log').node.firstChild;
             element.scrollTop = element.scrollHeight;
+        };
+
+        s.tab('debug_log', _('Debug Log'));
+
+        o = s.taboption('debug_log', form.Button, '_generate_download_debug_log');
+        o.inputstyle = 'negative';
+        o.inputtitle = _('Generate & Download');
+        o.onclick = function () {
+            return nikki.debug().then(function () {
+                fs.read_direct('/var/run/nikki/debug.md', 'blob').then(function (data) {
+                    // create url
+                    const url = window.URL.createObjectURL(data, { type: 'text/markdown' });
+                    // create link
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'nikki_debug.md';
+                    document.body.appendChild(link);
+                    // download
+                    link.click();
+                    // clean up
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                });
+            });
         };
 
         return m.render();
