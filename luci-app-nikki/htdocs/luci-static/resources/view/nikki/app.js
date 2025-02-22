@@ -21,18 +21,17 @@ return view.extend({
     load: function () {
         return Promise.all([
             uci.load('nikki'),
-            nikki.appVersion(),
-            nikki.coreVersion(),
+            nikki.version(),
             nikki.status(),
             nikki.listProfiles()
         ]);
     },
     render: function (data) {
         const subscriptions = uci.sections('nikki', 'subscription');
-        const appVersion = data[1];
-        const coreVersion = data[2];
-        const running = data[3];
-        const profiles = data[4];
+        const appVersion = data[1]?.app || '';
+        const coreVersion = data[1]?.core || '';
+        const running = data[2];
+        const profiles = data[3];
 
         let m, s, o;
 
@@ -43,14 +42,14 @@ return view.extend({
         o = s.option(form.Value, '_app_version', _('App Version'));
         o.readonly = true;
         o.load = function () {
-            return appVersion.trim();
+            return appVersion;
         };
         o.write = function () { };
 
         o = s.option(form.Value, '_core_version', _('Core Version'));
         o.readonly = true;
         o.load = function () {
-            return coreVersion.trim();
+            return coreVersion;
         };
         o.write = function () { };
 
@@ -82,7 +81,7 @@ return view.extend({
         o.inputstyle = 'positive';
         o.inputtitle = _('Update Dashboard');
         o.onclick = function () {
-            return nikki.callMihomoAPI('POST', '/upgrade/ui');
+            return nikki.updateDashboard();
         };
 
         o = s.option(form.Button, 'open_dashboard', '-');

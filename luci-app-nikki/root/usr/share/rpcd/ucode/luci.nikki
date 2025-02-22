@@ -1,0 +1,62 @@
+#!/usr/bin/ucode
+
+'use strict';
+
+import { writefile, popen } from 'fs';
+
+const methods = {
+	version: {
+		call: function() {
+            let process;
+            let app = '';
+            if (system('command -v opkg') == 0) {
+                process = popen('opkg list-installed luci-app-nikki | cut -d " " -f 3');
+                if (process != null) {
+                    app = trim(process.read('all'));
+                    process.close();
+                }
+            } else if (system('command -v apk') == 0) {
+                process = popen('apk list -I luci-app-nikki | cut -d " " -f 1 | cut -d "-" -f 4');
+                if (process != null) {
+                    app = trim(process.read('all'));
+                    process.close();
+                }
+            }
+            let core = '';
+            process = popen('mihomo -v | grep Mihomo | cut -d " " -f 3');
+            if (process != null) {
+                core = trim(process.read('all'));
+                process.close();
+            }
+            return { success: true, app: app, core: core };
+		}
+	},
+    update_subscription: {
+		args: { section_id: 'section_id' },
+        call: function(req) {
+            let success = false;
+            if (req.args?.section_id) {
+                const section_id = req.args?.section_id;
+                const success = system(['service', 'nikki', 'update_subscription', section_id]) == 0;
+            }
+            return { success: success };
+        }
+    },
+	clear_log: {
+		args: { type: 'type' },
+		call: function(req) {
+            let success = false;
+            if (req.args?.type) {
+                const type = req.args?.type;
+                if (type == 'app') {
+                    success = writefile('/var/log/nikki/app.log', null) != null;
+                } else if (type == 'core') {
+                    success = writefile('/var/log/nikki/core.log', null) != null;
+                }
+            }
+            return { success: success };
+		}
+	}
+};
+
+return { 'luci.nikki': methods };

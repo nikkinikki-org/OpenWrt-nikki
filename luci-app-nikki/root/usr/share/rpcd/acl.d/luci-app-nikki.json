@@ -4,7 +4,8 @@
         "read": {
             "uci": [ "nikki" ],
             "ubus": {
-                "service": [ "list" ]
+                "rc": [ "*" ],
+                "luci.nikki": [ "*" ]
             },
             "file": {
                 "/etc/passwd": ["read"],
@@ -19,8 +20,7 @@
                 "/etc/nikki/run/providers/proxy/*": ["read"],
                 "/etc/nikki/nftables/reserved_ip.nft": ["read"],
                 "/etc/nikki/nftables/reserved_ip6.nft": ["read"],
-                "/var/log/nikki/*.log": ["read"],
-                "/usr/libexec/nikki-call": ["exec"]
+                "/var/log/nikki/*.log": ["read"]
             }
         },
         "write": {
