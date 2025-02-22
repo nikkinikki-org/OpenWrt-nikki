@@ -3,6 +3,7 @@
 {%-
 	'use strict';
 
+	import { readfile } from 'fs';
 	import { cursor } from 'uci';
 
 	function ensure_array(obj) {
@@ -10,10 +11,13 @@
 			return [];
 		}
 		if (type(obj) == 'array') {
-			return obj;
+			return uniq(obj);
 		}
 		return [obj];
 	}
+
+	let users = map(split(readfile('/etc/passwd'), '\n'), (x) => split(x, ':')[0]);
+	let groups = map(split(readfile('/etc/group'), '\n'), (x) => split(x, ':')[0]);
 
 	const uci = cursor();
 
@@ -42,8 +46,8 @@
 	const acl_mac = ensure_array(uci.get('nikki', 'proxy', 'acl_mac'));
 	const acl_interface = ensure_array(uci.get('nikki', 'proxy', 'acl_interface'));
 
-	const bypass_user = ensure_array(uci.get('nikki', 'proxy', 'bypass_user'));
-	const bypass_group = ensure_array(uci.get('nikki', 'proxy', 'bypass_group'));
+	const bypass_user = filter(ensure_array(uci.get('nikki', 'proxy', 'bypass_user')), (x) => x != "root" && index(users, x) >= 0);
+	const bypass_group = filter(ensure_array(uci.get('nikki', 'proxy', 'bypass_group')), (x) => x != "root" && index(groups, x) >= 0);
 	const proxy_tcp_dport = ensure_array(uci.get('nikki', 'proxy', 'proxy_tcp_dport'));
 	const proxy_udp_dport = ensure_array(uci.get('nikki', 'proxy', 'proxy_udp_dport'));
 	const bypass_dscp = ensure_array(uci.get('nikki', 'proxy', 'bypass_dscp'));
