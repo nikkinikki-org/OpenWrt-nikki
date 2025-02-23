@@ -94,7 +94,7 @@ return baseclass.extend({
         const url = `http://${window.location.hostname}:${apiPort}${path}`;
         return request.request(url, {
             method: method,
-            header: { 'Authorization': `Bearer ${apiSecret}` },
+            headers: { 'Authorization': `Bearer ${apiSecret}` },
             query: query,
             content: body
         })
