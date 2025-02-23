@@ -5,16 +5,7 @@
 
 	import { readfile } from 'fs';
 	import { cursor } from 'uci';
-
-	function ensure_array(obj) {
-		if (obj == null) {
-			return [];
-		}
-		if (type(obj) == 'array') {
-			return uniq(obj);
-		}
-		return [obj];
-	}
+	import { ensure_array } from '/etc/nikki/ucode/include.uc';
 
 	let users = map(split(readfile('/etc/passwd'), '\n'), (x) => split(x, ':')[0]);
 	let groups = map(split(readfile('/etc/group'), '\n'), (x) => split(x, ':')[0]);

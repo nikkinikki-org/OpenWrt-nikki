@@ -35,15 +35,19 @@ STARTED_FLAG="$FLAG_DIR/started.flag"
 BRIDGE_NF_CALL_IPTABLES_FLAG="$FLAG_DIR/bridge_nf_call_iptables.flag"
 BRIDGE_NF_CALL_IP6TABLES_FLAG="$FLAG_DIR/bridge_nf_call_ip6tables.flag"
 
+# ucode
+UCODE_DIR="$HOME_DIR/ucode"
+INCLUDE_UCODE="$UCODE_DIR/include.uc"
+MIXIN_UC="$UCODE_DIR/mixin.uc"
+HIJACK_UT="$UCODE_DIR/hijack.ut"
+
 # scripts
 SH_DIR="$HOME_DIR/scripts"
 INCLUDE_SH="$SH_DIR/include.sh"
 FIREWALL_INCLUDE_SH="$SH_DIR/firewall_include.sh"
-MIXIN_YQ="$SH_DIR/mixin.yq"
 
 # nftables
 NFT_DIR="$HOME_DIR/nftables"
-HIJACK_UT="$NFT_DIR/hijack.ut"
 RESERVED_IP_NFT="$NFT_DIR/reserved_ip.nft"
 RESERVED_IP6_NFT="$NFT_DIR/reserved_ip6.nft"
 GEOIP_CN_NFT="$NFT_DIR/geoip_cn.nft"

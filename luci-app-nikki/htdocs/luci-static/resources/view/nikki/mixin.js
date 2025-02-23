@@ -435,7 +435,7 @@ return view.extend({
         so.value('GEOSITE', _('Domain Name Geo'));
         so.value('GEOIP', _('Destination IP Geo'));
 
-        so = o.subsection.option(form.Value, 'match', _('Matcher'));
+        so = o.subsection.option(form.Value, 'matcher', _('Matcher'));
         so.rmempty = false;
 
         so = o.subsection.option(form.Value, 'node', _('Node'));
