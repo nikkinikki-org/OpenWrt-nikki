@@ -7,47 +7,47 @@ import { popen } from 'fs';
 const methods = {
 	version: {
 		call: function() {
-            let process;
-            let app = '';
-            if (system('command -v opkg') == 0) {
-                process = popen('opkg list-installed luci-app-nikki | cut -d " " -f 3');
-                if (process != null) {
-                    app = trim(process.read('all'));
-                    process.close();
-                }
-            } else if (system('command -v apk') == 0) {
-                process = popen('apk list -I luci-app-nikki | cut -d " " -f 1 | cut -d "-" -f 4');
-                if (process != null) {
-                    app = trim(process.read('all'));
-                    process.close();
-                }
-            }
-            let core = '';
-            process = popen('mihomo -v | grep Mihomo | cut -d " " -f 3');
-            if (process != null) {
-                core = trim(process.read('all'));
-                process.close();
-            }
-            return { success: true, app: app, core: core };
+			let process;
+			let app = '';
+			if (system('command -v opkg') == 0) {
+				process = popen('opkg list-installed luci-app-nikki | cut -d " " -f 3');
+				if (process != null) {
+					app = trim(process.read('all'));
+					process.close();
+				}
+			} else if (system('command -v apk') == 0) {
+				process = popen('apk list -I luci-app-nikki | cut -d " " -f 1 | cut -d "-" -f 4');
+				if (process != null) {
+					app = trim(process.read('all'));
+					process.close();
+				}
+			}
+			let core = '';
+			process = popen('mihomo -v | grep Mihomo | cut -d " " -f 3');
+			if (process != null) {
+				core = trim(process.read('all'));
+				process.close();
+			}
+			return { success: true, app: app, core: core };
 		}
 	},
-    update_subscription: {
+	update_subscription: {
 		args: { section_id: 'section_id' },
-        call: function(req) {
-            let success = false;
-            if (req.args?.section_id) {
-                const section_id = req.args?.section_id;
-                success = system(['service', 'nikki', 'update_subscription', section_id]) == 0;
-            }
-            return { success: success };
-        }
-    },
-    debug: {
-        call: function() {
-            const success = system('/etc/nikki/scripts/debug.sh > /var/run/nikki/debug.md') == 0;
-            return { success: success };
-        }
-    }
+		call: function(req) {
+			let success = false;
+			if (req.args?.section_id) {
+				const section_id = req.args?.section_id;
+				success = system(['service', 'nikki', 'update_subscription', section_id]) == 0;
+			}
+			return { success: success };
+		}
+	},
+	debug: {
+		call: function() {
+			const success = system('/etc/nikki/scripts/debug.sh > /var/run/nikki/debug.md') == 0;
+			return { success: success };
+		}
+	}
 };
 
 return { 'luci.nikki': methods };
