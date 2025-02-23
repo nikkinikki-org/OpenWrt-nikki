@@ -3,6 +3,7 @@
 'require uci';
 'require fs';
 'require rpc';
+'require request';
 
 const callRCList = rpc.declare({
     object: 'rc',
@@ -87,15 +88,15 @@ return baseclass.extend({
         return callNikkiUpdateSubscription(section_id);
     },
 
-    api: async function (method, path, params, body) {
+    api: async function (method, path, query, body) {
         const apiPort = uci.get('nikki', 'mixin', 'api_port');
         const apiSecret = uci.get('nikki', 'mixin', 'api_secret');
-        const query = new URLSearchParams(params).toString();
-        const url = `http://${window.location.hostname}:${apiPort}${path}?${query}`;
-        return await fetch(url, {
+        const url = `http://${window.location.hostname}:${apiPort}${path}`;
+        return request.request(url, {
             method: method,
-            headers: { 'Authorization': `Bearer ${apiSecret}` },
-            body: JSON.stringify(body)
+            header: { 'Authorization': `Bearer ${apiSecret}` },
+            query: query,
+            content: body
         })
     },
 
