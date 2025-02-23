@@ -57,7 +57,9 @@ if (uci.get('nikki', 'proxy', 'tcp_transparent_proxy_mode') == 'tun' || uci.get(
     config['tun']['auto-route'] = false;
     config['tun']['auto-redirect'] = false;
     config['tun']['auto-detect-interface'] = false;
-    config['tun']['dns-hijack'] = ensure_array(uci.get('nikki', 'mixin', 'tun_dns_hijacks'));
+    if (uci.get('nikki', 'mixin', 'tun_dns_hijack') == '1') {
+        config['tun']['dns-hijack'] = ensure_array(uci.get('nikki', 'mixin', 'tun_dns_hijacks'));
+    }
 } else {
     config['tun']['enable'] = false;
 }
