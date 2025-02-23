@@ -26,7 +26,7 @@ if (mixin) {
 }
 
 config['external-ui'] = uci.get('nikki', 'mixin', 'ui_path') || 'ui';
-config['external-ui-name'] = uci.get('nikki', 'mixin', 'ui_name');
+config['external-ui-name'] = uci.get('nikki', 'mixin', 'ui_name') || '';
 config['external-ui-url'] = uci.get('nikki', 'mixin', 'ui_url');
 config['external-controller'] = '0.0.0.0' + ':' + (uci.get('nikki', 'mixin', 'api_port') || '9090');
 config['secret'] = uci.get('nikki', 'mixin', 'api_secret') || '666666';
@@ -42,7 +42,12 @@ config['redir-port'] = int(uci.get('nikki', 'mixin', 'redir_port') || '7891');
 config['tproxy-port'] = int(uci.get('nikki', 'mixin', 'tproxy_port') || '7892');
 
 if (uci.get('nikki', 'mixin', 'authentication') == '1') {
-    config['authentication'] = map(uci.get_all('nikki', 'authentication'), (x) => `${x.username}:${x.password}`);
+    config['authentication'] = [];
+    uci.foreach('nikki', 'authentication', (section) => {
+        if (section.enabled == '1') {
+            push(config['authentication'], `${section.username}:${section.password}`);
+        }
+    });
 }
 
 config['tun'] = {};
