@@ -51,89 +51,7 @@ start_service() {
 	config_get_bool mixin "config" "mixin" 0
 	config_get_bool test_profile "config" "test_profile" 0
 	config_get_bool fast_reload "config" "fast_reload" 0
-	## proxy config
-	### transparent proxy
-	local transparent_proxy tcp_transparent_proxy_mode udp_transparent_proxy_mode
-	config_get_bool transparent_proxy "proxy" "transparent_proxy" 0
-	config_get tcp_transparent_proxy_mode "proxy" "tcp_transparent_proxy_mode" "tproxy"
-	config_get udp_transparent_proxy_mode "proxy" "udp_transparent_proxy_mode" "tproxy"
 	## mixin config
-	### general
-	local mode match_process outbound_interface ipv6 unify_delay tcp_concurrent tcp_keep_alive_idle tcp_keep_alive_interval log_level
-	config_get mode "mixin" "mode" "rule"
-	config_get match_process "mixin" "match_process" "off"
-	config_get outbound_interface "mixin" "outbound_interface"
-	config_get_bool ipv6 "mixin" "ipv6" 0
-	config_get_bool unify_delay "mixin" "unify_delay" 0
-	config_get_bool tcp_concurrent "mixin" "tcp_concurrent" 0
-	config_get tcp_keep_alive_idle "mixin" "tcp_keep_alive_idle" 600
-	config_get tcp_keep_alive_interval "mixin" "tcp_keep_alive_interval" 15
-	config_get log_level "mixin" "log_level" "info"
-	### external control
-	local ui_path ui_name ui_url api_port api_secret selection_cache
-	config_get ui_path "mixin" "ui_path" "ui"
-	config_get ui_name "mixin" "ui_name"
-	config_get ui_url "mixin" "ui_url"
-	config_get api_port "mixin" "api_port" "9090"
-	config_get api_secret "mixin" "api_secret" "666666"
-	config_get_bool selection_cache "mixin" "selection_cache" 0
-	### inbound
-	local allow_lan http_port socks_port mixed_port redir_port tproxy_port authentication
-	config_get_bool allow_lan "mixin" "allow_lan" 0
-	config_get http_port "mixin" "http_port" "8080"
-	config_get socks_port "mixin" "socks_port" "1080"
-	config_get mixed_port "mixin" "mixed_port" "7890"
-	config_get redir_port "mixin" "redir_port" "7891"
-	config_get tproxy_port "mixin" "tproxy_port" "7892"
-	config_get_bool authentication "mixin" "authentication" 0
-	### tun
-	local tun_device tun_stack tun_mtu tun_gso tun_gso_max_size tun_dns_hijack tun_endpoint_independent_nat
-	config_get tun_device "mixin" "tun_device" "nikki"
-	config_get tun_stack "mixin" "tun_stack" "system"
-	config_get tun_mtu "mixin" "tun_mtu" "9000"
-	config_get_bool tun_gso "mixin" "tun_gso" 0
-	config_get tun_gso_max_size "mixin" "tun_gso_max_size" "65536"
-	config_get_bool tun_dns_hijack "mixin" "tun_dns_hijack" 0
-	config_get_bool tun_endpoint_independent_nat "mixin" "tun_endpoint_independent_nat" 0
-	### dns
-	local dns_port dns_mode fake_ip_range fake_ip_filter fake_ip_filter_mode fake_ip_cache dns_respect_rules dns_doh_prefer_http3 dns_ipv6 dns_system_hosts dns_hosts hosts dns_nameserver dns_nameserver_policy
-	config_get dns_port "mixin" "dns_port" "1053"
-	config_get dns_mode "mixin" "dns_mode" "redir-host"
-	config_get fake_ip_range "mixin" "fake_ip_range" "198.18.0.1/16"
-	config_get_bool fake_ip_filter "mixin" "fake_ip_filter" 0
-	config_get fake_ip_filter_mode "mixin" "fake_ip_filter_mode" "blacklist"
-	config_get_bool fake_ip_cache "mixin" "fake_ip_cache" 0
-	config_get_bool dns_respect_rules "mixin" "dns_respect_rules" 0
-	config_get_bool dns_doh_prefer_http3 "mixin" "dns_doh_prefer_http3" 0
-	config_get_bool dns_ipv6 "mixin" "dns_ipv6" 0
-	config_get_bool dns_system_hosts "mixin" "dns_system_hosts" 0
-	config_get_bool dns_hosts "mixin" "dns_hosts" 0
-	config_get_bool hosts "mixin" "hosts" 0
-	config_get_bool dns_nameserver "mixin" "dns_nameserver" 0
-	config_get_bool dns_nameserver_policy "mixin" "dns_nameserver_policy" 0
-	### sniffer
-	local sniffer sniffer_sniff_dns_mapping sniffer_sniff_pure_ip sniffer_overwrite_destination sniffer_force_domain_name sniffer_ignore_domain_name sniffer_sniff
-	config_get_bool sniffer "mixin" sniffer 0
-	config_get_bool sniffer_sniff_dns_mapping "mixin" sniffer_sniff_dns_mapping 0
-	config_get_bool sniffer_sniff_pure_ip "mixin" sniffer_sniff_pure_ip 0
-	config_get_bool sniffer_overwrite_destination "mixin" sniffer_overwrite_destination 0
-	config_get_bool sniffer_force_domain_name "mixin" sniffer_force_domain_name 0
-	config_get_bool sniffer_ignore_domain_name "mixin" sniffer_ignore_domain_name 0
-	config_get_bool sniffer_sniff "mixin" sniffer_sniff 0
-	### rule
-	local rule rule_provider
-	config_get_bool rule "mixin" "rule" 0
-	config_get_bool rule_provider "mixin" "rule_provider" 0
-	### geox
-	local geoip_format geodata_loader geosite_url geoip_mmdb_url geoip_dat_url geoip_asn_url geox_auto_update geox_update_interval
-	config_get geoip_format "mixin" "geoip_format" "mmdb"
-	config_get geodata_loader "mixin" "geodata_loader" "memconservative"
-	config_get geosite_url "mixin" "geosite_url"
-	config_get geoip_mmdb_url "mixin" "geoip_mmdb_url"
-	config_get geoip_dat_url "mixin" "geoip_dat_url"
-	config_get geoip_asn_url "mixin" "geoip_asn_url"
-	config_get_bool geox_auto_update "mixin" "geox_auto_update" 0
-	config_get geox_update_interval "mixin" "geox_update_interval" "24"
 	### mixin file content
 	local mixin_file_content
 	config_get_bool mixin_file_content "mixin" "mixin_file_content" 0
@@ -143,19 +61,6 @@ start_service() {
 	config_get_bool disable_loopback_detector "env" "disable_loopback_detector" 0
 	config_get_bool disable_quic_go_gso "env" "disable_quic_go_gso" 0
 	config_get_bool disable_quic_go_ecn "env" "disable_quic_go_ecn" 0
-	# prepare
-	local outbound_device
-	if [ -n "$outbound_interface" ]; then
-		network_get_device outbound_device "$outbound_interface"
-	fi
-	local tproxy_enable; tproxy_enable=0
-	if [[ "$tcp_transparent_proxy_mode" == "tproxy" || "$udp_transparent_proxy_mode" == "tproxy" ]]; then
-		tproxy_enable=1
-	fi
-	local tun_enable; tun_enable=0
-	if [[ "$tcp_transparent_proxy_mode" == "tun" || "$udp_transparent_proxy_mode" == "tun" ]]; then
-		tun_enable=1
-	fi
 	# get profile
 	if [[ "$profile" == "file:"* ]]; then
 		local profile_name; profile_name=$(basename "${profile/file:/}")
@@ -197,9 +102,9 @@ start_service() {
 		log "Mixin" "Mixin all config."
 	fi
 	if [ "$mixin_file_content" == 0 ]; then
-		ucode -S "$MIXIN_UC" | yq -p json -o yaml | yq -M -i ea '. as $item ireduce ({}; . * $item ) | .rules = .nikki-rules + .rules | del(.nikki-rules)' "$RUN_PROFILE_PATH" -
+		ucode -S "$MIXIN_UC" | yq -M -p json -o yaml | yq -M -i ea '. as $item ireduce ({}; . * $item ) | .rules = .nikki-rules + .rules | del(.nikki-rules)' "$RUN_PROFILE_PATH" -
 	elif [ "$mixin_file_content" == 1 ]; then
-		ucode -S "$MIXIN_UC" | yq -p json -o yaml | yq -M -i ea '. as $item ireduce ({}; . * $item ) | .rules = .nikki-rules + .rules | del(.nikki-rules)' "$RUN_PROFILE_PATH" "$MIXIN_FILE_PATH" -
+		ucode -S "$MIXIN_UC" | yq -M -p json -o yaml | yq -M -i ea '. as $item ireduce ({}; . * $item ) | .rules = .nikki-rules + .rules | del(.nikki-rules)' "$RUN_PROFILE_PATH" "$MIXIN_FILE_PATH" -
 	fi
 	yq -M -i '... comments=""' "$RUN_PROFILE_PATH"
 	# test profile
