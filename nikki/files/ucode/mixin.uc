@@ -133,10 +133,10 @@ if (mixin) {
 }
 
 if (uci.get('nikki', 'mixin', 'rule_provider') == '1') {
-    config['providers'] = {};
+    config['rule-providers'] = {};
     uci.foreach('nikki', 'rule_provider', (section) => {
         if (section.type == 'http') {
-            config['providers'][section.name] = {
+            config['rule-providers'][section.name] = {
                 type: section.type,
                 url: section.url,
                 proxy: section.node,
@@ -146,7 +146,7 @@ if (uci.get('nikki', 'mixin', 'rule_provider') == '1') {
                 interval: section.update_interval,
             }
         } else if (section.type == 'file') {
-            config['providers'][section.name] = {
+            config['rule-providers'][section.name] = {
                 type: section.type,
                 path: section.file_path,
                 format: section.file_format,
