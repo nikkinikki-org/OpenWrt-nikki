@@ -1,4 +1,4 @@
-name: Update Mihomo Version
+name: dependabot
 
 on:
   schedule:
@@ -9,40 +9,40 @@ jobs:
   get_current_info:
     runs-on: ubuntu-latest
     outputs:
-      pkg_source_version: ${{ steps.get_current_info.outputs.pkg_source_version }}
-      pkg_mirror_hash: ${{ steps.get_current_info.outputs.pkg_mirror_hash }}
-      pkg_build_version: ${{ steps.get_current_info.outputs.pkg_build_version }}
+      pkg_source_version: ${{ steps.info.outputs.pkg_source_version }}
+      pkg_mirror_hash: ${{ steps.info.outputs.pkg_mirror_hash }}
+      pkg_build_version: ${{ steps.info.outputs.pkg_build_version }}
     steps:
       - id: checkout
-        name: Checkout
+        name: checkout
         uses: actions/checkout@v4
         with:
           repository: nikkinikki-org/OpenWrt-nikki
           ref: main
           path: OpenWrt-nikki
-      - id: get_current_info
-        name: Get Current Info
+      - id: info
+        name: info
         run: |
           echo "pkg_source_version=$(grep "PKG_SOURCE_VERSION:=" OpenWrt-nikki/nikki/Makefile | cut -d '=' -f 2)" >> $GITHUB_OUTPUT
           echo "pkg_mirror_hash=$(grep "PKG_MIRROR_HASH:=" OpenWrt-nikki/nikki/Makefile | cut -d '=' -f 2)" >> $GITHUB_OUTPUT
           echo "pkg_build_version=$(grep "PKG_BUILD_VERSION:=" OpenWrt-nikki/nikki/Makefile | cut -d '=' -f 2)" >> $GITHUB_OUTPUT
-  get_lastest_info:
+  get_latest_info:
     runs-on: ubuntu-latest
     outputs:
-      commit_date: ${{ steps.get_lastest_info.outputs.commit_date }}
-      commit_sha: ${{ steps.get_lastest_info.outputs.commit_sha }}
-      short_commit_sha: ${{ steps.get_lastest_info.outputs.short_commit_sha }}
-      checksum: ${{ steps.get_lastest_info.outputs.checksum }}
+      commit_date: ${{ steps.info.outputs.commit_date }}
+      commit_sha: ${{ steps.info.outputs.commit_sha }}
+      short_commit_sha: ${{ steps.info.outputs.short_commit_sha }}
+      checksum: ${{ steps.info.outputs.checksum }}
     steps:
       - id: checkout
-        name: Checkout
+        name: checkout
         uses: actions/checkout@v4
         with:
           repository: 'MetaCubeX/mihomo'
           ref: 'Alpha'
           path: 'mihomo'
-      - id: get_lastest_info
-        name: Get Latest Info
+      - id: info
+        name: info
         run: |
           echo "commit_date=$(git -C mihomo log -n 1 --format=%cs)" >> $GITHUB_OUTPUT
           echo "commit_sha=$(git -C mihomo rev-parse HEAD)" >> $GITHUB_OUTPUT
@@ -53,32 +53,32 @@ jobs:
   update:
     needs:
       - get_current_info
-      - get_lastest_info
-    if: ${{ needs.get_current_info.outputs.pkg_source_version != needs.get_lastest_info.outputs.commit_sha }}
+      - get_latest_info
+    if: ${{ needs.get_current_info.outputs.pkg_source_version != needs.get_latest_info.outputs.commit_sha }}
     runs-on: ubuntu-latest
     steps:
       - id: checkout
-        name: Checkout
+        name: checkout
         uses: actions/checkout@v4
         with:
           repository: nikkinikki-org/OpenWrt-nikki
           ref: main
           path: OpenWrt-nikki
       - id: update
-        name: Update
+        name: update
         run: |
           sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=1/" OpenWrt-nikki/nikki/Makefile
-          sed -i "s/PKG_SOURCE_DATE:=.*/PKG_SOURCE_DATE:=${{ needs.get_lastest_info.outputs.commit_date }}/" OpenWrt-nikki/nikki/Makefile
-          sed -i "s/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:=${{ needs.get_lastest_info.outputs.commit_sha }}/" OpenWrt-nikki/nikki/Makefile
-          sed -i "s/PKG_MIRROR_HASH:=.*/PKG_MIRROR_HASH:=${{ needs.get_lastest_info.outputs.checksum }}/" OpenWrt-nikki/nikki/Makefile
-          sed -i "s/PKG_BUILD_VERSION:=.*/PKG_BUILD_VERSION:=alpha-${{ needs.get_lastest_info.outputs.short_commit_sha }}/" OpenWrt-nikki/nikki/Makefile
+          sed -i "s/PKG_SOURCE_DATE:=.*/PKG_SOURCE_DATE:=${{ needs.get_latest_info.outputs.commit_date }}/" OpenWrt-nikki/nikki/Makefile
+          sed -i "s/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:=${{ needs.get_latest_info.outputs.commit_sha }}/" OpenWrt-nikki/nikki/Makefile
+          sed -i "s/PKG_MIRROR_HASH:=.*/PKG_MIRROR_HASH:=${{ needs.get_latest_info.outputs.checksum }}/" OpenWrt-nikki/nikki/Makefile
+          sed -i "s/PKG_BUILD_VERSION:=.*/PKG_BUILD_VERSION:=alpha-${{ needs.get_latest_info.outputs.short_commit_sha }}/" OpenWrt-nikki/nikki/Makefile
       - id: pr
-        name: Pull Request
+        name: pr
         uses: peter-evans/create-pull-request@v6
         with:
           path: OpenWrt-nikki
           branch: dependabot
-          commit-message: "build: update mihomo to ${{ needs.get_lastest_info.outputs.short_commit_sha }}"
-          title: "build: update mihomo to ${{ needs.get_lastest_info.outputs.short_commit_sha }}"
+          commit-message: "build: update mihomo to ${{ needs.get_latest_info.outputs.short_commit_sha }}"
+          title: "build: update mihomo to ${{ needs.get_latest_info.outputs.short_commit_sha }}"
           body: |
-            [Changelog](https://github.com/metacubex/mihomo/compare/${{ needs.get_current_info.outputs.pkg_source_version }}...${{  needs.get_lastest_info.outputs.commit_sha }})
+            [Changelog](https://github.com/metacubex/mihomo/compare/${{ needs.get_current_info.outputs.pkg_source_version }}...${{  needs.get_latest_info.outputs.commit_sha }})
