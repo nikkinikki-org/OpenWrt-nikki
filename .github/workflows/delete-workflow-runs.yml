@@ -1,4 +1,5 @@
-name: Delete Workflow Runs
+name: delete-workflow-runs
+
 on:
   workflow_dispatch:
 
@@ -9,7 +10,7 @@ jobs:
       actions: write
       contents: read
     steps:
-      - name: Delete
+      - name: delete
         uses: Mattraks/delete-workflow-runs@v2
         with:
           retain_days: 5

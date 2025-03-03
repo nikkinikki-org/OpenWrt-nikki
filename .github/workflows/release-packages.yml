@@ -1,4 +1,4 @@
-name: Release Packages
+name: release-packages
 
 on:
   workflow_dispatch:
@@ -45,10 +45,10 @@ jobs:
             branch: openwrt-23.05
 
     steps:
-      - name: Checkout
+      - name: checkout
         uses: actions/checkout@v4
 
-      - name: Build
+      - name: build
         uses: openwrt/gh-action-sdk@main
         env:
           ARCH: ${{ matrix.arch }}-${{ matrix.branch }}
@@ -58,20 +58,20 @@ jobs:
           KEY_BUILD: ${{ secrets.KEY_BUILD }}
           NO_REFRESH_CHECK: true
 
-      - name: Compress
+      - name: compress
         run: |
           tar -c -z -f nikki_${{ matrix.arch }}-${{ matrix.branch }}.tar.gz -C bin/packages/${{ matrix.arch }}/nikki .
           mkdir -p public/${{ matrix.branch }}/${{ matrix.arch }}
           mv bin/packages/${{ matrix.arch }}/nikki public/${{ matrix.branch }}/${{ matrix.arch }}
           tar -c -z -f feed_nikki_${{ matrix.arch }}-${{ matrix.branch }}.tar.gz public/${{ matrix.branch }}/${{ matrix.arch }}
 
-      - name: Release
+      - name: release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             nikki_${{ matrix.arch }}-${{ matrix.branch }}.tar.gz
 
-      - name: Upload
+      - name: upload
         uses: actions/upload-artifact@v4
         with:
           name: feed_nikki_${{ matrix.arch }}-${{ matrix.branch }}
@@ -83,23 +83,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download
+      - name: download
         uses: actions/download-artifact@v4
         with:
           pattern: feed_nikki_*
           merge-multiple: true
       
-      - name: Uncompress
+      - name: uncompress
         run: |
           for file in feed_nikki_*.tar.gz; do tar -x -z -f "$file"; done
       
-      - name: Key
+      - name: key
         run: |
           echo "${{ secrets.KEY_BUILD_PUB }}" > public/key-build.pub
 
-      - name: Feed
+      - name: feed
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           force_orphan: true
-          commit_message: Update Feed
+          commit_message: "release: ${{ github.ref_name }}"

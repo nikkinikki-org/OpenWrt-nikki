@@ -44,11 +44,10 @@ start_service() {
 	log "App" "Start."
 	# get config
 	## app config
-	local scheduled_restart cron_expression profile mixin test_profile fast_reload
+	local scheduled_restart cron_expression profile test_profile fast_reload
 	config_get_bool scheduled_restart "config" "scheduled_restart" 0
 	config_get cron_expression "config" "cron_expression"
 	config_get profile "config" "profile"
-	config_get_bool mixin "config" "mixin" 0
 	config_get_bool test_profile "config" "test_profile" 0
 	config_get_bool fast_reload "config" "fast_reload" 0
 	## mixin config
@@ -94,13 +93,7 @@ start_service() {
 		return
 	fi
 	# mixin
-	if [ "$mixin" == 0 ]; then
-		log "Mixin" "Disabled."
-		log "Mixin" "Mixin neccesary config."
-	else
-		log "Mixin" "Enabled."
-		log "Mixin" "Mixin all config."
-	fi
+	log "Mixin" "Mixin config."
 	if [ "$mixin_file_content" == 0 ]; then
 		ucode -S "$MIXIN_UC" | yq -M -p json -o yaml | yq -M -i ea '... comments="" | . as $item ireduce ({}; . * $item ) | .rules = .nikki-rules + .rules | del(.nikki-rules)' "$RUN_PROFILE_PATH" -
 	elif [ "$mixin_file_content" == 1 ]; then
@@ -110,9 +103,9 @@ start_service() {
 	if [ "$test_profile" == 1 ]; then
 		log "Profile" "Testing..."
 		if ($PROG -d "$RUN_DIR" -t >> "$CORE_LOG_PATH" 2>&1); then
-			log "Profile" "Test passed!"
+			log "Profile" "Test passed."
 		else
-			log "Profile" "Test failed!"
+			log "Profile" "Test failed."
 			log "Profile" "Please check the core log to find out the problem."
 			log "App" "Exit."
 			return
@@ -166,26 +159,11 @@ service_started() {
 	config_get tun_device "mixin" "tun_device" "nikki"
 	## proxy config
 	### transparent proxy
-	local tcp_transparent_proxy_mode udp_transparent_proxy_mode ipv4_dns_hijack ipv6_dns_hijack ipv4_proxy ipv6_proxy router_proxy lan_proxy
+	local tcp_transparent_proxy_mode udp_transparent_proxy_mode ipv4_proxy ipv6_proxy
 	config_get tcp_transparent_proxy_mode "proxy" "tcp_transparent_proxy_mode" "redirect"
 	config_get udp_transparent_proxy_mode "proxy" "udp_transparent_proxy_mode" "tun"
-	config_get_bool ipv4_dns_hijack "proxy" "ipv4_dns_hijack" 0
-	config_get_bool ipv6_dns_hijack "proxy" "ipv6_dns_hijack" 0
 	config_get_bool ipv4_proxy "proxy" "ipv4_proxy" 0
 	config_get_bool ipv6_proxy "proxy" "ipv6_proxy" 0
-	config_get_bool router_proxy "proxy" "router_proxy" 0
-	config_get_bool lan_proxy "proxy" "lan_proxy" 0
-	### access control
-	local access_control_mode 
-	config_get access_control_mode "proxy" "access_control_mode"
-	### bypass
-	local bypass_user bypass_group bypass_china_mainland_ip proxy_tcp_dport proxy_udp_dport bypass_dscp
-	config_get bypass_user "proxy" "bypass_user"
-	config_get bypass_group "proxy" "bypass_group"
-	config_get_bool bypass_china_mainland_ip "proxy" "bypass_china_mainland_ip" 0
-	config_get proxy_tcp_dport "proxy" "proxy_tcp_dport" "0-65535"
-	config_get proxy_udp_dport "proxy" "proxy_udp_dport" "0-65535"
-	config_get bypass_dscp "proxy" "bypass_dscp"
 	# prepare
 	local tproxy_enable; tproxy_enable=0
 	if [[ "$tcp_transparent_proxy_mode" == "tproxy" || "$udp_transparent_proxy_mode" == "tproxy" ]]; then
@@ -197,12 +175,10 @@ service_started() {
 	fi
 	# transparent proxy
 	log "Transparent Proxy" "Enabled."
-	log "Transparent Proxy" "TCP Mode: $tcp_transparent_proxy_mode."
-	log "Transparent Proxy" "UDP Mode: $udp_transparent_proxy_mode."
 	# wait for tun device online
 	if [ "$tun_enable" == 1 ]; then
 		log "Transparent Proxy" "Waiting for tun device online..."
-		local tun_timeout; tun_timeout=60
+		local tun_timeout; tun_timeout=15
 		local tun_interval; tun_interval=1
 		while [ "$tun_timeout" -gt 0 ]; do
 			if (ip link show dev "$tun_device" > /dev/null 2>&1); then
@@ -242,51 +218,14 @@ service_started() {
 		fi
 		$FIREWALL_INCLUDE_SH
 	fi
+	# hijack
 	utpl -D nikki_group="$NIKKI_GROUP" -D tproxy_fw_mark="$TPROXY_FW_MARK" -D tun_fw_mark="$TUN_FW_MARK" -S "$HIJACK_UT" | nft -f -
-	# dns hijack
-	if [ "$ipv4_dns_hijack" == 1 ]; then
-		log "Transparent Proxy" "Hijack IPv4 dns request."
-	fi
-	if [ "$ipv6_dns_hijack" == 1 ]; then
-		log "Transparent Proxy" "Hijack IPv6 dns request."
-	fi
-	# proxy
-	if [ "$ipv4_proxy" == 1 ]; then
-		log "Transparent Proxy" "Proxy IPv4 traffic."
-	fi
-	if [ "$ipv6_proxy" == 1 ]; then
-		log "Transparent Proxy" "Proxy IPv6 traffic."
-	fi
-	# bypass
-	if [  -n "$bypass_user" ]; then
-		log "Transparent Proxy" "Bypass user: $bypass_user."
-	fi
-	if [  -n "$bypass_group" ]; then
-		log "Transparent Proxy" "Bypass group: $bypass_group."
-	fi
-	if [ "$bypass_china_mainland_ip" == 1 ]; then
-		log "Transparent Proxy" "Bypass china mainland ip."
-	fi
-	log "Transparent Proxy" "Destination TCP Port to Proxy: $proxy_tcp_dport."
-	log "Transparent Proxy" "Destination UDP Port to Proxy: $proxy_udp_dport."
-	if [ -n "$bypass_dscp" ]; then
-		log "Transparent Proxy" "Bypass DSCP: $bypass_dscp."
-	fi
-	# router proxy
-	if [ "$router_proxy" == 1 ]; then
-		log "Transparent Proxy" "Set proxy for router."
-	fi
-	# lan proxy
-	if [ "$lan_proxy" == 1 ]; then
-		log "Transparent Proxy" "Set proxy for lan."
-		# access control
-		if [ "$access_control_mode" == "all" ]; then
-			log "Transparent Proxy" "Access Control is using all mode, set proxy for all client."
-		elif [ "$access_control_mode" == "allow" ]; then
-			log "Transparent Proxy" "Access Control is using allow mode, set proxy for client which is in acl."
-		elif [ "$access_control_mode" == "block" ]; then
-			log "Transparent Proxy" "Access Control is using block mode, set proxy for client which is not in acl."
-		fi
+	# check hijack
+	if (nft list tables | grep -q nikki); then
+		log "Transparent Proxy" "Hijack successful."
+	else
+		log "Transparent Proxy" "Hijack failed."
+		log "App" "Exit."
 	fi
 	# fix compatible between tproxy and dockerd (kmod-br-netfilter)
 	if [ "$tproxy_enable" == 1 ] && (lsmod | grep -q br_netfilter); then

@@ -25,6 +25,12 @@ const callNikkiVersion = rpc.declare({
     expect: { '': {} }
 });
 
+const callNikkiProfile = rpc.declare({
+    object: 'luci.nikki',
+    method: 'profile',
+    expect: { '': {} }
+});
+
 const callNikkiUpdateSubscription = rpc.declare({
     object: 'luci.nikki',
     method: 'update_subscription',
@@ -84,13 +90,18 @@ return baseclass.extend({
         return callNikkiVersion();
     },
 
+    profile: function () {
+        return callNikkiProfile();
+    },
+
     updateSubscription: function (section_id) {
         return callNikkiUpdateSubscription(section_id);
     },
 
     api: async function (method, path, query, body) {
-        const apiPort = uci.get('nikki', 'mixin', 'api_port');
-        const apiSecret = uci.get('nikki', 'mixin', 'api_secret');
+        const apiListen = uci.get('nikki', 'mixin', 'api_listen');
+        const apiSecret = uci.get('nikki', 'mixin', 'api_secret') ?? '';
+        const apiPort = apiListen.substring(apiListen.lastIndexOf(':') + 1);
         const url = `http://${window.location.hostname}:${apiPort}${path}`;
         return request.request(url, {
             method: method,
@@ -100,10 +111,11 @@ return baseclass.extend({
         })
     },
 
-    openDashboard: function () {
+    openDashboard: async function () {
         const uiName = uci.get('nikki', 'mixin', 'ui_name');
-        const apiPort = uci.get('nikki', 'mixin', 'api_port');
-        const apiSecret = encodeURIComponent(uci.get('nikki', 'mixin', 'api_secret'));
+        const apiListen = uci.get('nikki', 'mixin', 'api_listen');
+        const apiSecret = encodeURIComponent(uci.get('nikki', 'mixin', 'api_secret') ?? '');
+        const apiPort = apiListen.substring(apiListen.lastIndexOf(':') + 1);
         const params = {
             host: window.location.hostname,
             hostname: window.location.hostname,
