@@ -203,7 +203,7 @@ perform_restore() {
 install_config() {
     echo -e "${INFO} Downloading configuration files..."
 
-    cmdinstall "curl -s -L -o $TEMP_DIR/main.zip https://github.com/rizkikotet-dev/Config-Open-ClashMeta/archive/refs/heads/main.zip" "Download Configuration"
+    cmdinstall "curl -s -L -o $TEMP_DIR/main.zip https://github.com/antifragile0/Config-Open-ClashMeta/archive/refs/heads/main.zip" "Download Configuration"
 
     cmdinstall "unzip -o $TEMP_DIR/main.zip -d $TEMP_DIR" "Extract Configuration"
     cd "$TEMP_DIR/Config-Open-ClashMeta-main" || error_msg "Failed to change directory"
@@ -328,7 +328,7 @@ install_nikki() {
     # Download tarball
     echo -e "${INFO} Downloading Nikki-TProxy package..."
     local tarball="nikki_$arch-$branch.tar.gz"
-    local download_url="https://github.com/rizkikotet-dev/OpenWrt-nikki-Mod/releases/latest/download/$tarball"
+    local download_url="https://github.com/antifragile0/OpenWrt-nikki-Mod/releases/latest/download/$tarball"
     
     cmdinstall "curl -s -L -o $temp_dir/$tarball $download_url" "Download Package"
 
