@@ -27,12 +27,12 @@ if [ -x "/bin/opkg" ]; then
 		opkg remove mihomo
 	fi
 	if (! opkg list-installed | grep -q nikki); then
-		curl -s -L https://github.com/rizkikotet-dev/OpenWrt-nikki-Mod/raw/refs/heads/main/install.sh | ash
+		curl -s -L https://github.com/antifragile0/OpenWrt-nikki-Mod/raw/refs/heads/main/install.sh | ash
 	fi
 	migrate
 	if (grep -q mihomo /etc/opkg/customfeeds.conf); then
 		sed -i '/mihomo/d' /etc/opkg/customfeeds.conf
-		curl -s -L https://github.com/rizkikotet-dev/OpenWrt-nikki-Mod/raw/refs/heads/main/feed.sh | ash
+		curl -s -L https://github.com/antifragile0/OpenWrt-nikki-Mod/raw/refs/heads/main/feed.sh | ash
 	fi
 elif [ -x "/usr/bin/apk" ]; then
 	if (apk list -I | grep -q mihomo); then
@@ -41,11 +41,11 @@ elif [ -x "/usr/bin/apk" ]; then
 		apk del mihomo
 	fi
 	if (apk list -I | grep -q nikki); then
-		curl -s -L https://github.com/rizkikotet-dev/OpenWrt-nikki-Mod/raw/refs/heads/main/install.sh | ash
+		curl -s -L https://github.com/antifragile0/OpenWrt-nikki-Mod/raw/refs/heads/main/install.sh | ash
 	fi
 	migrate
 	if (grep -q mihomo /etc/apk/repositories.d/customfeeds.list); then
 		sed -i '/mihomo/d' /etc/apk/repositories.d/customfeeds.list
-		curl -s -L https://github.com/rizkikotet-dev/OpenWrt-nikki-Mod/raw/refs/heads/main/feed.sh | ash
+		curl -s -L https://github.com/antifragile0/OpenWrt-nikki-Mod/raw/refs/heads/main/feed.sh | ash
 	fi
 fi
