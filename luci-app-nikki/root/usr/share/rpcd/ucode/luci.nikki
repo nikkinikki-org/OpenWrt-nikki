@@ -2,7 +2,7 @@
 
 'use strict';
 
-import { popen } from 'fs';
+import { access, popen } from 'fs';
 
 const methods = {
 	version: {
@@ -28,15 +28,29 @@ const methods = {
 				core = trim(process.read('all'));
 				process.close();
 			}
-			return { success: true, app: app, core: core };
+			return { app: app, core: core };
+		}
+	},
+	profile: {
+		call: function() {
+			let profile = {};
+			const filepath = '/etc/nikki/run/config.yaml';
+			if (access(filepath, 'r')) {
+				const process = popen(`yq -p yaml -o json < ${filepath}`);
+				if (process != null) {
+					profile = json(process.read('all'));
+					process.close();
+				}
+			}
+			return profile;
 		}
 	},
 	update_subscription: {
 		args: { section_id: 'section_id' },
 		call: function(req) {
 			let success = false;
-			if (req.args?.section_id) {
-				const section_id = req.args?.section_id;
+			const section_id = req.args?.section_id;
+			if (section_id) {
 				success = system(['service', 'nikki', 'update_subscription', section_id]) == 0;
 			}
 			return { success: success };

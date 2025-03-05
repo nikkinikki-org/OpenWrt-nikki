@@ -8,8 +8,8 @@
 	import { connect } from 'ubus';
 	import { uci_bool, uci_array } from '/etc/nikki/ucode/include.uc';
 
-	let users = map(split(readfile('/etc/passwd'), '\n'), (x) => split(x, ':')[0]);
-	let groups = map(split(readfile('/etc/group'), '\n'), (x) => split(x, ':')[0]);
+	const users = map(split(readfile('/etc/passwd'), '\n'), (x) => split(x, ':')[0]);
+	const groups = map(split(readfile('/etc/group'), '\n'), (x) => split(x, ':')[0]);
 
 	const uci = cursor();
 	const ubus = connect();
@@ -19,7 +19,8 @@
 	const redir_port = uci.get('nikki', 'mixin', 'redir_port');
 	const tproxy_port = uci.get('nikki', 'mixin', 'tproxy_port');
 
-	const dns_port = uci.get('nikki', 'mixin', 'dns_port');
+	const dns_listen = uci.get('nikki', 'mixin', 'dns_listen');
+	const dns_port = substr(dns_listen, rindex(dns_listen, ':') + 1);
 	const fake_ip_range = uci.get('nikki', 'mixin', 'fake_ip_range');
 
 	const tun_device = uci.get('nikki', 'mixin', 'tun_device');

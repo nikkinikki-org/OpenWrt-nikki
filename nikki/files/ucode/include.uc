@@ -1,5 +1,9 @@
 export function uci_bool(obj) {
-	return obj == '1';
+	return obj == null ? null : obj == '1';
+};
+
+export function uci_int(obj) {
+	return obj == null ? null : int(obj);
 };
 
 export function uci_array(obj) {
@@ -36,7 +40,7 @@ export function trim_all(obj) {
 				delete obj[key];
 			}
 		}
-		if (length(obj_keys) == 0) {
+		if (length(keys(obj)) == 0) {
 			return null;
 		}
 		return obj;

@@ -1,4 +1,4 @@
-name: Release Packages
+name: release-packages
 
 on:
   workflow_dispatch:
@@ -66,10 +66,10 @@ jobs:
             branch: openwrt-23.05
 
     steps:
-      - name: Checkout
+      - name: checkout
         uses: actions/checkout@v4
 
-      - name: Build
+      - name: build
         uses: openwrt/gh-action-sdk@main
         env:
           ARCH: ${{ matrix.arch }}-${{ matrix.branch }}
@@ -77,14 +77,14 @@ jobs:
           PACKAGES: luci-app-nikki
           NO_REFRESH_CHECK: true
 
-      - name: Compress
+      - name: compress
         run: |
           tar -c -z -f nikki_${{ matrix.arch }}-${{ matrix.branch }}.tar.gz -C bin/packages/${{ matrix.arch }}/nikki .
           mkdir -p public/${{ matrix.branch }}/${{ matrix.arch }}
           mv bin/packages/${{ matrix.arch }}/nikki public/${{ matrix.branch }}/${{ matrix.arch }}
           tar -c -z -f feed_nikki_${{ matrix.arch }}-${{ matrix.branch }}.tar.gz public/${{ matrix.branch }}/${{ matrix.arch }}
 
-      - name: Release
+      - name: release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "v${{ needs.get-version.outputs.version }}"
@@ -92,7 +92,7 @@ jobs:
             nikki_${{ matrix.arch }}-${{ matrix.branch }}.tar.gz
           generate_release_notes: true
 
-      - name: Upload
+      - name: upload
         uses: actions/upload-artifact@v4
         with:
           name: feed_nikki_${{ matrix.arch }}-${{ matrix.branch }}

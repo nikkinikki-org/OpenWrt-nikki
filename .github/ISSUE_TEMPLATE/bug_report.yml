@@ -60,8 +60,8 @@ body:
   - type: textarea
     id: app_log
     attributes:
-      label: Plugin Log / 插件日志
-      description: Attach your plugin log / 附上你的插件日志
+      label: App Log / 插件日志
+      description: Attach your app log / 附上你的插件日志
     validations:
       required: true
   - type: textarea
