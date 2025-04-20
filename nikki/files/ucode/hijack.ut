@@ -139,7 +139,7 @@ table inet nikki {
 		{% if (length(lan_inbound_device) > 0): %}
 		elements = {
 			{% for (let device in lan_inbound_device): %}
-			{{ device }},
+			"{{ device }}",
 			{% endfor %}
 		}
 		{% endif %}
