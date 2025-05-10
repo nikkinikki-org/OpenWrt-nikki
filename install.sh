@@ -48,9 +48,15 @@ if [ -x "/bin/opkg" ]; then
 	opkg install nikki_*.ipk luci-app-nikki_*.ipk luci-i18n-nikki-zh-cn_*.ipk
 	rm -f -- *nikki*.ipk
 elif [ -x "/usr/bin/apk" ]; then
+	# add key
+	echo "add key"
+	curl -s -L -o "/etc/apk/keys/nikki.pem" "$repository_url/public-key.pem"
 	# install apks from remote repository
 	echo "install apks from remote repository"
-	apk add --allow-untrusted --repository $feed_url/packages.adb nikki luci-app-nikki luci-i18n-nikki-zh-cn
+	apk add --repository $feed_url/packages.adb nikki luci-app-nikki luci-i18n-nikki-zh-cn
+	# remove key
+	echo "remove key"
+	rm -f /etc/apk/keys/nikki.pem
 fi
 
 echo "success"

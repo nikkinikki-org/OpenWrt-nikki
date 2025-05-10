@@ -38,9 +38,9 @@ opkg install nikki
 opkg install luci-app-nikki
 opkg install luci-i18n-nikki-zh-cn
 # for apk
-apk add --allow-untrusted nikki
-apk add --allow-untrusted luci-app-nikki
-apk add --allow-untrusted luci-i18n-nikki-zh-cn
+apk add nikki
+apk add luci-app-nikki
+apk add luci-i18n-nikki-zh-cn
 ```
 
 ### B. Install From Release

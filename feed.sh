@@ -51,10 +51,9 @@ if [ -x "/bin/opkg" ]; then
 	echo "update feeds"
 	opkg update
 elif [ -x "/usr/bin/apk" ]; then
-	# todo: wait for upstream support to build apk with signature
 	# add key
-	# echo "add key"
-	# curl -s -L -o "/etc/apk/keys/nikki.pem" "$repository_url/public-key.pem"
+	echo "add key"
+	curl -s -L -o "/etc/apk/keys/nikki.pem" "$repository_url/public-key.pem"
 	# add feed
 	echo "add feed"
 	if (grep -q nikki /etc/apk/repositories.d/customfeeds.list); then
@@ -63,7 +62,7 @@ elif [ -x "/usr/bin/apk" ]; then
 	echo "$feed_url/packages.adb" >> /etc/apk/repositories.d/customfeeds.list
 	# update feeds
 	echo "update feeds"
-	apk update --allow-untrusted
+	apk update
 fi
 
 echo "success"

@@ -56,6 +56,7 @@ jobs:
           PACKAGES: luci-app-nikki
           INDEX: 1
           KEY_BUILD: ${{ secrets.KEY_BUILD }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           NO_REFRESH_CHECK: true
 
       - name: compress
@@ -97,6 +98,7 @@ jobs:
       - name: prepare
         run: |
           echo "${{ secrets.KEY_BUILD_PUB }}" > public/key-build.pub
+          echo "${{ secrets.PUBLIC_KEY }}" > public/public-key.pem
           tree --dirsfirst --sort name -P '*.apk|*.ipk' --prune --noreport -H "" -T "Nikki's Feed" --charset utf-8 -o public/index.html public
           sed -i '/<p class="VERSION">/,/<\/p>/d' public/index.html
 
