@@ -55,6 +55,10 @@ msgstr "追加规则"
 msgid "Append Rule Provider"
 msgstr "追加规则提供者"
 
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:82
+msgid "Base64 Decode"
+msgstr "Base64 解码"
+
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:473
 msgid "Behavior"
 msgstr "行为"
@@ -942,3 +946,5 @@ msgstr "用户代理（UA）"
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:180
 msgid "Username"
 msgstr "用户名"
+
+

@@ -351,10 +351,11 @@ update_subscription() {
 	# load config
 	config_load nikki
 	# get subscription config
-	local subscription_name subscription_url subscription_user_agent
+	local subscription_name subscription_url subscription_user_agent subscription_is_base64
 	config_get subscription_name "$subscription_section" "name"
 	config_get subscription_url "$subscription_section" "url"
 	config_get subscription_user_agent "$subscription_section" "user_agent"
+	config_get_bool subscription_is_base64 "$subscription_section" "is_base64" 0
 	# reset subscription info
 	uci_remove "nikki" "$subscription_section" "expire" > /dev/null 2>&1
 	uci_remove "nikki" "$subscription_section" "upload" > /dev/null 2>&1
@@ -372,6 +373,17 @@ update_subscription() {
 	local subscription_file; subscription_file="$SUBSCRIPTIONS_DIR/$subscription_section.yaml"
 	if (curl -s -f --connect-timeout 15 --retry 3 -L -X GET -A "$subscription_user_agent" -D "$subscription_header_tmpfile" -o "$subscription_tmpfile" "$subscription_url"); then
 		log "Profile" "Subscription download successful."
+		# check if base64 decode is needed
+		if [ "$subscription_is_base64" == 1 ]; then
+			log "Profile" "Decoding base64 content."
+			local subscription_decoded_tmpfile; subscription_decoded_tmpfile="$TEMP_DIR/$subscription_section.decoded.yaml"
+			if (base64 -d "$subscription_tmpfile" > "$subscription_decoded_tmpfile" 2>/dev/null); then
+				mv "$subscription_decoded_tmpfile" "$subscription_tmpfile"
+				log "Profile" "Base64 decode successful."
+			else
+				log "Profile" "Base64 decode failed, using original content."
+			fi
+		fi
 		if (yq -p yaml -o yaml "$subscription_tmpfile" > /dev/null 2>&1); then
 			log "Profile" "Subscription is valid."
 			success=1
@@ -428,6 +440,7 @@ update_subscription() {
 		# remove tmpfile
 		rm -f "$subscription_header_tmpfile"
 		rm -f "$subscription_tmpfile"
+		rm -f "$TEMP_DIR/$subscription_section.decoded.yaml"
 	fi
 	uci_commit "nikki"
 }

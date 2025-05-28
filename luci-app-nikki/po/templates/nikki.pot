@@ -48,6 +48,10 @@ msgstr ""
 msgid "Append Rule Provider"
 msgstr ""
 
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:82
+msgid "Base64 Decode"
+msgstr ""
+
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:473
 msgid "Behavior"
 msgstr ""
@@ -935,3 +939,5 @@ msgstr ""
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:180
 msgid "Username"
 msgstr ""
+
+

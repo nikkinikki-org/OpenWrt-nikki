@@ -81,6 +81,11 @@ return view.extend({
         o.value('remote', _('Remote'));
         o.value('local', _('Local'));
 
+        o = s.option(form.Flag, 'is_base64', _('Base64 Decode'));
+        o.default = '0';
+        o.modalonly = true;
+        o.rmempty = false;
+
         return m.render();
     }
 });
