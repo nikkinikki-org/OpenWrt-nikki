@@ -171,11 +171,11 @@ function desensitize_profile() {
 		}
 		if (exists(profile, "proxy-providers")) {
 			for (let x in profile["proxy-providers"]) {
-				if (exists(x, "url")) {
-					x["url"] = "*";
+				if (exists(profile["proxy-providers"][x], "url")) {
+					profile["proxy-providers"][x]["url"] = "*";
 				}
-				if (exists(x, "payload")) {
-					desensitize_proxies(x["payload"]);
+				if (exists(profile["proxy-providers"][x], "payload")) {
+					desensitize_proxies(profile["proxy-providers"][x]["payload"]);
 				}
 			}
 		}

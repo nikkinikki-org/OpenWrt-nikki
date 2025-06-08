@@ -172,7 +172,8 @@ if (uci_bool(uci.get('nikki', 'mixin', 'rule'))) {
 		if (!uci_bool(section.enabled)) {
 			return;
 		}
-		push(config['nikki-rules'], `${section.type},${section.matcher},${section.node}` + (uci_bool(section.no_resolve) ? ',no_resolve' : ''));
+		const rule = [ section.type, section.matcher, section.node, uci_bool(section.no_resolve) ? 'no_resolve' : null ];
+		push(config['nikki-rules'], join(',', filter(rule, (item) => item != null && item != '')));
 	})
 }
 

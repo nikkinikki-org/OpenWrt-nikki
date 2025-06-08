@@ -51,6 +51,17 @@ start_service() {
 	config_get_bool test_profile "config" "test_profile" 0
 	config_get_bool fast_reload "config" "fast_reload" 0
 	## mixin config
+	### overwrite
+	local overwrite_authentication overwrite_tun_dns_hijack overwrite_fake_ip_filter overwrite_hosts overwrite_dns_nameserver overwrite_dns_nameserver_policy overwrite_sniffer_sniff overwrite_sniffer_force_domain_name overwrite_sniffer_ignore_domain_name
+	config_get_bool overwrite_authentication "mixin" "authentication" 0
+	config_get_bool overwrite_tun_dns_hijack "mixin" "tun_dns_hijack" 0
+	config_get_bool overwrite_fake_ip_filter "mixin" "fake_ip_filter" 0
+	config_get_bool overwrite_hosts "mixin" "hosts" 0
+	config_get_bool overwrite_dns_nameserver "mixin" "dns_nameserver" 0
+	config_get_bool overwrite_dns_nameserver_policy "mixin" "dns_nameserver_policy" 0
+	config_get_bool overwrite_sniffer_force_domain_name "mixin" "sniffer_force_domain_name" 0
+	config_get_bool overwrite_sniffer_ignore_domain_name "mixin" "sniffer_ignore_domain_name" 0
+	config_get_bool overwrite_sniffer_sniff "mixin" "sniffer_sniff" 0
 	### mixin file content
 	local mixin_file_content
 	config_get_bool mixin_file_content "mixin" "mixin_file_content" 0
@@ -94,6 +105,33 @@ start_service() {
 	fi
 	# mixin
 	log "Mixin" "Mixin config."
+	if [ "$overwrite_authentication" == 1 ]; then
+		yq -M -i 'del(.authentication)' "$RUN_PROFILE_PATH"
+	fi
+	if [ "$overwrite_tun_dns_hijack" == 1 ]; then
+		yq -M -i 'del(.tun.dns-hijack)' "$RUN_PROFILE_PATH"
+	fi
+	if [ "$overwrite_fake_ip_filter" == 1 ]; then
+		yq -M -i 'del(.dns.fake-ip-filter)' "$RUN_PROFILE_PATH"
+	fi
+	if [ "$overwrite_hosts" == 1 ]; then
+		yq -M -i 'del(.hosts)' "$RUN_PROFILE_PATH"
+	fi
+	if [ "$overwrite_dns_nameserver" == 1 ]; then
+		yq -M -i 'del(.dns.default-nameserver) | del(.dns.proxy-server-nameserver) | del(.dns.direct-nameserver) | del(.dns.nameserver) | del(.dns.fallback) ' "$RUN_PROFILE_PATH"
+	fi
+	if [ "$overwrite_dns_nameserver_policy" == 1 ]; then
+		yq -M -i 'del(.dns.nameserver-policy)' "$RUN_PROFILE_PATH"
+	fi
+	if [ "$overwrite_sniffer_force_domain_name" == 1 ]; then
+		yq -M -i 'del(.sniffer.force-domain)' "$RUN_PROFILE_PATH"
+	fi
+	if [ "$overwrite_sniffer_ignore_domain_name" == 1 ]; then
+		yq -M -i 'del(.sniffer.skip-domain)' "$RUN_PROFILE_PATH"
+	fi
+	if [ "$overwrite_sniffer_sniff" == 1 ]; then
+		yq -M -i 'del(.sniffer.sniff)' "$RUN_PROFILE_PATH"
+	fi
 	if [ "$mixin_file_content" == 0 ]; then
 		ucode -S "$MIXIN_UC" | yq -M -p json -o yaml | yq -M -i ea '... comments="" | . as $item ireduce ({}; . * $item ) | .rules = .nikki-rules + .rules | del(.nikki-rules)' "$RUN_PROFILE_PATH" -
 	elif [ "$mixin_file_content" == 1 ]; then
@@ -206,7 +244,7 @@ service_started() {
 		local tun_interval; tun_interval=1
 		while [ "$tun_timeout" -gt 0 ]; do
 			if (ip link show dev "$tun_device" > /dev/null 2>&1); then
-				if [ $(ip -json addr show dev "$tun_device" | tun_device="$tun_device" yq -M '.[] | select(.ifname = strenv(tun_device)) | .addr_info | length') -gt 0 ]; then
+				if [ "$(ip -json addr show dev "$tun_device" | tun_device="$tun_device" yq -M '.[] | select(.ifname = strenv(tun_device)) | .addr_info | length')" -gt 0 ]; then
 					log "Proxy" "Tun device is online."
 					break
 				fi
@@ -318,57 +356,72 @@ update_subscription() {
 	config_get subscription_url "$subscription_section" "url"
 	config_get subscription_user_agent "$subscription_section" "user_agent"
 	# reset subscription info
-	uci_remove "nikki" "$subscription_section" "expire"
-	uci_remove "nikki" "$subscription_section" "upload"
-	uci_remove "nikki" "$subscription_section" "download"
-	uci_remove "nikki" "$subscription_section" "total"
-	uci_remove "nikki" "$subscription_section" "used"
-	uci_remove "nikki" "$subscription_section" "avaliable"
-	uci_remove "nikki" "$subscription_section" "update"
-	uci_remove "nikki" "$subscription_section" "success"
+	uci_remove "nikki" "$subscription_section" "expire" > /dev/null 2>&1
+	uci_remove "nikki" "$subscription_section" "upload" > /dev/null 2>&1
+	uci_remove "nikki" "$subscription_section" "download" > /dev/null 2>&1
+	uci_remove "nikki" "$subscription_section" "total" > /dev/null 2>&1
+	uci_remove "nikki" "$subscription_section" "used" > /dev/null 2>&1
+	uci_remove "nikki" "$subscription_section" "avaliable" > /dev/null 2>&1
+	uci_remove "nikki" "$subscription_section" "update" > /dev/null 2>&1
+	uci_remove "nikki" "$subscription_section" "success" > /dev/null 2>&1
 	# update subscription
 	log "Profile" "Update subscription: $subscription_name."
+	local success
 	local subscription_header_tmpfile; subscription_header_tmpfile="$TEMP_DIR/$subscription_section.header"
 	local subscription_tmpfile; subscription_tmpfile="$TEMP_DIR/$subscription_section.yaml"
 	local subscription_file; subscription_file="$SUBSCRIPTIONS_DIR/$subscription_section.yaml"
 	if (curl -s -f --connect-timeout 15 --retry 3 -L -X GET -A "$subscription_user_agent" -D "$subscription_header_tmpfile" -o "$subscription_tmpfile" "$subscription_url"); then
+		log "Profile" "Subscription download successful."
+		if (yq -p yaml -o yaml "$subscription_tmpfile" > /dev/null 2>&1); then
+			log "Profile" "Subscription is valid."
+			success=1
+		else
+			log "Profile" "Subscription is not valid."
+			success=0
+		fi
+	else
+		log "Profile" "Subscription download failed."
+		success=0
+	fi
+	# check if success
+	if [ "$success" == 1 ]; then
 		log "Profile" "Subscription update successful."
 		local subscription_expire subscription_upload subscription_download subscription_total subscription_used subscription_avaliable
-		subscription_expire=$(grep -i "subscription-userinfo: " "$subscription_header_tmpfile" | grep -o -E "expire=[[:digit:]]+" | cut -d '=' -f 2)
-		subscription_upload=$(grep -i "subscription-userinfo: " "$subscription_header_tmpfile" | grep -o -E "upload=[[:digit:]]+" | cut -d '=' -f 2)
-		subscription_download=$(grep -i "subscription-userinfo: " "$subscription_header_tmpfile" | grep -o -E "download=[[:digit:]]+" | cut -d '=' -f 2)
-		subscription_total=$(grep -i "subscription-userinfo: " "$subscription_header_tmpfile" | grep -o -E "total=[[:digit:]]+" | cut -d '=' -f 2)
+		subscription_expire=$(grep -i "subscription-userinfo: " "$subscription_header_tmpfile" | grep -i -o -E "expire=[[:digit:]]+" | cut -d '=' -f 2)
+		subscription_upload=$(grep -i "subscription-userinfo: " "$subscription_header_tmpfile" | grep -i -o -E "upload=[[:digit:]]+" | cut -d '=' -f 2)
+		subscription_download=$(grep -i "subscription-userinfo: " "$subscription_header_tmpfile" | grep -i -o -E "download=[[:digit:]]+" | cut -d '=' -f 2)
+		subscription_total=$(grep -i "subscription-userinfo: " "$subscription_header_tmpfile" | grep -i -o -E "total=[[:digit:]]+" | cut -d '=' -f 2)
 		if [[ -n "$subscription_upload" && -n "$subscription_download" ]]; then
 			subscription_used=$((subscription_upload + subscription_download))
 			if [ -n "$subscription_total" ]; then
-				subscription_avaliable=$((subscription_total - subscription_upload - subscription_download))
+				subscription_avaliable=$((subscription_total - subscription_used))
 			fi
 		fi
 		# update subscription info
 		if [ -n "$subscription_expire" ]; then
-			uci_set "nikki" "$subscription_section" "expire" "$(date "+%Y-%m-%d %H:%M:%S" -d @$subscription_expire)"
+			uci_set "nikki" "$subscription_section" "expire" "$(date "+%Y-%m-%d %H:%M:%S" -d "@$subscription_expire")"
 		fi
 		if [ -n "$subscription_upload" ]; then
-			uci_set "nikki" "$subscription_section" "upload" "$(format_filesize $subscription_upload)"
+			uci_set "nikki" "$subscription_section" "upload" "$(format_filesize "$subscription_upload")"
 		fi
 		if [ -n "$subscription_download" ]; then
-			uci_set "nikki" "$subscription_section" "download" "$(format_filesize $subscription_download)"
+			uci_set "nikki" "$subscription_section" "download" "$(format_filesize "$subscription_download")"
 		fi
 		if [ -n "$subscription_total" ]; then
-			uci_set "nikki" "$subscription_section" "total" "$(format_filesize $subscription_total)"
+			uci_set "nikki" "$subscription_section" "total" "$(format_filesize "$subscription_total")"
 		fi
 		if [ -n "$subscription_used" ]; then
-			uci_set "nikki" "$subscription_section" "used" "$(format_filesize $subscription_used)"
+			uci_set "nikki" "$subscription_section" "used" "$(format_filesize "$subscription_used")"
 		fi
 		if [ -n "$subscription_avaliable" ]; then
-			uci_set "nikki" "$subscription_section" "avaliable" "$(format_filesize $subscription_avaliable)"
+			uci_set "nikki" "$subscription_section" "avaliable" "$(format_filesize "$subscription_avaliable")"
 		fi
 		uci_set "nikki" "$subscription_section" "update" "$(date "+%Y-%m-%d %H:%M:%S")"
 		uci_set "nikki" "$subscription_section" "success" "1"
 		# update subscription file
 		rm -f "$subscription_header_tmpfile"
 		mv -f "$subscription_tmpfile" "$subscription_file"
-	else
+	elif [ "$success" == 0 ]; then
 		log "Profile" "Subscription update failed."
 		# update subscription info
 		uci_set "nikki" "$subscription_section" "success" "0"
