@@ -542,15 +542,19 @@ return view.extend({
 
         o = s.taboption('geox', form.Value, 'geosite_url', _('GeoSite Url'));
         o.placeholder = _('Unmodified');
+        o.default = 'https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat';
 
         o = s.taboption('geox', form.Value, 'geoip_mmdb_url', _('GeoIP(MMDB) Url'));
         o.placeholder = _('Unmodified');
+        o.default = 'https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb';
 
         o = s.taboption('geox', form.Value, 'geoip_dat_url', _('GeoIP(DAT) Url'));
         o.placeholder = _('Unmodified');
+        o.default = 'https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat';
 
         o = s.taboption('geox', form.Value, 'geoip_asn_url', _('GeoIP(ASN) Url'));
         o.placeholder = _('Unmodified');
+        o.default = 'https://github.com/xishang0128/geoip/releases/download/latest/GeoLite2-ASN.mmdb';
 
         o = s.taboption('geox', form.ListValue, 'geox_auto_update', _('GeoX Auto Update'));
         o.optional = true;
@@ -558,7 +562,7 @@ return view.extend({
         o.value('0', _('Disable'));
         o.value('1', _('Enable'));
 
-        o = s.taboption('geox', form.Value, 'geox_update_interval', _('GeoX Update Interval'));
+        o = s.taboption('geox', form.Value, 'geox_update_interval', _('GeoX Update Interval (integer hours)'));
         o.datatype = 'uinteger';
         o.placeholder = _('Unmodified');
 

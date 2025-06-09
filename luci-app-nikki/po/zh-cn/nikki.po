@@ -420,8 +420,8 @@ msgid "GeoX Config"
 msgstr "GeoX 配置"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:562
-msgid "GeoX Update Interval"
-msgstr "GeoX 文件更新间隔"
+msgid "GeoX Update Interval (integer hours)"
+msgstr "GeoX 文件更新间隔（小时整数）"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:96
 msgid "Global Client Fingerprint"
