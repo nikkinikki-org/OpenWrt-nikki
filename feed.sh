@@ -7,6 +7,11 @@ if [[ ! -x "/bin/opkg" && ! -x "/usr/bin/apk" || ! -x "/sbin/fw4" ]]; then
 	echo "only supports OpenWrt build with firewall4!"
 	exit 1
 fi
+if [[ ! -x "/usr/bin/curl" ]]; then
+	echo "curl NOT FOUND!"
+ 	echo "Please install it and try again!"
+	exit 1
+fi
 
 # include openwrt_release
 . /etc/openwrt_release
