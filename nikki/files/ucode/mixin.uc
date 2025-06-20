@@ -10,11 +10,14 @@ const uci = cursor();
 const ubus = connect();
 
 const config = {};
+const status = ubus.call('network.interface', 'status', {
+        'interface': uci.get('nikki', 'mixin', 'outbound_interface')
+    });
 
 config['log-level'] = uci.get('nikki', 'mixin', 'log_level');
 config['mode'] = uci.get('nikki', 'mixin', 'mode');
 config['find-process-mode'] = uci.get('nikki', 'mixin', 'match_process');
-config['interface-name'] = ubus.call('network.interface', 'status', {'interface': uci.get('nikki', 'mixin', 'outbound_interface')})?.l3_device;
+config['interface-name'] = status?.l3_device ?? status?.device ?? '';
 config['ipv6'] = uci_bool(uci.get('nikki', 'mixin', 'ipv6'));
 config['unified-delay'] = uci_bool(uci.get('nikki', 'mixin', 'unify_delay'));
 config['tcp-concurrent'] = uci_bool(uci.get('nikki', 'mixin', 'tcp_concurrent'));

@@ -50,7 +50,8 @@
 	const lan_inbound_interface = uci_array(uci.get('nikki', 'proxy', 'lan_inbound_interface'));
 	const lan_inbound_device = [];
 	for (let interface in lan_inbound_interface) {
-		const device = ubus.call('network.interface', 'status', {'interface': interface})?.l3_device ?? '';
+		const status = ubus.call('network.interface', 'status', { 'interface': interface }) || {};
+		const device = status.l3_device ?? status.device ?? '';
 		if (device != '') {
 			push(lan_inbound_device, device);
 		}
