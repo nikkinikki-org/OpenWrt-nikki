@@ -403,7 +403,7 @@ update_subscription() {
 	local subscription_file; subscription_file="$SUBSCRIPTIONS_DIR/$subscription_section.yaml"
 	if (curl -s -f --connect-timeout 15 --retry 3 -L -X GET -A "$subscription_user_agent" -D "$subscription_header_tmpfile" -o "$subscription_tmpfile" "$subscription_url"); then
 		log "Profile" "Subscription download successful."
-		if (yq -p yaml -o yaml "$subscription_tmpfile" > /dev/null 2>&1); then
+		if (yq -p yaml -o yaml 'has("proxies") or has("proxy-providers")' "$subscription_tmpfile" > /dev/null 2>&1 | grep -q "true"); then
 			log "Profile" "Subscription is valid."
 			success=1
 		else
