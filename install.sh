@@ -40,10 +40,18 @@ if [ -x "/bin/opkg" ]; then
 	opkg update
 	# install ipks
 	echo "install ipks"
-	eval "$(wget -O - $feed_url/index.json | jsonfilter -e 'nikki_version=@["packages"]["nikki"]' -e 'luci_app_nikki_version=@["packages"]["luci-app-nikki"]' -e 'luci_i18n_nikki_version=@["packages"]["luci-i18n-nikki-zh-cn"]')"
+	eval "$(wget -O - $feed_url/index.json | jsonfilter -e 'nikki_version=@["packages"]["nikki"]' -e 'luci_app_nikki_version=@["packages"]["luci-app-nikki"]' -e 'luci_i18n_nikki_zh_cn_version=@["packages"]["luci-i18n-nikki-zh-cn"]' -e 'luci_i18n_nikki_zh_tw_version=@["packages"]["luci-i18n-nikki-zh-tw"]')"
 	opkg install "$feed_url/nikki_${nikki_version}_${arch}.ipk"
 	opkg install "$feed_url/luci-app-nikki_${luci_app_nikki_version}_all.ipk"
-	opkg install "$feed_url/luci-i18n-nikki-zh-cn_${luci_i18n_nikki_version}_all.ipk"
+	opkg install "$feed_url/luci-i18n-nikki-zh-cn_${luci_i18n_nikki_zh_cn_version}_all.ipk"
+	
+	# 安裝繁體中文語言包（如果存在）
+	if [ ! -z "$luci_i18n_nikki_zh_tw_version" ]; then
+		opkg install "$feed_url/luci-i18n-nikki-zh-tw_${luci_i18n_nikki_zh_tw_version}_all.ipk"
+	else
+		echo "繁體中文語言包不存在，僅安裝簡體中文版本"
+	fi
+	
 	rm -f -- *nikki*.ipk
 elif [ -x "/usr/bin/apk" ]; then
 	# update feeds
@@ -51,7 +59,7 @@ elif [ -x "/usr/bin/apk" ]; then
 	apk update
 	# install apks from remote repository
 	echo "install apks from remote repository"
-	apk add --allow-untrusted -X $feed_url/packages.adb nikki luci-app-nikki luci-i18n-nikki-zh-cn
+	apk add --allow-untrusted -X $feed_url/packages.adb nikki luci-app-nikki luci-i18n-nikki-zh-cn luci-i18n-nikki-zh-tw
 fi
 
-echo "success"
+echo "success" 
