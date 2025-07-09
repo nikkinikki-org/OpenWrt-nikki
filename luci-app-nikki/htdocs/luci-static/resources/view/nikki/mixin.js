@@ -242,6 +242,7 @@ return view.extend({
         o.placeholder = _('Unmodified');
         o.value('redir-host', 'Redir-Host');
         o.value('fake-ip', 'Fake-IP');
+        o.value('normal', 'Normal');
 
         o = s.taboption('dns', form.Value, 'fake_ip_range', '*' + ' ' + _('Fake-IP Range'));
         o.datatype = 'cidr4';
