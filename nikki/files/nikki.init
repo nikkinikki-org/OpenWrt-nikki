@@ -10,11 +10,7 @@ PROG="/usr/bin/mihomo"
 
 extra_command 'update_subscription' 'Update subscription by section id'
 
-boot() {
-	# prepare files
-	prepare_files
-	# load config
-	config_load nikki
+boot_func() {
 	# start delay
 	local enabled start_delay
 	config_get_bool enabled "config" "enabled" 0
@@ -25,6 +21,14 @@ boot() {
 	fi
 	# start
 	start
+}
+
+boot() {
+	# prepare files
+	prepare_files
+	# load config
+	config_load nikki
+	boot_func >/dev/null 2>&1 &
 }
 
 start_service() {
@@ -54,7 +58,7 @@ start_service() {
 	config_get_bool core_only "config" "core_only" 0
 	## environment variable
 	local safe_paths disable_loopback_detector disable_quic_go_gso disable_quic_go_ecn skip_system_ipv6_check
-	config_get safe_paths "env" "safe_paths" 
+	config_get safe_paths "env" "safe_paths"
 	config_get_bool disable_loopback_detector "env" "disable_loopback_detector" 0
 	config_get_bool disable_quic_go_gso "env" "disable_quic_go_gso" 0
 	config_get_bool disable_quic_go_ecn "env" "disable_quic_go_ecn" 0
