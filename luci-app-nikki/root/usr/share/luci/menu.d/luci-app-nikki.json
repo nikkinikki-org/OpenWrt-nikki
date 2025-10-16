@@ -25,9 +25,25 @@
             "path": "nikki/profile"
         }
     },
+    "admin/services/nikki/editor": {
+        "title": "Edit Profile",
+        "order": 30,
+        "action": {
+            "type": "view",
+            "path": "nikki/editor"
+        }
+    },
+    "admin/services/nikki/quickedit": {
+        "title": "Quick Edit",
+        "order": 40,
+        "action": {
+            "type": "view",
+            "path": "nikki/quickedit"
+        }
+    },
     "admin/services/nikki/mixin": {
         "title": "Mixin Config",
-        "order": 30,
+        "order": 50,
         "action": {
             "type": "view",
             "path": "nikki/mixin"
@@ -35,23 +51,15 @@
     },
     "admin/services/nikki/proxy": {
         "title": "Proxy Config",
-        "order": 40,
+        "order": 60,
         "action": {
             "type": "view",
             "path": "nikki/proxy"
         }
     },
-    "admin/services/nikki/editor": {
-        "title": "Editor",
-        "order": 50,
-        "action": {
-            "type": "view",
-            "path": "nikki/editor"
-        }
-    },
     "admin/services/nikki/log": {
         "title": "Log",
-        "order": 60,
+        "order": 70,
         "action": {
             "type": "view",
             "path": "nikki/log"
