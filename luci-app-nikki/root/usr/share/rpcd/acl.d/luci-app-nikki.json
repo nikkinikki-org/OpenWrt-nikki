@@ -14,8 +14,8 @@
                 "/etc/nikki/subscriptions/*.yml": ["read"],
                 "/etc/nikki/mixin.yaml": ["read"],
                 "/etc/nikki/run/config.yaml": ["read"],
-                "/etc/nikki/run/providers/rule/*": ["read"],
-                "/etc/nikki/run/providers/proxy/*": ["read"],
+                "/etc/nikki/run/rule_provider/*": ["read"],
+                "/etc/nikki/run/proxy_provider/*": ["read"],
                 "/var/log/nikki/*.log": ["read"]
             }
         },
@@ -28,8 +28,8 @@
                 "/etc/nikki/subscriptions/*.yml": ["write"],
                 "/etc/nikki/mixin.yaml": ["write"],
                 "/etc/nikki/run/config.yaml": ["write"],
-                "/etc/nikki/run/providers/rule/*": ["write"],
-                "/etc/nikki/run/providers/proxy/*": ["write"],
+                "/etc/nikki/run/rule_provider/*": ["write"],
+                "/etc/nikki/run/proxy_provider/*": ["write"],
                 "/var/log/nikki/*.log": ["write"]
             }
         }
