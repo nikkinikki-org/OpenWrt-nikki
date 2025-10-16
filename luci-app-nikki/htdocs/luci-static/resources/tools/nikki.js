@@ -82,10 +82,10 @@ return baseclass.extend({
     mixinFilePath: mixinFilePath,
     runDir: runDir,
     uiDir: uiDir,
-    NikkiDir: NikkiDir,
+    uinikkiDir: uinikkiDir,
     runProfilePath: runProfilePath,
-    ruleProvidersDir: ruleProvidersDir,
-    proxyProvidersDir: proxyProvidersDir,
+    ruleProvidersDir: ruleProviderDir,
+    proxyProvidersDir: proxyProviderDir,
     appLogPath: appLogPath,
     coreLogPath: coreLogPath,
     debugLogPath: debugLogPath,
@@ -154,11 +154,11 @@ return baseclass.extend({
     },
 
     listRuleProviders: function () {
-        return L.resolveDefault(fs.list(this.ruleProvidersDir), []);
+        return L.resolveDefault(fs.list(this.ruleProviderDir), []);
     },
 
     listProxyProviders: function () {
-        return L.resolveDefault(fs.list(this.proxyProvidersDir), []);
+        return L.resolveDefault(fs.list(this.proxyProviderDir), []);
     },
 
     getAppLog: function () {
