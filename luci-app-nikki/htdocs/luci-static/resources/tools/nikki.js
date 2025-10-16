@@ -63,10 +63,12 @@ const profilesDir = `${homeDir}/profiles`;
 const subscriptionsDir = `${homeDir}/subscriptions`;
 const mixinFilePath = `${homeDir}/mixin.yaml`;
 const runDir = `${homeDir}/run`;
+const uiDir = `${runDir}/ui`;
+const NikkiDir = `${uiDir}/Nikki`;
 const runProfilePath = `${runDir}/config.yaml`;
-const providersDir = `${runDir}/providers`;
-const ruleProvidersDir = `${providersDir}/rule`;
-const proxyProvidersDir = `${providersDir}/proxy`;
+const proxyProvidersDir = `${runDir}/proxy_provider`;
+const ruleProvidersDir = `${runDir}/rule_provider`;
+
 const logDir = `/var/log/nikki`;
 const appLogPath = `${logDir}/app.log`;
 const coreLogPath = `${logDir}/core.log`;
@@ -79,12 +81,15 @@ return baseclass.extend({
     subscriptionsDir: subscriptionsDir,
     mixinFilePath: mixinFilePath,
     runDir: runDir,
+    uiDir: uiDir,
+    NikkiDir: NikkiDir,
     runProfilePath: runProfilePath,
     ruleProvidersDir: ruleProvidersDir,
     proxyProvidersDir: proxyProvidersDir,
     appLogPath: appLogPath,
     coreLogPath: coreLogPath,
     debugLogPath: debugLogPath,
+    nftDir: nftDir,
 
     status: async function () {
         return (await callRCList('nikki'))?.nikki?.running;
