@@ -1,0 +1,119 @@
+name: build-testdulu
+
+on:
+  workflow_dispatch:
+    inputs:
+      arch:
+        description: 'Select architecture'
+        required: true
+        type: choice
+        options:
+          - all
+          - arm_cortex-a5_vfpv4
+          - arm_cortex-a7_neon-vfpv4
+          - arm_cortex-a8_vfpv3
+          - arm_cortex-a9
+          - arm_cortex-a9_vfpv3-d16
+          - arm_cortex-a9_neon
+          - arm_cortex-a15_neon-vfpv4
+          - aarch64_cortex-a53
+          - aarch64_cortex-a72
+          - aarch64_cortex-a76
+          - aarch64_generic
+          - i386_pentium4
+          - x86_64
+        default: 'all'
+      branch:
+        description: 'Select branch'
+        required: true
+        type: choice
+        options:
+          - all
+          - openwrt-23.05
+          - openwrt-24.10
+        default: 'all'
+      create_release:
+        description: 'Create GitHub Release?'
+        required: false
+        type: boolean
+        default: false
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: ${{ matrix.arch }}-${{ matrix.branch }} build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: ${{ github.event_name == 'push' && fromJSON('["arm_cortex-a5_vfpv4","arm_cortex-a7_neon-vfpv4","arm_cortex-a8_vfpv3","arm_cortex-a9","arm_cortex-a9_vfpv3-d16","arm_cortex-a9_neon","arm_cortex-a15_neon-vfpv4","aarch64_cortex-a53","aarch64_cortex-a72","aarch64_cortex-a76","aarch64_generic","i386_pentium4","x86_64"]') || (github.event.inputs.arch == 'all' && fromJSON('["arm_cortex-a5_vfpv4","arm_cortex-a7_neon-vfpv4","arm_cortex-a8_vfpv3","arm_cortex-a9","arm_cortex-a9_vfpv3-d16","arm_cortex-a9_neon","arm_cortex-a15_neon-vfpv4","aarch64_cortex-a53","aarch64_cortex-a72","aarch64_cortex-a76","aarch64_generic","i386_pentium4","x86_64"]') || fromJSON(format('["{0}"]', github.event.inputs.arch))) }}
+        branch: ${{ github.event_name == 'push' && fromJSON('["openwrt-23.05","openwrt-24.10"]') || (github.event.inputs.branch == 'all' && fromJSON('["openwrt-23.05","openwrt-24.10"]') || fromJSON(format('["{0}"]', github.event.inputs.branch))) }}
+        exclude:
+          - arch: aarch64_cortex-a76
+            branch: openwrt-23.05
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: build
+        uses: openwrt/gh-action-sdk@main
+        env:
+          ARCH: ${{ matrix.arch }}-${{ matrix.branch }}
+          FEEDNAME: nikki
+          PACKAGES: luci-app-nikki
+          NO_REFRESH_CHECK: true
+
+      - name: compress
+        run: |
+          tar -c -z -f nikki_${{ matrix.arch }}-${{ matrix.branch }}.tar.gz -C bin/packages/${{ matrix.arch }}/nikki .
+
+      - name: upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nikki_${{ matrix.arch }}-${{ matrix.branch }}
+          path: nikki_${{ matrix.arch }}-${{ matrix.branch }}.tar.gz
+
+  release:
+    needs: build
+    name: create release
+    runs-on: ubuntu-latest
+    if: (github.event_name == 'push' && startsWith(github.ref_name, 'v')) || (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true')
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: get version from makefile
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION=$(grep -E '^PKG_VERSION\s*:?=' luci-app-nikki/Makefile | head -1 | cut -d'=' -f2 | tr -d ' ')
+            if [ -z "$VERSION" ]; then
+              VERSION="1.2.3"
+            fi
+            if [[ ! "$VERSION" =~ ^v ]]; then
+              VERSION="v$VERSION"
+            fi
+            echo "tag_name=$VERSION" >> $GITHUB_OUTPUT
+            echo "release_name=$VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "tag_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "release_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: nikki_*
+          merge-multiple: true
+
+      - name: create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: nikki_*.tar.gz
+          tag_name: ${{ steps.version.outputs.tag_name }}
+          name: ${{ steps.version.outputs.release_name }}
+          draft: false
