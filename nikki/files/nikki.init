@@ -10,6 +10,14 @@ PROG="/usr/bin/mihomo"
 
 extra_command 'update_subscription' 'Update subscription by section id'
 
+# we don't know which is the default server, just take the first one
+DNSMASQ_UCI_CONFIG="$(uci -q show "dhcp.@dnsmasq[0]" | awk 'NR==1 {split($0, conf, /[.=]/); print conf[2]}')"
+if [ -f "/tmp/etc/dnsmasq.conf.$DNSMASQ_UCI_CONFIG" ]; then
+	DNSMASQ_DIR="$(awk -F '=' '/^conf-dir=/ {print $2}' "/tmp/etc/dnsmasq.conf.$DNSMASQ_UCI_CONFIG")/nikki.d"
+else
+	DNSMASQ_DIR="/tmp/dnsmasq.d/nikki.d"
+fi
+
 boot_func() {
 	# prepare files
 	prepare_files
@@ -97,10 +105,11 @@ start_service() {
 	local mixin_file_content
 	config_get_bool mixin_file_content "mixin" "mixin_file_content" 0
 	## proxy config
-	local proxy_enabled ipv4_dns_hijack ipv6_dns_hijack tcp_mode udp_mode
+	local proxy_enabled ipv4_dns_hijack ipv6_dns_hijack as_dnsmasq_upstream tcp_mode udp_mode
 	config_get_bool proxy_enabled "proxy" "enabled" 0
 	config_get_bool ipv4_dns_hijack "proxy" "ipv4_dns_hijack" 0
 	config_get_bool ipv6_dns_hijack "proxy" "ipv6_dns_hijack" 0
+	config_get_bool as_dnsmasq_upstream "proxy" "as_dnsmasq_upstream" 0
 	config_get tcp_mode "proxy" "tcp_mode"
 	config_get udp_mode "proxy" "udp_mode"
 	# get profile
@@ -176,7 +185,7 @@ start_service() {
 	# check profile
 	if [ "$core_only" = 0 ] && [ "$proxy_enabled" = 1 ]; then
 		log "Profile" "Checking..."
-		if [ "$ipv4_dns_hijack" = 1 ] || [ "$ipv6_dns_hijack" = 1 ]; then
+		if [ "$ipv4_dns_hijack" = 1 ] || [ "$ipv6_dns_hijack" = 1 ] || [ "$as_dnsmasq_upstream" = 1 ];; then
 			if yq -M -e '(has("dns") and (.dns | .enable) and (.dns | has("listen"))) | not' "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
 				log "Profile" "Check failed."
 				log "Profile" "DNS should be enabled and listen should be defined."
@@ -274,11 +283,12 @@ service_started() {
 	config_get_bool core_only "config" "core_only" 0
 	## proxy config
 	### general
-	local tcp_mode udp_mode ipv4_proxy ipv6_proxy tun_timeout tun_interval
+	local tcp_mode udp_mode ipv4_proxy ipv6_proxy as_dnsmasq_upstream tun_timeout tun_interval
 	config_get tcp_mode "proxy" "tcp_mode"
 	config_get udp_mode "proxy" "udp_mode"
 	config_get_bool ipv4_proxy "proxy" "ipv4_proxy" 0
 	config_get_bool ipv6_proxy "proxy" "ipv6_proxy" 0
+	config_get_bool as_dnsmasq_upstream "proxy" "as_dnsmasq_upstream" 0
 	config_get tun_timeout "proxy" "tun_timeout" 30
 	config_get tun_interval "proxy" "tun_interval" 1
 	## routing config
@@ -371,6 +381,19 @@ service_started() {
 			fi
 			$FIREWALL_INCLUDE_SH
 		fi
+		# dnsmasq redirect
+		if [ "$as_dnsmasq_upstream" = 1 ]; then
+			local dns_port
+			dns_port=$(yq -e '.dns.listen // ""' "$RUN_PROFILE_PATH" 2>/dev/null | grep -oE ':[0-9]+' | cut -c2-)
+			mkdir -p "$DNSMASQ_DIR"
+			echo -e "conf-dir=$DNSMASQ_DIR" > "$DNSMASQ_DIR/../nikki.conf"
+			cat <<-EOF > "$DNSMASQ_DIR/redirect-dns.conf"
+				no-poll
+				no-resolv
+				server=127.0.0.1#$dns_port
+			EOF
+			/etc/init.d/dnsmasq restart >"/dev/null" 2>&1
+		fi
 		# hijack
 		utpl -S "$HIJACK_UT" | nft -f -
 		# check hijack
@@ -427,6 +450,14 @@ cleanup() {
 	for handle in $handles; do
 		nft delete rule inet fw4 forward handle "$handle"
 	done
+	# Remove DNS hijack
+	if [ -n "$DNSMASQ_DIR" ] && [ "$DNSMASQ_DIR" != "/" ] && [ -d "$DNSMASQ_DIR" ]; then
+		local dnsmasq_nikki_conf
+		dnsmasq_nikki_conf="$(cd "$DNSMASQ_DIR/.." 2>/dev/null && pwd)/nikki.conf"
+		[ -f "$dnsmasq_nikki_conf" ] && rm -f "$dnsmasq_nikki_conf"
+		rm -rf "$DNSMASQ_DIR"
+		/etc/init.d/dnsmasq restart >"/dev/null" 2>&1
+	fi
 	# delete started flag
 	rm "$STARTED_FLAG_PATH" > /dev/null 2>&1
 	# revert fix compatible with dockerd
