@@ -93,14 +93,6 @@ return view.extend({
         o.datatype = 'uinteger';
         o.placeholder = _('Unmodified');
 
-        o = s.taboption('general', form.Value, 'global_client_fingerprint', _('Global Client Fingerprint'));
-        o.placeholder = _('Unmodified');
-        o.value('random', _('Random'));
-        o.value('chrome', 'Chrome');
-        o.value('firefox', 'Firefox');
-        o.value('safari', 'Safari');
-        o.value('edge', 'Edge');
-
         s.tab('external_control', _('External Control Config'));
 
         o = s.taboption('external_control', form.Value, 'ui_path', _('UI Path'));
@@ -275,6 +267,7 @@ return view.extend({
         o.placeholder = _('Unmodified');
         o.value('blacklist', _('Block Mode'));
         o.value('whitelist', _('Allow Mode'));
+        o.value('rule', _('Rule Mode'));
 
         o = s.taboption('dns', form.ListValue, 'fake_ip_cache', _('Fake-IP Cache'));
         o.optional = true;
