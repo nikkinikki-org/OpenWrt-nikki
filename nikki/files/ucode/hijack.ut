@@ -474,10 +474,10 @@ table inet nikki {
 		meta nfproto @proxy_nfproto jump router_redirect
 		{% endif %}
 		{% if (fake_ip_ping_hijack): %}
-		{% if (fake_ip_range ): %}
+		{% if (fake_ip_range): %}
 		icmp type echo-request ip daddr {{ fake_ip_range }} counter redirect
 		{% endif %}
-		{% if (fake_ip6_range ): %}
+		{% if (fake_ip6_range): %}
 		icmpv6 type echo-request ip6 daddr {{ fake_ip6_range }} counter redirect
 		{% endif %}
 		{% endif %}
@@ -555,7 +555,7 @@ table inet nikki {
 		{% if (fake_ip_range): %}
 		icmp type echo-request ip daddr {{ fake_ip_range }} counter redirect
 		{% endif %}
-		{% if (fake_ip6_range ): %}
+		{% if (fake_ip6_range): %}
 		icmpv6 type echo-request ip6 daddr {{ fake_ip6_range }} counter redirect
 		{% endif %}
 		{% endif %}
