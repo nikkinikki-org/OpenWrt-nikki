@@ -283,7 +283,7 @@ service_started() {
 	config_get tun_timeout "proxy" "tun_timeout" 30
 	config_get tun_interval "proxy" "tun_interval" 1
 	## routing config
-	local tproxy_fw_mark tproxy_fw_mask tun_fw_mark tun_fw_mask tproxy_rule_pref tun_rule_pref tproxy_route_table tun_route_table cgroup_id cgroup_name
+	local tproxy_fw_mark tproxy_fw_mask tun_fw_mark tun_fw_mask tproxy_rule_pref tun_rule_pref tproxy_route_table tun_route_table cgroup_id cgroup_name dummy_device
 	config_get tproxy_fw_mark "routing" "tproxy_fw_mark" "0x80"
 	config_get tproxy_fw_mask "routing" "tproxy_fw_mask" "0xFF"
 	config_get tun_fw_mark "routing" "tun_fw_mark" "0x81"
@@ -294,6 +294,7 @@ service_started() {
 	config_get tun_route_table "routing" "tun_route_table" "81"
 	config_get cgroup_id "routing" "cgroup_id" "0x12061206"
 	config_get cgroup_name "routing" "cgroup_name" "nikki"
+	config_get dummy_device "routing" "dummy_device" "nikki-dummy"
 	# prepare config
 	local tproxy_enable; tproxy_enable=0
 	if [ "$tcp_mode" = "tproxy" ] || [ "$udp_mode" = "tproxy" ]; then
@@ -303,7 +304,9 @@ service_started() {
 	if [ "$tcp_mode" = "tun" ] || [ "$udp_mode" = "tun" ]; then
 		tun_enable=1
 	fi
-	local tun_device; tun_device=$(yq -M '.tun.device' "$RUN_PROFILE_PATH")
+	local tun_device; tun_device=$(yq -M '.tun.device // ""' "$RUN_PROFILE_PATH")
+	local dns_mode; dns_mode=$(yq -M '.dns.enhanced-mode // ""' "$RUN_PROFILE_PATH")
+	local fake_ip6_range; fake_ip6_range=$(yq -M '.dns.fake-ip-range6 // ""' "$RUN_PROFILE_PATH")
 	if [ "$core_only" = 0 ]; then
 		# proxy
 		log "Proxy" "Enabled."
@@ -372,6 +375,11 @@ service_started() {
 			fi
 			$FIREWALL_INCLUDE_SH
 		fi
+		if [ "$dns_mode" = "fake-ip" ] && [ -n "$fake_ip6_range" ]; then
+			ip link add "$dummy_device" type dummy
+			ip link set dev "$dummy_device" up
+			ip -6 route add "$fake_ip6_range" dev "$dummy_device"
+		fi
 		# hijack
 		utpl -S "$HIJACK_UT" | nft -f -
 		# check hijack
@@ -404,9 +412,10 @@ cleanup() {
 	config_load nikki
 	# get config
 	## routing config
-	local tproxy_route_table tun_route_table
+	local tproxy_route_table tun_route_table dummy_device
 	config_get tproxy_route_table "routing" "tproxy_route_table" "80"
 	config_get tun_route_table "routing" "tun_route_table" "81"
+	config_get dummy_device "routing" "dummy_device" "nikki-dummy"
 	# delete routing policy
 	ip -4 rule del table "$tproxy_route_table" > /dev/null 2>&1
 	ip -4 rule del table "$tun_route_table" > /dev/null 2>&1
@@ -417,6 +426,8 @@ cleanup() {
 	ip -4 route flush table "$tun_route_table" > /dev/null 2>&1
 	ip -6 route flush table "$tproxy_route_table" > /dev/null 2>&1
 	ip -6 route flush table "$tun_route_table" > /dev/null 2>&1
+	# delete dummy device
+	ip -6 link del "$dummy_device" > /dev/null 2>&1
 	# delete hijack
 	nft delete table inet nikki > /dev/null 2>&1
 	local handles handle
