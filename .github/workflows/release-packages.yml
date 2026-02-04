@@ -37,13 +37,10 @@ jobs:
           - i386_pentium4
           - x86_64
         branch:
-          - openwrt-23.05
           - openwrt-24.10
           - openwrt-25.12
           - SNAPSHOT
         exclude:
-          - arch: aarch64_cortex-a76
-            branch: openwrt-23.05
           - arch: mips_4kec
             branch: openwrt-25.12
           - arch: mips_4kec
