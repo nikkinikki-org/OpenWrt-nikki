@@ -287,12 +287,6 @@ return view.extend({
         o.value('0', _('Disable'));
         o.value('1', _('Enable'));
 
-        o = s.taboption('dns', form.ListValue, 'dns_direct_nameserver_follow_policy', _('Direct Nameserver Follow Policy'));
-        o.optional = true;
-        o.placeholder = _('Unmodified');
-        o.value('0', _('Disable'));
-        o.value('1', _('Enable'));
-
         o = s.taboption('dns', form.ListValue, 'dns_system_hosts', _('Use System Hosts'));
         o.optional = true;
         o.placeholder = _('Unmodified');
@@ -346,6 +340,31 @@ return view.extend({
         so.value('fallback');
 
         so = o.subsection.option(form.DynamicList, 'nameserver', _('Nameserver'));
+
+        o = s.taboption('dns', form.Flag, 'dns_proxy_server_nameserver_policy', _('Overwrite Proxy Server Nameserver Policy'));
+        o.rmempty = false;
+
+        o = s.taboption('dns', form.SectionValue, '_dns_proxy_server_nameserver_policies', form.TableSection, 'proxy_server_nameserver_policy', _('Edit Proxy Server Nameserver Policies'));
+        o.retain = true;
+        o.depends('dns_proxy_server_nameserver_policy', '1');
+
+        o.subsection.addremove = true;
+        o.subsection.anonymous = true;
+        o.subsection.sortable = true;
+
+        so = o.subsection.option(form.Flag, 'enabled', _('Enable'));
+        so.rmempty = false;
+
+        so = o.subsection.option(form.Value, 'matcher', _('Matcher'));
+        so.rmempty = false;
+
+        so = o.subsection.option(form.DynamicList, 'nameserver', _('Nameserver'));
+
+        o = s.taboption('dns', form.ListValue, 'dns_direct_nameserver_follow_policy', _('Direct Nameserver Follow Policy'));
+        o.optional = true;
+        o.placeholder = _('Unmodified');
+        o.value('0', _('Disable'));
+        o.value('1', _('Enable'));
 
         o = s.taboption('dns', form.Flag, 'dns_nameserver_policy', _('Overwrite Nameserver Policy'));
         o.rmempty = false;
