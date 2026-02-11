@@ -8,7 +8,7 @@
 
 ## 环境要求
 
-- OpenWrt >= 23.05
+- OpenWrt >= 24.10
 - Linux Kernel >= 5.13
 - firewall4
 
