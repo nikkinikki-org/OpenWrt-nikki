@@ -96,6 +96,7 @@ The package files will be found under `bin/packages/your_architecture/nikki`.
 - kmod-nft-socket
 - kmod-nft-tproxy
 - kmod-tun
+- kmod-dummy
 
 ## Contributors
 
