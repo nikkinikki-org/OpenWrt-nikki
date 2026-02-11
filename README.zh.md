@@ -96,6 +96,7 @@ make package/luci-app-nikki/compile
 - kmod-nft-socket
 - kmod-nft-tproxy
 - kmod-tun
+- kmod-dummy
 
 ## 贡献者
 
