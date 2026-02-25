@@ -97,6 +97,11 @@ start_service() {
 	### mixin file content
 	local mixin_file_content
 	config_get_bool mixin_file_content "mixin" "mixin_file_content" 0
+	## core config
+	local redirect_listener_name tproxy_listener_name tun_listener_name
+	config_get redirect_listener_name "core" "redirect_listener_name"
+	config_get tproxy_listener_name "core" "tproxy_listener_name"
+	config_get tun_listener_name "core" "tun_listener_name"
 	## proxy config
 	local proxy_enabled ipv4_dns_hijack ipv6_dns_hijack tcp_mode udp_mode
 	config_get_bool proxy_enabled "proxy" "enabled" 0
@@ -186,25 +191,25 @@ start_service() {
 			fi
 		fi
 		if [ "$tcp_mode" = "redirect" ]; then
-			if yq -M -e '(has("redir-port")) | not' "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
+			if listener_name="$redirect_listener_name" yq -M -e '(has("redir-port") or (has("listeners") and .listeners | any_c(.name == env(listener_name) and .type == "redir"))) | not' "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
 				log "Profile" "Check failed."
-				log "Profile" "Redirect Port should be defined."
+				log "Profile" "Redirect Port/Listener should be defined."
 				log "App" "Exit."
 				return
 			fi
 		fi
 		if [ "$tcp_mode" = "tproxy" ] || [ "$udp_mode" = "tproxy" ]; then
-			if yq -M -e '(has("tproxy-port")) | not' "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
+			if listener_name="$tproxy_listener_name" yq -M -e '(has("tproxy-port") or (has("listeners") and .listeners | any_c(.name == env(listener_name) and .type == "tproxy"))) | not' "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
 				log "Profile" "Check failed."
-				log "Profile" "TPROXY Port should be defined."
+				log "Profile" "TPROXY Port/Listener should be defined."
 				log "App" "Exit."
 				return
 			fi
 		fi
 		if [ "$tcp_mode" = "tun" ] || [ "$udp_mode" = "tun" ]; then
-			if yq -M -e '(has("tun") and (.tun | .enable) and (.tun | has("device"))) | not' "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
+			if listener_name="$tun_listener_name" yq -M -e '((has("tun") and (.tun | .enable) and (.tun | has("device"))) or (has("listeners") and .listeners | any_c(.name == env(listener_name) and .type == "tun" and has("device")))) | not' "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
 				log "Profile" "Check failed."
-				log "Profile" "TUN should be enabled and device should be defined."
+				log "Profile" "TUN should be defined."
 				log "App" "Exit."
 				return
 			fi
@@ -273,6 +278,9 @@ service_started() {
 	## app config
 	local core_only
 	config_get_bool core_only "config" "core_only" 0
+	## core
+	local tun_listener_name
+	config_get tun_listener_name "core" "tun_listener_name"
 	## proxy config
 	### general
 	local tcp_mode udp_mode ipv4_proxy ipv6_proxy tun_timeout tun_interval
@@ -304,7 +312,7 @@ service_started() {
 	if [ "$tcp_mode" = "tun" ] || [ "$udp_mode" = "tun" ]; then
 		tun_enable=1
 	fi
-	local tun_device; tun_device=$(yq -M '.tun.device // ""' "$RUN_PROFILE_PATH")
+	local tun_device; tun_device=$(listener_name="$tun_listener_name" yq -M '.listeners | first(.name == env(listener_name) and .type == "tun") | .device // .tun.device // ""' "$RUN_PROFILE_PATH")
 	local dns_mode; dns_mode=$(yq -M '.dns.enhanced-mode // ""' "$RUN_PROFILE_PATH")
 	local fake_ip6_range; fake_ip6_range=$(yq -M '.dns.fake-ip-range6 // ""' "$RUN_PROFILE_PATH")
 	if [ "$core_only" = 0 ]; then

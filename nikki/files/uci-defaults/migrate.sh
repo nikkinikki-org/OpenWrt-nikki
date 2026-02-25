@@ -209,6 +209,15 @@ procd=$(uci -q get nikki.procd); [ -z "$procd" ] && {
 
 dummy_device=$(uci -q get nikki.routing.dummy_device); [ -z "$dummy_device" ] && uci set nikki.routing.dummy_device=nikki-dummy
 
+# since v1.25.2
+
+core=$(uci -q get nikki.core); [ -z "$core" ] && {
+	uci set nikki.core=core
+	uci set nikki.core.redirect_listener_name=redir-in
+	uci set nikki.core.tproxy_listener_name=tproxy-in
+	uci set nikki.core.tun_listener_name=tun-in
+}
+
 # commit
 uci commit nikki
 
