@@ -28,7 +28,7 @@ const callNikkiVersion = rpc.declare({
 const callNikkiProfile = rpc.declare({
     object: 'luci.nikki',
     method: 'profile',
-    params: [ 'defaults' ],
+    params: ['defaults'],
     expect: { '': {} }
 });
 
@@ -115,28 +115,46 @@ return baseclass.extend({
     },
 
     openDashboard: async function () {
-        const profile = await callNikkiProfile({ 'external-ui-name': null, 'external-controller': null, 'secret': null });
+        const profile = await callNikkiProfile({
+            'external-ui-name': null,
+            'external-controller': null,
+            'external-controller-tls': null,
+            'secret': null
+        });
         const uiName = profile['external-ui-name'];
         const apiListen = profile['external-controller'];
+        const apiTLSListen = profile['external-controller-tls'];
         const apiSecret = profile['secret'] ?? '';
-        if (!apiListen) {
+        if (!apiListen && !apiTLSListen) {
             return Promise.reject('API has not been configured');
         }
-        const apiPort = apiListen.substring(apiListen.lastIndexOf(':') + 1);
+
+        let protocol;
+        let port;
+        if (apiTLSListen) {
+            protocol = 'https';
+            port = apiTLSListen.substring(apiTLSListen.lastIndexOf(':') + 1);
+        } else {
+            protocol = 'http';
+            port = apiListen.substring(apiListen.lastIndexOf(':') + 1);
+        }
+
         const params = {
             host: window.location.hostname,
             hostname: window.location.hostname,
-            port: apiPort,
+            port: port,
             secret: apiSecret
         };
         const query = new URLSearchParams(params).toString();
         let url;
         if (uiName) {
-            url = `http://${window.location.hostname}:${apiPort}/ui/${uiName}/?${query}`;
+            url = `${protocol}://${window.location.hostname}:${port}/ui/${uiName}/?${query}`;
         } else {
-            url = `http://${window.location.hostname}:${apiPort}/ui/?${query}`;
+            url = `${protocol}://${window.location.hostname}:${port}/ui/?${query}`;
         }
+
         setTimeout(function () { window.open(url, '_blank') }, 0);
+
         return Promise.resolve();
     },
 

@@ -113,6 +113,19 @@ return view.extend({
         o.datatype = 'ipaddrport(1)';
         o.placeholder = _('Unmodified');
 
+        o = s.taboption('external_control', form.Value, 'api_tls_listen', _('API TLS Listen'));
+        o.datatype = 'ipaddrport(1)';
+        o.placeholder = _('Unmodified');
+
+        o = s.taboption('external_control', form.Value, 'api_tls_cert', _('API TLS Cert'));
+        o.placeholder = _('Unmodified');
+
+        o = s.taboption('external_control', form.Value, 'api_tls_key', _('API TLS Key'));
+        o.placeholder = _('Unmodified');
+
+        o = s.taboption('external_control', form.Value, 'api_tls_ech_key', _('API TLS ECH Key'));
+        o.placeholder = _('Unmodified');
+
         o = s.taboption('external_control', form.Value, 'api_secret', _('API Secret'));
         o.password = true;
         o.placeholder = _('Unmodified');
