@@ -23,7 +23,6 @@
 	let redir_port;
 	let tproxy_port;
 	let tun_device;
-	let dns_listen;
 	let dns_port;
 	let fake_ip_range;
 	let fake_ip6_range;
@@ -32,28 +31,33 @@
 	const tproxy_listener_name = uci.get('nikki', 'core', 'tproxy_listener_name');
 	const tun_listener_name = uci.get('nikki', 'core', 'tun_listener_name');
 
-	let profile_listeners;
-	profile_listeners = filter(profile['listeners'], (x) => x['name'] == redirect_listener_name);
-	if (length(profile_listeners) > 0) {
-		redir_port = profile_listeners[0]['port'];
-	} else if (exists(profile, 'redir-port')) {
+	if (profile['redir-port']) {
 		redir_port = profile['redir-port']
+	} else {
+		const profile_listeners = filter(profile['listeners'], (x) => x['name'] == redirect_listener_name && x['type'] === 'redir');
+		if (length(profile_listeners) > 0) {
+			redir_port = profile_listeners[0]['port'];
+		}
 	}
-	profile_listeners = filter(profile['listeners'], (x) => x['name'] == tproxy_listener_name);
-	if (length(profile_listeners) > 0) {
-		tproxy_port = profile_listeners[0]['port'];
-	} else if (exists(profile, 'tproxy-port')) {
+	if (profile['tproxy-port']) {
 		tproxy_port = profile['tproxy-port']
+	} else {
+		const profile_listeners = filter(profile['listeners'], (x) => x['name'] == tproxy_listener_name && x['type'] === 'tproxy');
+		if (length(profile_listeners) > 0) {
+			tproxy_port = profile_listeners[0]['port'];
+		}
 	}
-	profile_listeners = filter(profile['listeners'], (x) => x['name'] == tun_listener_name);
-	if (length(profile_listeners) > 0) {
-		tun_device = profile_listeners[0]['device'];
-	} else if (profile['tun']) {
+	if (profile['tun'] && profile['tun']['enable'] && profile['tun']['device']) {
 		tun_device = profile['tun']['device'];
+	} else {
+		const profile_listeners = filter(profile['listeners'], (x) => x['name'] == tun_listener_name && x['type'] === 'tun');
+		if (length(profile_listeners) > 0) {
+			tun_device = profile_listeners[0]['device'];
+		}
 	}
 
 	if (profile['dns']) {
-		dns_listen = profile['dns']['listen'];
+		const dns_listen = profile['dns']['listen'];
 		const dns_listen_rindex = rindex(dns_listen, ':');
 		if (dns_listen_rindex >= 0 && dns_listen_rindex + 1 < length(dns_listen)) {
 			dns_port = substr(dns_listen, dns_listen_rindex + 1);

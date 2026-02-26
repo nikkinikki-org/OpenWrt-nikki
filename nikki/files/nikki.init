@@ -191,7 +191,7 @@ start_service() {
 			fi
 		fi
 		if [ "$tcp_mode" = "redirect" ]; then
-			if listener_name="$redirect_listener_name" yq -M -e '(has("redir-port") or (has("listeners") and .listeners | any_c(.name == env(listener_name) and .type == "redir"))) | not' "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
+			if yq -M -e "(has(\"redir-port\") or (has(\"listeners\") and .listeners | any_c(.name == \"$redirect_listener_name\" and .type == \"redir\"))) | not" "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
 				log "Profile" "Check failed."
 				log "Profile" "Redirect Port/Listener should be defined."
 				log "App" "Exit."
@@ -199,7 +199,7 @@ start_service() {
 			fi
 		fi
 		if [ "$tcp_mode" = "tproxy" ] || [ "$udp_mode" = "tproxy" ]; then
-			if listener_name="$tproxy_listener_name" yq -M -e '(has("tproxy-port") or (has("listeners") and .listeners | any_c(.name == env(listener_name) and .type == "tproxy"))) | not' "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
+			if yq -M -e "(has(\"tproxy-port\") or (has(\"listeners\") and .listeners | any_c(.name == \"$tproxy_listener_name\" and .type == \"tproxy\"))) | not" "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
 				log "Profile" "Check failed."
 				log "Profile" "TPROXY Port/Listener should be defined."
 				log "App" "Exit."
@@ -207,7 +207,7 @@ start_service() {
 			fi
 		fi
 		if [ "$tcp_mode" = "tun" ] || [ "$udp_mode" = "tun" ]; then
-			if listener_name="$tun_listener_name" yq -M -e '((has("tun") and (.tun | .enable) and (.tun | has("device"))) or (has("listeners") and .listeners | any_c(.name == env(listener_name) and .type == "tun" and has("device")))) | not' "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
+			if yq -M -e "(has(\"tun\") and (.tun | .enable) and (.tun | has(\"device\"))) or (has(\"listeners\") and .listeners | any_c(.name == \"$tun_listener_name\" and .type == \"tun\" and has(\"device\")))) | not" "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
 				log "Profile" "Check failed."
 				log "Profile" "TUN should be defined."
 				log "App" "Exit."
@@ -312,14 +312,19 @@ service_started() {
 	if [ "$tcp_mode" = "tun" ] || [ "$udp_mode" = "tun" ]; then
 		tun_enable=1
 	fi
-	local tun_device; tun_device=$(listener_name="$tun_listener_name" yq -M '.listeners | first(.name == env(listener_name) and .type == "tun") | .device // .tun.device // ""' "$RUN_PROFILE_PATH")
 	local dns_mode; dns_mode=$(yq -M '.dns.enhanced-mode // ""' "$RUN_PROFILE_PATH")
 	local fake_ip6_range; fake_ip6_range=$(yq -M '.dns.fake-ip-range6 // ""' "$RUN_PROFILE_PATH")
+	local tun_device
+	if yq -M -e 'has("tun") and (.tun | .enabled) and (.tun | has("device"))' "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
+		tun_device=$(yq -M '.tun.device' "$RUN_PROFILE_PATH")
+	else
+		tun_device=$(yq -M ".listeners | first(.name == \"$tun_listener_name\" and .type == \"tun\") | .device" "$RUN_PROFILE_PATH")
+	fi
 	if [ "$core_only" = 0 ]; then
 		# proxy
 		log "Proxy" "Enabled."
 		# wait for tun device online
-		if [ "$tun_enable" = 1 ]; then
+		if [ "$tun_enable" = 1 ] && [ -n "$tun_device" ]; then
 			log "Proxy" "Waiting for tun device online within $tun_timeout seconds..."
 			while [ "$tun_timeout" -gt 0 ]; do
 				if ip -j link show dev "$tun_device" 2>/dev/null | jsonfilter -q -e "@[@['flags'][@='UP']]" > /dev/null 2>&1; then
