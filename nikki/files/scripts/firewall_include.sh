@@ -17,7 +17,7 @@ if [ "$enabled" = 1 ] && [ "$core_only" = 0 ] && [ "$proxy_enabled" = 1 ]; then
 		if yq -M -e 'has("tun") and (.tun | .enabled) and (.tun | has("device"))' "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
 			tun_device=$(yq -M '.tun.device' "$RUN_PROFILE_PATH")
 		else
-			tun_device=$(yq -M ".listeners | first(.name == \"$tun_listener_name\" and .type == \"tun\") | .device" "$RUN_PROFILE_PATH")
+			tun_device=$(yq -M ".listeners[] | select(.name == \"$tun_listener_name\" and .type == \"tun\") | .device" "$RUN_PROFILE_PATH")
 		fi
 		if [ -n "$tun_device" ]; then
 			nft insert rule inet fw4 input iifname "$tun_device" counter accept comment "nikki"
