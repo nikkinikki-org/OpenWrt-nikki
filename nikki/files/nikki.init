@@ -314,12 +314,7 @@ service_started() {
 	fi
 	local dns_mode; dns_mode=$(yq -M '.dns.enhanced-mode // ""' "$RUN_PROFILE_PATH")
 	local fake_ip6_range; fake_ip6_range=$(yq -M '.dns.fake-ip-range6 // ""' "$RUN_PROFILE_PATH")
-	local tun_device
-	if yq -M -e 'has("tun") and (.tun | .enable) and (.tun | has("device"))' "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
-		tun_device=$(yq -M '.tun.device' "$RUN_PROFILE_PATH")
-	else
-		tun_device=$(yq -M ".listeners[] | select(.name == \"$tun_listener_name\" and .type == \"tun\") | .device" "$RUN_PROFILE_PATH")
-	fi
+	local tun_device; tun_device=$(yq -M "(.tun | select(.enable) | .device) // (.listeners[] | select(.name == \"$tun_listener_name\" and .type == \"tun\") | .device)" "$RUN_PROFILE_PATH")
 	if [ "$core_only" = 0 ]; then
 		# proxy
 		log "Proxy" "Enabled."
