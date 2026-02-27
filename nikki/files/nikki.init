@@ -315,7 +315,7 @@ service_started() {
 	local dns_mode; dns_mode=$(yq -M '.dns.enhanced-mode // ""' "$RUN_PROFILE_PATH")
 	local fake_ip6_range; fake_ip6_range=$(yq -M '.dns.fake-ip-range6 // ""' "$RUN_PROFILE_PATH")
 	local tun_device
-	if yq -M -e 'has("tun") and (.tun | .enabled) and (.tun | has("device"))' "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
+	if yq -M -e 'has("tun") and (.tun | .enable) and (.tun | has("device"))' "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
 		tun_device=$(yq -M '.tun.device' "$RUN_PROFILE_PATH")
 	else
 		tun_device=$(yq -M ".listeners[] | select(.name == \"$tun_listener_name\" and .type == \"tun\") | .device" "$RUN_PROFILE_PATH")
@@ -324,7 +324,7 @@ service_started() {
 		# proxy
 		log "Proxy" "Enabled."
 		# wait for tun device online
-		if [ "$tun_enable" = 1 ] && [ -n "$tun_device" ]; then
+		if [ "$tun_enable" = 1 ]; then
 			log "Proxy" "Waiting for tun device online within $tun_timeout seconds..."
 			while [ "$tun_timeout" -gt 0 ]; do
 				if ip -j link show dev "$tun_device" 2>/dev/null | jsonfilter -q -e "@[@['flags'][@='UP']]" > /dev/null 2>&1; then
