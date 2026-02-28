@@ -178,6 +178,10 @@ start_service() {
 		elif [ "$mixin_file_content" = 1 ]; then
 			ucode -S "$MIXIN_UC" | yq -M -p json -o yaml | yq -M -i ea '... comments="" | . as $item ireduce ({}; . * $item ) | .proxies = .nikki-proxies + .proxies | del(.nikki-proxies) | .proxy-groups = .nikki-proxy-groups + .proxy-groups | del(.nikki-proxy-groups) | .rules = .nikki-rules + .rules | del(.nikki-rules)' "$RUN_PROFILE_PATH" "$MIXIN_FILE_PATH" -
 		fi
+		if [ "$proxy_enabled" = 1 ]; then
+			yq -M -i '(.tun) |= (.auto-route = false | .auto-redirect = false | .auto-detect-interface = false)' "$RUN_PROFILE_PATH"
+			yq -M -i '(.listeners[] | select(.type == "tun")) |= (.auto-route = false | .auto-redirect = false | .auto-detect-interface = false)' "$RUN_PROFILE_PATH"
+		fi
 	fi
 	# check profile
 	if [ "$core_only" = 0 ] && [ "$proxy_enabled" = 1 ]; then
