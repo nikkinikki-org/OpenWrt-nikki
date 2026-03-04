@@ -34,6 +34,9 @@ jobs:
           - mipsel_74kc
           - mipsel_mips32
           - mips64_octeonplus
+          - riscv64_riscv64
+          - riscv64_generic
+          - loongarch64_generic
           - i386_pentium4
           - x86_64
         branch:
@@ -45,6 +48,12 @@ jobs:
             branch: openwrt-25.12
           - arch: mips_4kec
             branch: SNAPSHOT
+          - arch: riscv64_riscv64
+            branch: openwrt-25.12
+          - arch: riscv64_riscv64
+            branch: SNAPSHOT
+          - arch: riscv64_generic
+            branch: openwrt-24.10
 
     steps:
       - name: checkout
