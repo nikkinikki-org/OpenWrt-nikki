@@ -15,11 +15,11 @@ fi
 arch="$DISTRIB_ARCH"
 branch=
 case "$DISTRIB_RELEASE" in
-	*"23.05"*)
-		branch="openwrt-23.05"
-		;;
 	*"24.10"*)
 		branch="openwrt-24.10"
+		;;
+	*"25.12"*)
+		branch="openwrt-25.12"
 		;;
 	"SNAPSHOT")
 		branch="SNAPSHOT"

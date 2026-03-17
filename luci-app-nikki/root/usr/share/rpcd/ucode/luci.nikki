@@ -74,15 +74,17 @@ const methods = {
 
 			const profile = load_profile();
 			const api_listen = profile['external-controller'];
+			const api_tls_listen = profile['external-controller-tls'];
 			const api_secret = profile['secret'];
-
-			if (!api_listen) {
+			if (!api_listen && !api_tls_listen) {
 				return result;
 			}
 
+			const protocol = api_tls_listen ? 'https' : 'http';
+
 			const url = api_listen + path;
 
-			const process = popen(`curl --request '${method}' --oauth2-bearer '${api_secret}' --url-query '${query}' --data '${body}' '${url}'`);
+			const process = popen(`curl --proto-default '${protocol}' --insecure --request '${method}' --oauth2-bearer '${api_secret}' --url-query '${query}' --data '${body}' '${url}'`);
 			if (process) {
 				result = json(process);
 				process.close();

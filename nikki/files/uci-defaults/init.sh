@@ -6,7 +6,7 @@
 init=$(uci -q get nikki.config.init); [ -z "$init" ] && return
 
 # generate random string for api secret and authentication password
-random=$(awk 'BEGIN{srand(); print int(rand() * 1000000)}')
+random=$(awk 'BEGIN{srand(); printf "%06d", int(rand() * 1000000)}')
 
 # set nikki.mixin.api_secret
 uci set nikki.mixin.api_secret="$random"

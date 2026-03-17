@@ -160,11 +160,9 @@ return view.extend({
 
         o = s.taboption('rlimit', form.Value, 'rlimit_nofile_soft', _('Number of Open Files Soft Limit'));
         o.datatype = 'uinteger';
-        o.placeholder = _('Unlimited');
 
         o = s.taboption('rlimit', form.Value, 'rlimit_nofile_hard', _('Number of Open Files Hard Limit'));
         o.datatype = 'uinteger';
-        o.placeholder = _('Unlimited');
 
         s.tab('environment_variable', _('Environment Variable Config'));
 
