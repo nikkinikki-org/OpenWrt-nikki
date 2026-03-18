@@ -160,7 +160,7 @@ function desensitize_proxies(proxies) {
 
 function desensitize_profile() {
 	let profile = {};
-	const process = popen("yq -p yaml -o json /etc/nikki/run/config.yaml");
+	const process = popen("yq -M -p yaml -o json /etc/nikki/run/config.yaml");
 	if (process) {
 		profile = json(process);
 		if (exists(profile, "secret")) {

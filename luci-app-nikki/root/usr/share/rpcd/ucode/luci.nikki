@@ -41,7 +41,7 @@ const methods = {
 			const tmpFilepath = '/var/run/nikki/profile.json';
 			if (access(filepath, 'r')) {
 				writefile(tmpFilepath, defaults);
-				const command = `yq -p yaml -o json eval-all 'select(fi == 0) *? select(fi == 1)' ${tmpFilepath} ${filepath}`;
+				const command = `yq -M -p yaml -o json eval-all 'select(fi == 0) *? select(fi == 1)' ${tmpFilepath} ${filepath}`;
 				const process = popen(command);
 				if (process) {
 					profile = json(process);

@@ -174,9 +174,9 @@ start_service() {
 			yq -M -i 'del(.sniffer.sniff)' "$RUN_PROFILE_PATH"
 		fi
 		if [ "$mixin_file_content" = 0 ]; then
-			ucode -S "$MIXIN_UC" | yq -M -p json -o yaml | yq -M -i ea '... comments="" | . as $item ireduce ({}; . * $item ) | .proxies = .nikki-proxies + .proxies | del(.nikki-proxies) | .proxy-groups = .nikki-proxy-groups + .proxy-groups | del(.nikki-proxy-groups) | .rules = .nikki-rules + .rules | del(.nikki-rules)' "$RUN_PROFILE_PATH" -
+			ucode -S "$MIXIN_UC" | yq -M -p json -o yaml | yq -M -i eval-all '... comments="" | . as $item ireduce ({}; . * $item ) | .proxies = .nikki-proxies + .proxies | del(.nikki-proxies) | .proxy-groups = .nikki-proxy-groups + .proxy-groups | del(.nikki-proxy-groups) | .rules = .nikki-rules + .rules | del(.nikki-rules)' "$RUN_PROFILE_PATH" -
 		elif [ "$mixin_file_content" = 1 ]; then
-			ucode -S "$MIXIN_UC" | yq -M -p json -o yaml | yq -M -i ea '... comments="" | . as $item ireduce ({}; . * $item ) | .proxies = .nikki-proxies + .proxies | del(.nikki-proxies) | .proxy-groups = .nikki-proxy-groups + .proxy-groups | del(.nikki-proxy-groups) | .rules = .nikki-rules + .rules | del(.nikki-rules)' "$RUN_PROFILE_PATH" "$MIXIN_FILE_PATH" -
+			ucode -S "$MIXIN_UC" | yq -M -p json -o yaml | yq -M -i eval-all '... comments="" | . as $item ireduce ({}; . * $item ) | .proxies = .nikki-proxies + .proxies | del(.nikki-proxies) | .proxy-groups = .nikki-proxy-groups + .proxy-groups | del(.nikki-proxy-groups) | .rules = .nikki-rules + .rules | del(.nikki-rules)' "$RUN_PROFILE_PATH" "$MIXIN_FILE_PATH" -
 		fi
 		if [ "$proxy_enabled" = 1 ]; then
 			yq -M -i '(.tun) |= (.auto-route = false | .auto-redirect = false | .auto-detect-interface = false)' "$RUN_PROFILE_PATH"
@@ -512,7 +512,7 @@ update_subscription() {
 		if [ ! -f "$subscription_info_file" ] && grep -q -i "subscription-userinfo:" "$subscription_header_tmpfile"; then
 			subscription_info_file="$subscription_header_tmpfile"
 		fi
-		if yq -p yaml -o yaml -e 'has("proxies") or has("proxy-providers")' "$subscription_tmpfile" > /dev/null 2>&1; then
+		if yq -M -p yaml -o yaml -e 'has("proxies") or has("proxy-providers")' "$subscription_tmpfile" > /dev/null 2>&1; then
 			log "Profile" "Subscription is valid."
 			success=1
 		else
