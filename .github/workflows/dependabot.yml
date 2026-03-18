@@ -15,7 +15,7 @@ jobs:
     steps:
       - id: checkout
         name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: nikkinikki-org/OpenWrt-nikki
           ref: main
@@ -36,7 +36,7 @@ jobs:
     steps:
       - id: checkout
         name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: 'MetaCubeX/mihomo'
           ref: 'Alpha'
@@ -59,7 +59,7 @@ jobs:
     steps:
       - id: checkout
         name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: nikkinikki-org/OpenWrt-nikki
           ref: main
@@ -74,7 +74,7 @@ jobs:
           sed -i "s/PKG_BUILD_VERSION:=.*/PKG_BUILD_VERSION:=alpha-${{ needs.get_latest_info.outputs.short_commit_sha }}/" OpenWrt-nikki/nikki/Makefile
       - id: pr
         name: pr
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           path: OpenWrt-nikki
           branch: dependabot
