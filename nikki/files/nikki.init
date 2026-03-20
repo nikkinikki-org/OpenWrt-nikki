@@ -28,7 +28,7 @@ boot_func() {
 }
 
 boot() {
-	boot_func &
+	boot_func < /dev/null > /dev/null 2>&1 &
 }
 
 start_service() {

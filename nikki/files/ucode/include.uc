@@ -78,7 +78,7 @@ export function get_cgroups() {
 
 export function load_profile() {
 	let result = {};
-	const process = popen('yq -M -p yaml -o json /etc/nikki/run/config.yaml 2>/dev/null');
+	const process = popen('yq -M -p yaml -o json /etc/nikki/run/config.yaml');
 	if (process) {
 		result = json(process);
 		process.close();
