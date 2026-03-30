@@ -38,6 +38,8 @@ FIREWALL_INCLUDE_SH="$SH_DIR/firewall_include.sh"
 NFT_DIR="$HOME_DIR/nftables"
 GEOIP_CN_NFT="$NFT_DIR/geoip_cn.nft"
 GEOIP6_CN_NFT="$NFT_DIR/geoip6_cn.nft"
+GEOIP_RU_NFT="$NFT_DIR/geoip_ru.nft"
+GEOIP6_RU_NFT="$NFT_DIR/geoip6_ru.nft"
 
 # functions
 format_filesize() {

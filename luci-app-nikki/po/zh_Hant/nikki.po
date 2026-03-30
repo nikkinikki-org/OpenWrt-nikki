@@ -33,8 +33,8 @@ msgstr "位址空間大小硬限制"
 msgid "Address Space Size Soft Limit"
 msgstr "位址空間大小軟限制"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:181
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:186
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:187
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:192
 msgid "All Port"
 msgstr "所有埠"
 
@@ -87,11 +87,11 @@ msgstr "繞過中國大陸 IP"
 msgid "Bypass China Mainland IP6"
 msgstr "繞過中國大陸 IP6"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:189
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:195
 msgid "Bypass DSCP"
 msgstr "繞過 DSCP"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:192
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:198
 msgid "Bypass FWMark"
 msgstr "繞過 FWMark"
 
@@ -112,8 +112,8 @@ msgstr "選擇設定檔"
 msgid "Clear Log"
 msgstr "清空日誌"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:182
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:187
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:188
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:193
 msgid "Commonly Used Port"
 msgstr "常用埠"
 
@@ -174,11 +174,11 @@ msgstr "目標 IP（地理位置）"
 msgid "Destination Port"
 msgstr "目標埠"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:179
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:185
 msgid "Destination TCP Port to Proxy"
 msgstr "要代理的 TCP 目標埠"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:184
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:190
 msgid "Destination UDP Port to Proxy"
 msgstr "要代理的 UDP 目標埠"
 
@@ -563,7 +563,7 @@ msgstr "匹配器"
 msgid "Memory Conservative Loader"
 msgstr "為記憶體受限裝置最佳化的載入器"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:194
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:200
 msgid "Misc"
 msgstr "雜項"
 
@@ -743,11 +743,11 @@ msgstr "重新載入服務"
 msgid "Remote"
 msgstr "遠端"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:196
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:202
 msgid "Reserved IP"
 msgstr "IPv4 保留位址"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:199
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:205
 msgid "Reserved IP6"
 msgstr "IPv6 保留位址"
 
@@ -903,7 +903,7 @@ msgstr "TPROXY 埠"
 msgid "TUN Config"
 msgstr "TUN 設定"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:206
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:212
 msgid "TUN Interval"
 msgstr "TUN 等待間隔"
 
@@ -912,7 +912,7 @@ msgstr "TUN 等待間隔"
 msgid "TUN Mode"
 msgstr "TUN 模式"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:202
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:208
 msgid "TUN Timeout"
 msgstr "TUN 等待超時"
 

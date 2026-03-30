@@ -76,6 +76,8 @@ define Package/nikki/install
 
 	$(INSTALL_BIN) $(CURDIR)/files/nftables/geoip_cn.nft $(1)/etc/nikki/nftables/geoip_cn.nft
 	$(INSTALL_BIN) $(CURDIR)/files/nftables/geoip6_cn.nft $(1)/etc/nikki/nftables/geoip6_cn.nft
+	$(INSTALL_BIN) $(CURDIR)/files/nftables/geoip_ru.nft $(1)/etc/nikki/nftables/geoip_ru.nft
+	$(INSTALL_BIN) $(CURDIR)/files/nftables/geoip6_ru.nft $(1)/etc/nikki/nftables/geoip6_ru.nft
 
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) $(CURDIR)/files/nikki.conf $(1)/etc/config/nikki

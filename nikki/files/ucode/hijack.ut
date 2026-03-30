@@ -127,6 +127,8 @@
 	}
 	const bypass_china_mainland_ip = uci_bool(uci.get('nikki', 'proxy', 'bypass_china_mainland_ip'));
 	const bypass_china_mainland_ip6 = uci_bool(uci.get('nikki', 'proxy', 'bypass_china_mainland_ip6'));
+	const bypass_russia_ip = uci_bool(uci.get('nikki', 'proxy', 'bypass_russia_ip'));
+	const bypass_russia_ip6 = uci_bool(uci.get('nikki', 'proxy', 'bypass_russia_ip6'));
 	const proxy_tcp_dport = split((uci.get('nikki', 'proxy', 'proxy_tcp_dport') ?? '0-65535'), ' ');
 	const proxy_udp_dport = split((uci.get('nikki', 'proxy', 'proxy_udp_dport') ?? '0-65535'), ' ');
 
@@ -224,6 +226,16 @@ table inet nikki {
 	}
 
 	set china_ip6 {
+		type ipv6_addr
+		flags interval
+	}
+
+	set russia_ip {
+		type ipv4_addr
+		flags interval
+	}
+
+	set russia_ip6 {
 		type ipv6_addr
 		flags interval
 	}
@@ -552,6 +564,8 @@ table inet nikki {
 		ip6 daddr @reserved_ip6 {% if (fake_ip6_range): %} ip6 daddr != {{ fake_ip6_range }} {% endif %} counter return
 		ip daddr @china_ip counter return
 		ip6 daddr @china_ip6 counter return
+		ip daddr @russia_ip counter return
+		ip6 daddr @russia_ip6 counter return
 		meta nfproto ipv4 meta l4proto . th dport != @proxy_dport {% if (fake_ip_range): %} ip daddr != {{ fake_ip_range }} {% endif %} counter return
 		meta nfproto ipv6 meta l4proto . th dport != @proxy_dport {% if (fake_ip6_range): %} ip6 daddr != {{ fake_ip6_range }} {% endif %} counter return
 		meta l4proto { tcp, udp } ip dscp @bypass_dscp {% if (fake_ip_range): %} ip daddr != {{ fake_ip_range }} {% endif %} counter return
@@ -584,6 +598,8 @@ table inet nikki {
 		ip6 daddr @reserved_ip6 {% if (fake_ip6_range): %} ip6 daddr != {{ fake_ip6_range }} {% endif %} counter return
 		ip daddr @china_ip counter return
 		ip6 daddr @china_ip6 counter return
+		ip daddr @russia_ip counter return
+		ip6 daddr @russia_ip6 counter return
 		meta nfproto ipv4 meta l4proto . th dport != @proxy_dport {% if (fake_ip_range): %} ip daddr != {{ fake_ip_range }} {% endif %} counter return
 		meta nfproto ipv6 meta l4proto . th dport != @proxy_dport {% if (fake_ip6_range): %} ip6 daddr != {{ fake_ip6_range }} {% endif %} counter return
 		meta l4proto { tcp, udp } ip dscp @bypass_dscp {% if (fake_ip_range): %} ip daddr != {{ fake_ip_range }} {% endif %} counter return
@@ -627,6 +643,8 @@ table inet nikki {
 		ip6 daddr @reserved_ip6 {% if (fake_ip6_range): %} ip6 daddr != {{ fake_ip6_range }} {% endif %} counter return
 		ip daddr @china_ip counter return
 		ip6 daddr @china_ip6 counter return
+		ip daddr @russia_ip counter return
+		ip6 daddr @russia_ip6 counter return
 		meta nfproto ipv4 meta l4proto . th dport != @proxy_dport {% if (fake_ip_range): %} ip daddr != {{ fake_ip_range }} {% endif %} counter return
 		meta nfproto ipv6 meta l4proto . th dport != @proxy_dport {% if (fake_ip6_range): %} ip6 daddr != {{ fake_ip6_range }} {% endif %} counter return
 		meta l4proto { tcp, udp } ip dscp @bypass_dscp {% if (fake_ip_range): %} ip daddr != {{ fake_ip_range }} {% endif %} counter return
@@ -654,6 +672,8 @@ table inet nikki {
 		ip6 daddr @reserved_ip6 {% if (fake_ip6_range): %} ip6 daddr != {{ fake_ip6_range }} {% endif %} counter return
 		ip daddr @china_ip counter return
 		ip6 daddr @china_ip6 counter return
+		ip daddr @russia_ip counter return
+		ip6 daddr @russia_ip6 counter return
 		meta nfproto ipv4 meta l4proto . th dport != @proxy_dport {% if (fake_ip_range): %} ip daddr != {{ fake_ip_range }} {% endif %} counter return
 		meta nfproto ipv6 meta l4proto . th dport != @proxy_dport {% if (fake_ip6_range): %} ip6 daddr != {{ fake_ip6_range }} {% endif %} counter return
 		meta l4proto { tcp, udp } ip dscp @bypass_dscp {% if (fake_ip_range): %} ip daddr != {{ fake_ip_range }} {% endif %} counter return
@@ -680,4 +700,10 @@ include "/etc/nikki/nftables/geoip_cn.nft"
 {% endif %}
 {% if (bypass_china_mainland_ip6): %}
 include "/etc/nikki/nftables/geoip6_cn.nft"
+{% endif %}
+{% if (bypass_russia_ip): %}
+include "/etc/nikki/nftables/geoip_ru.nft"
+{% endif %}
+{% if (bypass_russia_ip6): %}
+include "/etc/nikki/nftables/geoip6_ru.nft"
 {% endif %}
