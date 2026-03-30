@@ -10,8 +10,6 @@ mixin_rule_provider=$(uci -q get nikki.mixin.rule_provider); [ -z "$mixin_rule_p
 
 # since v1.19.0
 
-mixin_ui_path=$(uci -q get nikki.mixin.ui_path); [ -z "$mixin_ui_path" ] && uci set nikki.mixin.ui_path=ui
-
 uci show nikki | grep -E 'nikki\.@rule\[[[:digit:]]+\].match=' | sed 's/nikki.@rule\[\([[:digit:]]\+\)\].match=.*/rename nikki.@rule[\1].match=matcher/' | uci batch
 
 # since v1.19.1
