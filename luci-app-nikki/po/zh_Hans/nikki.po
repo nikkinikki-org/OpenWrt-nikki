@@ -13,8 +13,24 @@ msgid "API Listen"
 msgstr "API 监听"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:116
+msgid "API TLS Listen"
+msgstr "API TLS 监听"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:120
+msgid "API TLS Cert"
+msgstr "API TLS 证书"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:123
+msgid "API TLS Key"
+msgstr "API TLS 密钥"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:126
+msgid "API TLS ECH Key"
+msgstr "API TLS ECH 密钥"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:129
 msgid "API Secret"
-msgstr "API 密钥"
+msgstr "API 令牌"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:69
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:122
@@ -85,7 +101,7 @@ msgstr "绕过中国大陆 IP"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:176
 msgid "Bypass China Mainland IP6"
-msgstr "绕过中国大陆 IP6"
+msgstr "绕过中国大陆 IPv6"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:189
 msgid "Bypass DSCP"
@@ -384,7 +400,7 @@ msgstr "Fake-IP TTL"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:250
 msgid "Fake-IP6 Range"
-msgstr "Fake-IP6 范围"
+msgstr "Fake-IPv6 范围"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/app.js:132
 msgid "Fast Reload"
