@@ -80,11 +80,6 @@ prepare_files() {
 	fi
 }
 
-clear_log() {
-	echo -n > "$APP_LOG_PATH"
-	echo -n > "$CORE_LOG_PATH"
-}
-
 log() {
 	echo "[$(date "+%Y-%m-%d %H:%M:%S")] [$1] $2" >> "$APP_LOG_PATH"
 }

@@ -110,7 +110,7 @@ proxy_transparent_proxy=$(uci -q get nikki.proxy.transparent_proxy); [ -n "$prox
 
 # since v1.23.0
 
-routing=$(uci -q get nikki.routing); [ -z "$routing" ] && {
+section_routing=$(uci -q get nikki.routing); [ -z "$section_routing" ] && {
 	uci set nikki.routing=routing
 	uci set nikki.routing.tproxy_fw_mark=0x80
 	uci set nikki.routing.tun_fw_mark=0x81
@@ -191,7 +191,7 @@ proxy_bypass_china_mainland_ip6=$(uci -q get nikki.proxy.bypass_china_mainland_i
 routing_tproxy_fw_mask=$(uci -q get nikki.routing.tproxy_fw_mask); [ -z "$routing_tproxy_fw_mask" ] && uci set nikki.routing.tproxy_fw_mask=0xFF
 routing_tun_fw_mask=$(uci -q get nikki.routing.tun_fw_mask); [ -z "$routing_tun_fw_mask" ] && uci set nikki.routing.tun_fw_mask=0xFF
 
-procd=$(uci -q get nikki.procd); [ -z "$procd" ] && {
+section_procd=$(uci -q get nikki.procd); [ -z "$section_procd" ] && {
 	uci set nikki.procd=procd
 	uci set nikki.procd.fast_reload=$(uci -q get nikki.config.fast_reload)
 	uci set nikki.procd.env_safe_paths=$(uci -q get nikki.env.safe_paths)
@@ -205,16 +205,25 @@ procd=$(uci -q get nikki.procd); [ -z "$procd" ] && {
 
 # since v1.25.1
 
-dummy_device=$(uci -q get nikki.routing.dummy_device); [ -z "$dummy_device" ] && uci set nikki.routing.dummy_device=nikki-dummy
+routing_dummy_device=$(uci -q get nikki.routing.dummy_device); [ -z "$routing_dummy_device" ] && uci set nikki.routing.dummy_device=nikki-dummy
 
 # since v1.25.2
 
-core=$(uci -q get nikki.core); [ -z "$core" ] && {
+section_core=$(uci -q get nikki.core); [ -z "$section_core" ] && {
 	uci set nikki.core=core
 	uci set nikki.core.redirect_listener_name=redir-in
 	uci set nikki.core.tproxy_listener_name=tproxy-in
 	uci set nikki.core.tun_listener_name=tun-in
 }
+
+# since v1.25.3
+
+config_scheduled_restart_cron=$(uci -q get nikki.config.scheduled_restart_cron); [ -z "$config_scheduled_restart_cron" ] && uci rename nikki.config.cron_expression="scheduled_restart_cron"
+
+log_scheduled_clear=$(uci -q get nikki.log.scheduled_clear); [ -z "$log_scheduled_clear" ] && uci set nikki.log.scheduled_clear=1
+log_scheduled_clear_cron=$(uci -q get nikki.log.scheduled_clear_cron); [ -z "$log_scheduled_clear_cron" ] && uci set nikki.log.scheduled_clear_cron="*/5 * * * *"
+log_scheduled_clear_size_limit=$(uci -q get nikki.log.scheduled_clear_size_limit); [ -z "$log_scheduled_clear_size_limit" ] && uci set nikki.log.scheduled_clear_size_limit=1
+log_scheduled_clear_size_limit_unit=$(uci -q get nikki.log.scheduled_clear_size_limit_unit); [ -z "$log_scheduled_clear_size_limit_unit" ] && uci set nikki.log.scheduled_clear_size_limit_unit=MB
 
 # commit
 uci commit nikki

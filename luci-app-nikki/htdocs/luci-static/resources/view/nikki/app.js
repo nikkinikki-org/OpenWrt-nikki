@@ -114,7 +114,7 @@ return view.extend({
         o = s.option(form.Flag, 'scheduled_restart', _('Scheduled Restart'));
         o.rmempty = false;
 
-        o = s.option(form.Value, 'cron_expression', _('Cron Expression'));
+        o = s.option(form.Value, 'scheduled_restart_cron', _('Scheduled Restart Cron'));
         o.retain = true;
         o.rmempty = false;
         o.depends('scheduled_restart', '1');

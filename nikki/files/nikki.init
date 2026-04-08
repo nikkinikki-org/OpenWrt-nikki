@@ -9,6 +9,7 @@ PROG="/usr/bin/mihomo"
 . "$IPKG_INSTROOT/etc/nikki/scripts/include.sh"
 
 extra_command 'update_subscription' 'Update subscription by section id'
+extra_command 'clear_logs' 'Clear logs if size exceeds the limit'
 
 boot_func() {
 	# prepare files
@@ -55,9 +56,9 @@ start_service() {
 	fi
 	# get config
 	## app config
-	local scheduled_restart cron_expression profile test_profile core_only
+	local scheduled_restart scheduled_restart_cron profile test_profile core_only
 	config_get_bool scheduled_restart "config" "scheduled_restart" 0
-	config_get cron_expression "config" "cron_expression"
+	config_get scheduled_restart_cron "config" "scheduled_restart_cron"
 	config_get profile "config" "profile"
 	config_get_bool test_profile "config" "test_profile" 0
 	config_get_bool core_only "config" "core_only" 0
@@ -109,6 +110,10 @@ start_service() {
 	config_get_bool ipv6_dns_hijack "proxy" "ipv6_dns_hijack" 0
 	config_get tcp_mode "proxy" "tcp_mode"
 	config_get udp_mode "proxy" "udp_mode"
+	## log config
+	local log_scheduled_clear log_scheduled_clear_cron
+	config_get_bool log_scheduled_clear "log" "scheduled_clear" 0
+	config_get log_scheduled_clear_cron "log" "scheduled_clear_cron"
 	# get profile
 	local profile_type; profile_type=$(echo "$profile" | cut -d ':' -f 1)
 	local profile_id; profile_id=$(echo "$profile" | cut -d ':' -f 2)
@@ -259,9 +264,18 @@ start_service() {
 
 	procd_close_instance
 	# cron
-	if [ "$scheduled_restart" = 1 ] && [ -n "$cron_expression" ]; then
+	local reload_cron; reload_cron=0
+	if [ "$scheduled_restart" = 1 ] && [ -n "$scheduled_restart_cron" ]; then
 		log "App" "Set scheduled restart."
-		echo "$cron_expression /etc/init.d/nikki restart #nikki" >> "/etc/crontabs/root"
+		echo "$scheduled_restart_cron /etc/init.d/nikki restart #nikki scheduled restart" >> "/etc/crontabs/root"
+		reload_cron=1
+	fi
+	if [ "$log_scheduled_clear" = 1 ] && [ -n "$log_scheduled_clear_cron" ]; then
+		log "App" "Set log scheduled clear."
+		echo "$log_scheduled_clear_cron /etc/init.d/nikki clear_logs #nikki log scheduled clear" >> "/etc/crontabs/root"
+		reload_cron=1
+	fi
+	if [ "$reload_cron" = 1 ]; then
 		/etc/init.d/cron restart
 	fi
 	# set started flag
@@ -422,8 +436,6 @@ service_triggers() {
 }
 
 cleanup() {
-	# clear log
-	clear_log
 	# load config
 	config_load nikki
 	# get config
@@ -468,6 +480,41 @@ cleanup() {
 	# delete cron
 	sed -i "/#nikki/d" "/etc/crontabs/root" > /dev/null 2>&1
 	/etc/init.d/cron restart
+}
+
+clear_logs() {
+	# load config
+	config_load nikki
+	# get config
+	## log config
+	local log_scheduled_clear_size_limit log_scheduled_clear_size_limit_unit
+	config_get log_scheduled_clear_size_limit "log" "scheduled_clear_size_limit" 1
+	config_get log_scheduled_clear_size_limit_unit "log" "scheduled_clear_size_limit_unit" "MB"
+	# prepare config
+	local log_scheduled_clear_size_limit_in_bytes; log_scheduled_clear_size_limit_in_bytes=0
+	case "$log_scheduled_clear_size_limit_unit" in
+		B)
+			log_scheduled_clear_size_limit_in_bytes=$((log_scheduled_clear_size_limit))
+		;;
+		KB)
+			log_scheduled_clear_size_limit_in_bytes=$((log_scheduled_clear_size_limit * 1024))
+		;;
+		MB)
+			log_scheduled_clear_size_limit_in_bytes=$((log_scheduled_clear_size_limit * 1024 * 1024))
+		;;
+		GB)
+			log_scheduled_clear_size_limit_in_bytes=$((log_scheduled_clear_size_limit * 1024 * 1024 * 1024))
+		;;
+	esac
+	# clear logs
+	if [ -f "$APP_LOG_PATH" ] && [ "$(wc -c < "$APP_LOG_PATH")" -ge "$log_scheduled_clear_size_limit_in_bytes" ]; then
+		echo -n > "$APP_LOG_PATH"
+		log "Log" "App log is cleared due to scheduled clear and exceeding size limits."
+	fi
+	if [ -f "$CORE_LOG_PATH" ] && [ "$(wc -c < "$CORE_LOG_PATH")" -ge "$log_scheduled_clear_size_limit_in_bytes" ]; then
+		echo -n > "$CORE_LOG_PATH"
+		log "Log" "Core log is cleared due to scheduled clear and exceeding size limits."
+	fi
 }
 
 update_subscription() {

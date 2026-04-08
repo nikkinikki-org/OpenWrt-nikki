@@ -24,6 +24,30 @@ return view.extend({
 
         s = m.section(form.NamedSection, 'log', 'log', _('Log'));
 
+        s.tab('log_config', _('Log Config'));
+        
+        o = s.taboption('log_config', form.Flag, 'scheduled_clear', _('Scheduled Clear'));
+        o.rmempty = false;
+        
+        o = s.taboption('log_config', form.Value, 'scheduled_clear_cron', _('Scheduled Clear Cron'));
+        o.retain = true;
+        o.rmempty = false;
+        o.depends('scheduled_clear', '1');
+
+        o = s.taboption('log_config', form.Value, 'scheduled_clear_size_limit', _('Scheduled Clear Size Limit'));
+        o.retain = true;
+        o.rmempty = false;
+        o.datatype = 'uinteger';
+        o.depends('scheduled_clear', '1');
+
+        o = s.taboption('log_config', form.ListValue, 'scheduled_clear_size_limit_unit', _('Scheduled Clear Size Limit Unit'));
+        o.retain = true;
+        o.rmempty = false;
+        o.depends('scheduled_clear', '1');
+        o.value('KB', 'KB');
+        o.value('MB', 'MB');
+        o.value('GB', 'GB');
+
         s.tab('app_log', _('App Log'));
 
         o = s.taboption('app_log', form.Button, 'clear_app_log');
@@ -117,8 +141,5 @@ return view.extend({
         };
 
         return m.render();
-    },
-    handleSaveApply: null,
-    handleSave: null,
-    handleReset: null
+    }
 });
