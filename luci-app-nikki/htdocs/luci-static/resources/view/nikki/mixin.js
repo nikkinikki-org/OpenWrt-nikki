@@ -13,7 +13,6 @@ return view.extend({
         return Promise.all([
             uci.load('nikki'),
             network.getNetworks(),
-
         ]);
     },
     render: function (data) {
