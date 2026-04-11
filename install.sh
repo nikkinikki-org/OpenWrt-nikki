@@ -46,7 +46,8 @@ if [ -x "/bin/opkg" ]; then
 	wget -O nikki.version $feed_url/index.json
 	# install ipks
 	echo "install ipks"
-	eval "$(jsonfilter -i nikki.version -e "nikki_version=@['packages']['nikki']" -e "luci_app_nikki_version=@['packages']['luci-app-nikki']")"
+	eval "$(jsonfilter -i nikki.version -e "mihomo_meta_version=@['packages']['mihomo-meta']" -e "nikki_version=@['packages']['nikki']" -e "luci_app_nikki_version=@['packages']['luci-app-nikki']")"
+	opkg install "$feed_url/mihomo-meta_${mihomo_meta_version}_${arch}.ipk"
 	opkg install "$feed_url/nikki_${nikki_version}_${arch}.ipk"
 	opkg install "$feed_url/luci-app-nikki_${luci_app_nikki_version}_all.ipk"
 	for lang in $languages; do
@@ -64,7 +65,7 @@ elif [ -x "/usr/bin/apk" ]; then
 	languages=$(apk list --installed --manifest luci-i18n-base-* | cut -d ' ' -f 1 | cut -d '-' -f 4-)
 	# install apks from remote repository
 	echo "install apks from remote repository"
-	apk add --allow-untrusted -X $feed_url/packages.adb nikki luci-app-nikki
+	apk add --allow-untrusted -X $feed_url/packages.adb mihomo-meta nikki luci-app-nikki
 	for lang in $languages; do
 		apk add --allow-untrusted -X $feed_url/packages.adb "luci-i18n-nikki-${lang}"
 	done
