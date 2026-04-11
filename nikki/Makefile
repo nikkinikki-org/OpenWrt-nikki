@@ -4,13 +4,6 @@ PKG_NAME:=nikki
 PKG_VERSION:=2026.04.08
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/MetaCubeX/mihomo.git
-PKG_SOURCE_VERSION:=v1.19.23
-PKG_MIRROR_HASH:=b2c83789f9a8b59681e03922bbf4b4a7cc66ef5eb112ecc4755601b43ea9e8f1
-
 PKG_LICENSE:=GPL3.0+
 PKG_MAINTAINER:=Joseph Mory <morytyann@gmail.com>
 
@@ -30,16 +23,9 @@ include $(TOPDIR)/feeds/packages/lang/golang/golang-package.mk
 define Package/nikki
   SECTION:=net
   CATEGORY:=Network
-  TITLE:=A rule based proxy in Go.
-  URL:=https://wiki.metacubex.one
-  DEPENDS:=$(GO_ARCH_DEPENDS) +ca-bundle +curl +yq firewall4 +ip-full +kmod-inet-diag +kmod-nft-socket +kmod-nft-tproxy +kmod-tun +kmod-dummy
-  PROVIDES:=mihomo
-  ALTERNATIVES:=\
-    300:/usr/bin/mihomo:/usr/libexec/nikki
-endef
-
-define Package/nikki/description
-  A rule based proxy in Go.
+  TITLE:=Transparent Proxy with Mihomo on OpenWrt.
+  URL:=https://github.com/nikkinikki-org
+  DEPENDS:=$(GO_ARCH_DEPENDS) +ca-bundle +curl +yq firewall4 +ip-full +kmod-inet-diag +kmod-nft-socket +kmod-nft-tproxy +kmod-tun +kmod-dummy mihomo
 endef
 
 define Package/nikki/conffiles
@@ -48,11 +34,6 @@ define Package/nikki/conffiles
 endef
 
 define Package/nikki/install
-	$(call GoPackage/Package/Install/Bin,$(PKG_INSTALL_DIR))
-
-	$(INSTALL_DIR) $(1)/usr/libexec/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mihomo $(1)/usr/libexec/nikki
-
 	$(INSTALL_DIR) $(1)/etc/nikki
 	$(INSTALL_DIR) $(1)/etc/nikki/ucode
 	$(INSTALL_DIR) $(1)/etc/nikki/scripts
@@ -102,9 +83,8 @@ if [ -z $${IPKG_INSTROOT} ]; then
 fi
 endef
 
-define Build/Prepare
-	$(Build/Prepare/Default)
-	$(RM) -r $(PKG_BUILD_DIR)/rules/logic_test
+define Build/Compile
+
 endef
 
 $(eval $(call GoBinPackage,nikki))
