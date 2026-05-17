@@ -83,3 +83,39 @@ prepare_files() {
 log() {
 	echo "[$(date "+%Y-%m-%d %H:%M:%S")] [$1] $2" >> "$APP_LOG_PATH"
 }
+
+get_openwrt_version() {
+  local ver=""
+  if [ -f /etc/openwrt_release ]; then
+    ver="$(. /etc/openwrt_release 2>/dev/null; echo "$DISTRIB_RELEASE")"
+  fi
+  [ -n "$ver" ] && echo "$ver" || echo "unknown"
+}
+
+get_device_model() {
+  if [ -f /tmp/sysinfo/model ]; then
+    cat /tmp/sysinfo/model
+  else
+    echo "unknown"
+  fi
+}
+
+get_hwid() {
+  local ethaddr=""
+  if command -v fw_printenv >/dev/null 2>&1; then
+    ethaddr="$(fw_printenv ethaddr 2>/dev/null | cut -d= -f2 | tr -d '\r\n')"
+  fi
+
+  # 2) fallback: eth0
+  if [ -z "$ethaddr" ] && [ -f /sys/class/net/eth0/address ]; then
+    ethaddr="$(cat /sys/class/net/eth0/address 2>/dev/null | tr -d '\r\n')"
+  fi
+  # 4) if still empty → return empty
+  [ -z "$ethaddr" ] && { echo ""; return 0; }
+
+  # 5) MAC → sha256 HWID
+  echo "$ethaddr" \
+    | tr '[:upper:]' '[:lower:]' \
+    | tr -d ':' \
+    | sha256sum | cut -d' ' -f1
+}
