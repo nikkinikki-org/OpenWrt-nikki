@@ -383,7 +383,7 @@ table inet nikki {
 		{% endif %}
 		{% endif %}
 		{% if (length(access_control['mac']) > 0): %}
-		meta nfproto @dns_hijack_nfproto meta l4proto { tcp, udp } ether saddr { {{ join(', ', access_control['mac']) }} } th dport 53 counter {% if (access_control['dns']): %} redirect to :{{ dns_port }} {% else %} return {% endif %} #
+		meta nfproto @dns_hijack_nfproto meta l4proto { tcp, udp } meta iiftype ether ether saddr { {{ join(', ', access_control['mac']) }} } th dport 53 counter {% if (access_control['dns']): %} redirect to :{{ dns_port }} {% else %} return {% endif %} #
 		{% endif %}
 		{% endif %}
 		{% endfor %}
@@ -406,7 +406,7 @@ table inet nikki {
 		{% endif %}
 		{% endif %}
 		{% if (length(access_control['mac']) > 0): %}
-		meta nfproto @proxy_nfproto meta l4proto tcp ether saddr { {{ join(', ', access_control['mac']) }} } counter {% if (access_control['proxy']): %} redirect to :{{ redir_port }} {% else %} return {% endif %} #
+		meta nfproto @proxy_nfproto meta l4proto tcp meta iiftype ether ether saddr { {{ join(', ', access_control['mac']) }} } counter {% if (access_control['proxy']): %} redirect to :{{ redir_port }} {% else %} return {% endif %} #
 		{% endif %}
 		{% endif %}
 		{% endfor %}
@@ -444,9 +444,9 @@ table inet nikki {
 		{% endif %}
 		{% if (length(access_control['mac']) > 0): %}
 		{% if (access_control['dns']): %}
-		meta nfproto @dns_hijack_nfproto meta l4proto { tcp, udp } ether saddr { {{ join(', ', access_control['mac']) }} } th dport 53 counter return #
+		meta nfproto @dns_hijack_nfproto meta l4proto { tcp, udp } meta iiftype ether ether saddr { {{ join(', ', access_control['mac']) }} } th dport 53 counter return #
 		{% endif %}
-		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ether saddr { {{ join(', ', access_control['mac']) }} } {% if (access_control['proxy']): %} meta mark set meta mark & {{ tproxy_fw_umask }} | {{ tproxy_fw_mark }} tproxy to :{{ tproxy_port }} counter accept {% else %} counter return {% endif %} #
+		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } meta iiftype ether ether saddr { {{ join(', ', access_control['mac']) }} } {% if (access_control['proxy']): %} meta mark set meta mark & {{ tproxy_fw_umask }} | {{ tproxy_fw_mark }} tproxy to :{{ tproxy_port }} counter accept {% else %} counter return {% endif %} #
 		{% endif %}
 		{% endif %}
 		{% endfor %}
@@ -484,9 +484,9 @@ table inet nikki {
 		{% endif %}
 		{% if (length(access_control['mac']) > 0): %}
 		{% if (access_control['dns']): %}
-		meta nfproto @dns_hijack_nfproto meta l4proto { tcp, udp } ether saddr { {{ join(', ', access_control['mac']) }} } th dport 53 counter return #
+		meta nfproto @dns_hijack_nfproto meta l4proto { tcp, udp } meta iiftype ether ether saddr { {{ join(', ', access_control['mac']) }} } th dport 53 counter return #
 		{% endif %}
-		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } ether saddr { {{ join(', ', access_control['mac']) }} } {% if (access_control['proxy']): %} meta mark set meta mark & {{ tun_fw_umask }} | {{ tun_fw_mark }} counter accept {% else %} counter return {% endif %} #
+		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } meta iiftype ether ether saddr { {{ join(', ', access_control['mac']) }} } {% if (access_control['proxy']): %} meta mark set meta mark & {{ tun_fw_umask }} | {{ tun_fw_mark }} counter accept {% else %} counter return {% endif %} #
 		{% endif %}
 		{% endif %}
 		{% endfor %}
