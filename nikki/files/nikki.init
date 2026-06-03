@@ -148,6 +148,7 @@ start_service() {
 		log "App" "Exit."
 		return
 	fi
+	yq -M -i 'explode(.)' "$RUN_PROFILE_PATH"
 	# mixin
 	if [ "$core_only" = 0 ]; then
 		log "Mixin" "Mixin config."
