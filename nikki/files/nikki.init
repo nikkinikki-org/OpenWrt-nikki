@@ -126,7 +126,7 @@ start_service() {
 			log "App" "Exit."
 			return
 		fi
-		cp -f "$profile_file" "$RUN_PROFILE_PATH"
+		yq -M 'explode(.) | .rule-providers? |= with_entries(.value.path = "./rule_provider/" + .key)' "$profile_file" > "$RUN_PROFILE_PATH"
 	elif [ "$profile_type" = "subscription" ]; then
 		local subscription_section; subscription_section="$profile_id"
 		local subscription_name subscription_prefer
@@ -178,11 +178,18 @@ start_service() {
 		if [ "$overwrite_sniffer_sniff" = 1 ]; then
 			yq -M -i 'del(.sniffer.sniff)' "$RUN_PROFILE_PATH"
 		fi
-		if [ "$mixin_file_content" = 0 ]; then
-			ucode -S "$MIXIN_UC" | yq -M -p json -o yaml | yq -M -i eval-all '... comments="" | . as $item ireduce ({}; . * $item ) | .proxies = .nikki-proxies + .proxies | del(.nikki-proxies) | .proxy-groups = .nikki-proxy-groups + .proxy-groups | del(.nikki-proxy-groups) | .rules = .nikki-rules + .rules | del(.nikki-rules)' "$RUN_PROFILE_PATH" -
-		elif [ "$mixin_file_content" = 1 ]; then
-			ucode -S "$MIXIN_UC" | yq -M -p json -o yaml | yq -M -i eval-all '... comments="" | . as $item ireduce ({}; . * $item ) | .proxies = .nikki-proxies + .proxies | del(.nikki-proxies) | .proxy-groups = .nikki-proxy-groups + .proxy-groups | del(.nikki-proxy-groups) | .rules = .nikki-rules + .rules | del(.nikki-rules)' "$RUN_PROFILE_PATH" "$MIXIN_FILE_PATH" -
+
+		local mixin_extra_file; mixin_extra_file=""
+
+		if [ "$mixin_file_content" = 1 ] && ! grep -q 'proxy-providers' "$RUN_PROFILE_PATH"; then
+			yq -M 'explode(.) | .rule-providers? |= with_entries(.value.path = "./rule_provider/" + .key)' "$MIXIN_FILE_PATH" > "$MIXIN_FILE_PATH.tmp"
+			mixin_extra_file="$MIXIN_FILE_PATH.tmp"
 		fi
+
+		ucode -S "$MIXIN_UC" | yq -M -p json -o yaml | yq -M -i eval-all '... comments="" | . as $item ireduce ({}; . * $item ) | .proxies = .nikki-proxies + .proxies | del(.nikki-proxies) | .proxy-groups = .nikki-proxy-groups + .proxy-groups | del(.nikki-proxy-groups) | .rules = .nikki-rules + .rules | del(.nikki-rules)' "$RUN_PROFILE_PATH" $mixin_extra_file -
+
+		rm -f "$MIXIN_FILE_PATH.tmp"
+
 		if [ "$proxy_enabled" = 1 ]; then
 			if yq -M -e 'has("tun")' "$RUN_PROFILE_PATH" > /dev/null 2>&1; then
 				yq -M -i '(.tun) |= (.auto-route = false | .auto-redirect = false | .auto-detect-interface = false | .disable-icmp-forwarding = true)' "$RUN_PROFILE_PATH"
