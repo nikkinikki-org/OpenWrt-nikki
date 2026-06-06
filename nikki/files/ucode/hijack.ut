@@ -90,6 +90,12 @@
 		}
 	});
 
+	const has_router_default_rule = length(filter(router_access_control, (x) =>
+		length(x['user']) == 0 &&
+		length(x['group']) == 0 &&
+		length(x['cgroup']) == 0
+	)) > 0;
+
 	const lan_proxy = uci_bool(uci.get('nikki', 'proxy', 'lan_proxy'));
 	const lan_inbound_interface = uci_array(uci.get('nikki', 'proxy', 'lan_inbound_interface'));
 	const lan_inbound_device = [];
@@ -112,6 +118,12 @@
 			push(lan_access_control, access_control);
 		}
 	});
+
+	const has_lan_default_rule = length(filter(lan_access_control, (x) =>
+		length(x['ip']) == 0 &&
+		length(x['ip6']) == 0 &&
+		length(x['mac']) == 0
+	)) > 0;
 
 	const reserved_ip = uci_array(uci.get('nikki', 'proxy', 'reserved_ip'));
 	const reserved_ip6 = uci_array(uci.get('nikki', 'proxy', 'reserved_ip6'));
@@ -273,6 +285,9 @@ table inet nikki {
 		{% endif %}
 		{% endif %}
 		{% endfor %}
+		{% if (!has_router_default_rule): %}
+		meta nfproto @dns_hijack_nfproto meta l4proto { tcp, udp } th dport 53 counter redirect to :{{ dns_port }}
+		{% endif %}
 	}
 
 	{% if (tcp_mode == 'redirect'): %}
@@ -294,6 +309,9 @@ table inet nikki {
 		{% endif %}
 		{% endif %}
 		{% endfor %}
+		{% if (!has_router_default_rule): %}
+		meta nfproto @proxy_nfproto meta l4proto tcp counter redirect to :{{ redir_port }}
+		{% endif %}
 	}
 	{% endif %}
 
@@ -328,6 +346,9 @@ table inet nikki {
 		{% endif %}
 		{% endif %}
 		{% endfor %}
+		{% if (!has_router_default_rule): %}
+		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } meta mark set meta mark & {{ tproxy_fw_umask }} | {{ tproxy_fw_mark }} tproxy to :{{ tproxy_port }} counter accept
+		{% endif %}
 	}
 	{% endif %}
 
@@ -362,6 +383,9 @@ table inet nikki {
 		{% endif %}
 		{% endif %}
 		{% endfor %}
+		{% if (!has_router_default_rule): %}
+		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } meta mark set meta mark & {{ tun_fw_umask }} | {{ tun_fw_mark }} counter accept
+		{% endif %}
 	}
 	{% endif %}
 	{% endif %}
@@ -387,6 +411,9 @@ table inet nikki {
 		{% endif %}
 		{% endif %}
 		{% endfor %}
+		{% if (!has_lan_default_rule): %}
+		meta nfproto @dns_hijack_nfproto meta l4proto { tcp, udp } th dport 53 counter redirect to :{{ dns_port }}
+		{% endif %}
 	}
 
 	{% if (tcp_mode == 'redirect'): %}
@@ -410,6 +437,9 @@ table inet nikki {
 		{% endif %}
 		{% endif %}
 		{% endfor %}
+		{% if (!has_lan_default_rule): %}
+		meta nfproto @proxy_nfproto meta l4proto tcp counter redirect to :{{ redir_port }}
+		{% endif %}
 	}
 	{% endif %}
 
@@ -450,6 +480,9 @@ table inet nikki {
 		{% endif %}
 		{% endif %}
 		{% endfor %}
+		{% if (!has_lan_default_rule): %}
+		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } meta mark set meta mark & {{ tproxy_fw_umask }} | {{ tproxy_fw_mark }} tproxy to :{{ tproxy_port }} counter accept
+		{% endif %}
 	}
 	{% endif %}
 
@@ -490,6 +523,9 @@ table inet nikki {
 		{% endif %}
 		{% endif %}
 		{% endfor %}
+		{% if (!has_lan_default_rule): %}
+		meta nfproto @proxy_nfproto meta l4proto { tcp, udp } meta mark set meta mark & {{ tun_fw_umask }} | {{ tun_fw_mark }} counter accept
+		{% endif %}
 	}
 	{% endif %}
 	{% endif %}
