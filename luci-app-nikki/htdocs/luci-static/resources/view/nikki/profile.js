@@ -81,6 +81,7 @@ return view.extend({
         o = s.option(form.ListValue, 'prefer', _('Prefer'));
         o.default = 'remote';
         o.modalonly = true;
+        o.rmempty = false;
         o.value('remote', _('Remote'));
         o.value('local', _('Local'));
 
