@@ -449,11 +449,20 @@ cleanup() {
 	# load config
 	config_load nikki
 	# get config
+	## log config
+	local log_clear_at_stop
+	config_get_bool log_clear_at_stop "log" "clear_at_stop" 0
 	## routing config
 	local tproxy_route_table tun_route_table dummy_device
 	config_get tproxy_route_table "routing" "tproxy_route_table" "80"
 	config_get tun_route_table "routing" "tun_route_table" "81"
 	config_get dummy_device "routing" "dummy_device" "nikki-dummy"
+	# clear logs if needed
+	if [  "$log_clear_at_stop" = 1 ]; then
+		echo -n > "$APP_LOG_PATH"
+		echo -n > "$CORE_LOG_PATH"
+		log "Log" "Logs are cleared due to clear at stop is enabled."
+	fi
 	# delete routing policy
 	ip -4 rule del table "$tproxy_route_table" > /dev/null 2>&1
 	ip -4 rule del table "$tun_route_table" > /dev/null 2>&1

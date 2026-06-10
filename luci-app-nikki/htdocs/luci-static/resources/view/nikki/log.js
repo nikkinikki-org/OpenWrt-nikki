@@ -25,10 +25,13 @@ return view.extend({
         s = m.section(form.NamedSection, 'log', 'log', _('Log'));
 
         s.tab('log_config', _('Log Config'));
-        
+
+        o = s.taboption('log_config', form.Flag, 'clear_at_stop', _('Clear At Stop'));
+        o.rmempty = false;
+
         o = s.taboption('log_config', form.Flag, 'scheduled_clear', _('Scheduled Clear'));
         o.rmempty = false;
-        
+
         o = s.taboption('log_config', form.Value, 'scheduled_clear_cron', _('Scheduled Clear Cron'));
         o.retain = true;
         o.rmempty = false;

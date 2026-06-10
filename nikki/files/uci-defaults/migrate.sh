@@ -225,6 +225,10 @@ log_scheduled_clear_cron=$(uci -q get nikki.log.scheduled_clear_cron); [ -z "$lo
 log_scheduled_clear_size_limit=$(uci -q get nikki.log.scheduled_clear_size_limit); [ -z "$log_scheduled_clear_size_limit" ] && uci set nikki.log.scheduled_clear_size_limit=1
 log_scheduled_clear_size_limit_unit=$(uci -q get nikki.log.scheduled_clear_size_limit_unit); [ -z "$log_scheduled_clear_size_limit_unit" ] && uci set nikki.log.scheduled_clear_size_limit_unit=MB
 
+# since v1.25.4
+
+config_clear_at_stop=$(uci -q get nikki.log.clear_at_stop); [ -z "$config_clear_at_stop" ] && uci set nikki.log.clear_at_stop=1
+
 # commit
 uci commit nikki
 
