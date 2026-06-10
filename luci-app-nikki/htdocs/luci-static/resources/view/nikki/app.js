@@ -172,14 +172,6 @@ return view.extend({
 
         s.tab('environment_variable', _('Environment Variable Config'));
 
-        o = s.taboption('environment_variable', form.DynamicList, 'env_safe_paths', _('Safe Paths'));
-        o.load = function (section_id) {
-            return this.super('load', section_id)?.split(':');
-        };
-        o.write = function (section_id, formvalue) {
-            this.super('write', section_id, formvalue?.join(':'));
-        };
-
         o = s.taboption('environment_variable', form.Value, 'env_go_max_procs', 'GOMAXPROCS');
         o.datatype = 'uinteger';
         o.placeholder = _('Unlimited');
@@ -187,6 +179,14 @@ return view.extend({
         o = s.taboption('environment_variable', form.Value, 'env_go_mem_limit', 'GOMEMLIMIT');
         o.datatype = 'uinteger';
         o.placeholder = _('Unlimited');
+
+        o = s.taboption('environment_variable', form.DynamicList, 'env_safe_paths', _('Safe Paths'));
+        o.load = function (section_id) {
+            return this.super('load', section_id)?.split(':');
+        };
+        o.write = function (section_id, formvalue) {
+            this.super('write', section_id, formvalue?.join(':'));
+        };
 
         o = s.taboption('environment_variable', form.Flag, 'env_disable_loopback_detector', _('Disable Loopback Detector'));
         o.rmempty = false;
