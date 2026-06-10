@@ -134,6 +134,12 @@ return view.extend({
 
         s.tab('rlimit', _('RLIMIT Config'));
 
+        o = s.taboption('rlimit', form.Value, 'rlimit_nproc_soft', _('Number of Processes Soft Limit'));
+        o.datatype = 'uinteger';
+
+        o = s.taboption('rlimit', form.Value, 'rlimit_nproc_hard', _('Number of Processes Hard Limit'));
+        o.datatype = 'uinteger';
+
         o = s.taboption('rlimit', form.Value, 'rlimit_address_space_soft', _('Address Space Size Soft Limit'));
         o.datatype = 'uinteger';
         o.placeholder = _('Unlimited');
@@ -173,6 +179,14 @@ return view.extend({
         o.write = function (section_id, formvalue) {
             this.super('write', section_id, formvalue?.join(':'));
         };
+
+        o = s.taboption('environment_variable', form.Value, 'env_go_max_procs', 'GOMAXPROCS');
+        o.datatype = 'uinteger';
+        o.placeholder = _('Unlimited');
+
+        o = s.taboption('environment_variable', form.Value, 'env_go_mem_limit', 'GOMEMLIMIT');
+        o.datatype = 'uinteger';
+        o.placeholder = _('Unlimited');
 
         o = s.taboption('environment_variable', form.Flag, 'env_disable_loopback_detector', _('Disable Loopback Detector'));
         o.rmempty = false;
