@@ -45,7 +45,7 @@ jobs:
           commit_date=$(git -C mihomo log -n 1 --format=%cd --date=format:%Y.%m.%d)
           commit_timestamp=$(git -C mihomo log -n 1 --format=%cd --date=format:%s)
           commit_sha=$(git -C mihomo rev-parse HEAD)
-          commit_short_sha=$(git -C mihomo rev-parse --short HEAD)
+          commit_short_sha=$(git -C mihomo rev-parse --short=7 HEAD)
           pkg_name="mihomo-alpha"
           pkg_source_dir="${pkg_name}-${commit_date}"
           pkg_source="${pkg_source_dir}.tar.gz"
