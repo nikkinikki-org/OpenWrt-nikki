@@ -255,6 +255,7 @@ table inet nikki {
 	}
 
 	{% if (router_proxy): %}
+	{% if (length(dns_hijack_nfproto) > 0): %}
 	chain router_dns_hijack {
 		{% for (let access_control in router_access_control): %}
 		{% if (length(access_control['user']) == 0 && length(access_control['group']) == 0 && length(access_control['cgroup']) == 0): %}
@@ -274,6 +275,7 @@ table inet nikki {
 		{% endif %}
 		{% endfor %}
 	}
+	{% endif %}
 
 	{% if (tcp_mode == 'redirect'): %}
 	chain router_redirect {
@@ -367,6 +369,7 @@ table inet nikki {
 	{% endif %}
 
 	{% if (lan_proxy): %}
+	{% if (length(dns_hijack_nfproto) > 0): %}
 	chain lan_dns_hijack {
 		{% for (let access_control in lan_access_control): %}
 		{% if (length(access_control['ip']) == 0 && length(access_control['ip6']) == 0 && length(access_control['mac']) == 0): %}
@@ -388,6 +391,7 @@ table inet nikki {
 		{% endif %}
 		{% endfor %}
 	}
+	{% endif %}
 
 	{% if (tcp_mode == 'redirect'): %}
 	chain lan_redirect {
@@ -502,7 +506,9 @@ table inet nikki {
 		{% elif (cgroups_version == 2): %}
 		socket cgroupv2 level 2 "services/{{ cgroup_name }}" counter return
 		{% endif %}
+		{% if (length(dns_hijack_nfproto) > 0): %}
 		jump router_dns_hijack
+		{% endif %}
 		{% if (tcp_mode == 'redirect'): %}
 		fib daddr type { local, broadcast, anycast, multicast } counter return
 		ct direction reply counter return
@@ -566,7 +572,9 @@ table inet nikki {
 	{% if (lan_proxy): %}
 	chain dstnat {
 		type nat hook prerouting priority dstnat + 1; policy accept;
+		{% if (length(dns_hijack_nfproto) > 0): %}
 		iifname @lan_inbound_device jump lan_dns_hijack
+		{% endif %}
 		{% if (tcp_mode == 'redirect'): %}
 		fib daddr type { local, broadcast, anycast, multicast } counter return
 		ct direction reply counter return
