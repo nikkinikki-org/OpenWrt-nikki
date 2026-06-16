@@ -62,11 +62,11 @@ return view.extend({
         o.wrap = false;
         o.write = function (section_id, formvalue) {
             const path = m.lookupOption('_file', section_id)[0].formvalue(section_id);
-            return fs.write(path, formvalue);
+            return nikki.writefile(path, formvalue);
         };
         o.remove = function (section_id) {
             const path = m.lookupOption('_file', section_id)[0].formvalue(section_id);
-            return fs.write(path);
+            return nikki.writefile(path);
         };
 
         return m.render();
