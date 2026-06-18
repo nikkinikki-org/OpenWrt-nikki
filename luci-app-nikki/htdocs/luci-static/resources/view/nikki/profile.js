@@ -78,6 +78,12 @@ return view.extend({
         o.value('clash.meta');
         o.value('mihomo');
 
+        o = s.option(form.Flag, 'send_hwid', _('Send HWID'));
+        o.default = '0';
+        o.modalonly = true;
+        o.rmempty = false;
+        o.description = _('Send device identification headers when updating this subscription.');
+
         o = s.option(form.ListValue, 'prefer', _('Prefer'));
         o.default = 'remote';
         o.modalonly = true;
