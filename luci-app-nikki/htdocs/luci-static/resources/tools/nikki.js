@@ -120,8 +120,11 @@ return baseclass.extend({
 
         let promise = Promise.resolve();
         for(let offset = 0; offset < bytes.length; offset += chunkSize) {
-            const chunkBytes = bytes.slice(offset, Math.min(offset + chunkSize, bytes.length));
-            const chunk = decoder.decode(chunkBytes);
+            const chunkStart = offset;
+            const chunkEnd = Math.min(offset + chunkSize, bytes.length);
+            const isLastChunk = chunkEnd === bytes.length;
+            const chunkBytes = bytes.slice(chunkStart, chunkEnd);
+            const chunk = decoder.decode(chunkBytes, { stream: !isLastChunk });
             const append = offset > 0;
             promise = promise.then(() => callFileWrite(path, chunk, append, mode));
         }
