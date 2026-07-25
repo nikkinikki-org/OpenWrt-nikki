@@ -109,7 +109,6 @@ return baseclass.extend({
         mode = (mode != null) ? mode : 0o644;
 
         const encoder = new TextEncoder();
-        const decoder = new TextDecoder();
         const chunkSize = 8 * 1024;
 
         const bytes = encoder.encode(data);
@@ -118,15 +117,29 @@ return baseclass.extend({
             return callFileWrite(path, data, false, mode);
         }
 
+        // 分块时绝不能把一个多字节 UTF-8 字符切断在两块中间。
+        // 下面每个分块的边界都会往回检查，退到一个完整字符的边界为止，
+        // 这样每一块都能独立、正确地解码，不再依赖后端是如何
+        // 分次 append 写入这些分块的。
+        const decoder = new TextDecoder('utf-8');
         let promise = Promise.resolve();
-        for(let offset = 0; offset < bytes.length; offset += chunkSize) {
-            const chunkStart = offset;
-            const chunkEnd = Math.min(offset + chunkSize, bytes.length);
-            const isLastChunk = chunkEnd === bytes.length;
-            const chunkBytes = bytes.slice(chunkStart, chunkEnd);
-            const chunk = decoder.decode(chunkBytes, { stream: !isLastChunk });
+        let offset = 0;
+
+        while (offset < bytes.length) {
+            let end = Math.min(offset + chunkSize, bytes.length);
+
+            // 只要 `end` 位置的字节是 UTF-8 续字节（10xxxxxx），
+            // 说明这一刀切在了某个字符中间，就继续往前退一位。
+            if (end < bytes.length) {
+                while (end > offset && (bytes[end] & 0xC0) === 0x80) {
+                    end--;
+                }
+            }
+
+            const chunk = decoder.decode(bytes.slice(offset, end));
             const append = offset > 0;
             promise = promise.then(() => callFileWrite(path, chunk, append, mode));
+            offset = end;
         }
 
         return promise;
