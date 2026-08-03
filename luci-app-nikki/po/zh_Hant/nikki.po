@@ -280,6 +280,10 @@ msgstr "網域名稱（後綴）"
 msgid "Domain Name Wildcard"
 msgstr "網域名稱（通配符）"
 
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:108
+msgid "Duplicate header name"
+msgstr "請求標頭名稱重複"
+
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:169
 msgid "Edit Authentications"
 msgstr "編輯身分驗證"
@@ -369,6 +373,10 @@ msgstr "啟用"
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/app.js:173
 msgid "Environment Variable Config"
 msgstr "環境變數設定"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:89
+msgid "Expected format: Name: value (printable ASCII only)"
+msgstr "格式應為：名稱: 值（僅限可列印 ASCII 字元）"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:47
 msgid "Expire At"
@@ -499,6 +507,10 @@ msgstr "使用者群組"
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:146
 msgid "HTTP Port"
 msgstr "HTTP 埠"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:81
+msgid "HWID Headers"
+msgstr "HWID 請求標頭"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/app.js:155
 msgid "Heap Size Hard Limit"
@@ -967,6 +979,10 @@ msgstr "TUN 等待超時"
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/app.js:122
 msgid "Test Profile"
 msgstr "檢查設定檔"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:98
+msgid "This header is reserved and cannot be overridden"
+msgstr "此請求標頭為保留項目，無法覆寫"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:42
 msgid "Total"
