@@ -82,7 +82,7 @@ const methods = {
 
 			const protocol = api_tls_listen ? 'https' : 'http';
 
-			const url = api_listen + path;
+			const url = (api_tls_listen ?? api_listen) + path;
 
 			const process = popen(`curl --proto-default '${protocol}' --insecure --request '${method}' --oauth2-bearer '${api_secret}' --url-query '${query}' --data '${body}' '${url}'`);
 			if (process) {
