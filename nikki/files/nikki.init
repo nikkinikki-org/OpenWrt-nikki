@@ -536,6 +536,36 @@ clear_logs() {
 	fi
 }
 
+append_subscription_request_header() {
+	if [ -z "$1" ]; then
+		return
+	fi
+	local header; header="$(printf '%s' "$1" | tr -d '\r\n')"
+	if [ "$header" != "$1" ]; then
+		log "Profile" "Skip request header containing line break."
+		return
+	fi
+	if ! printf '%s' "$header" | LC_ALL=C grep -q -E '^[A-Za-z0-9-]+:[ -~]*$'; then
+		log "Profile" "Skip invalid request header: ${header%%:*}"
+		return
+	fi
+	local name; name="$(printf '%s' "${header%%:*}" | tr 'A-Z' 'a-z')"
+	case "$name" in
+		host|content-length|transfer-encoding|connection|upgrade|expect|te|trailer|proxy-authorization|proxy-connection|user-agent)
+			log "Profile" "Skip reserved request header: $name"
+			return
+		;;
+	esac
+	if grep -qxF "$header" "$2" 2>/dev/null; then
+		return
+	fi
+	if grep -q -i -E "^$name:" "$2" 2>/dev/null; then
+		log "Profile" "Skip duplicate request header: $name"
+		return
+	fi
+	echo "$header" >> "$2"
+}
+
 update_subscription() {
 	local subscription_section; subscription_section="$1"
 	if [ -z "$subscription_section" ]; then
@@ -564,12 +594,21 @@ update_subscription() {
 	local subscription_info_header_tmpfile; subscription_info_header_tmpfile="$TEMP_DIR/$subscription_section.info.header"
 	local subscription_header_tmpfile; subscription_header_tmpfile="$TEMP_DIR/$subscription_section.header"
 	local subscription_tmpfile; subscription_tmpfile="$TEMP_DIR/$subscription_section.yaml"
+	local subscription_request_header_tmpfile; subscription_request_header_tmpfile="$TEMP_DIR/$subscription_section.request.header"
 	local subscription_info_file
 	local subscription_file; subscription_file="$SUBSCRIPTIONS_DIR/$subscription_section.yaml"
+	# build custom request headers
+	local subscription_request_header_arg=""
+	rm -f "$subscription_request_header_tmpfile"
+	( umask 077; : > "$subscription_request_header_tmpfile" )
+	config_list_foreach "$subscription_section" "header" append_subscription_request_header "$subscription_request_header_tmpfile"
+	if [ -s "$subscription_request_header_tmpfile" ]; then
+		subscription_request_header_arg="-H @$subscription_request_header_tmpfile"
+	fi
 	# fetch subscription info
 	if [ -n "$subscription_info_url" ]; then
 		log "Profile" "Fetch subscription info."
-		if curl -s -f -m 120 --connect-timeout 15 --retry 3 -L -X GET -A "$subscription_user_agent" -D "$subscription_info_header_tmpfile" "$subscription_info_url" > /dev/null 2>&1; then
+		if curl -s -f -m 120 --connect-timeout 15 --retry 3 -L -X GET -A "$subscription_user_agent" $subscription_request_header_arg -D "$subscription_info_header_tmpfile" "$subscription_info_url" > /dev/null 2>&1; then
 			if [ ! -f "$subscription_info_file" ] && grep -q -i "subscription-userinfo:" "$subscription_info_header_tmpfile"; then
 				subscription_info_file="$subscription_info_header_tmpfile"
 			fi
@@ -577,7 +616,7 @@ update_subscription() {
 	fi
 	# download subscription
 	log "Profile" "Download subscription."
-	if curl -s -f -m 120 --connect-timeout 15 --retry 3 -L -X GET -A "$subscription_user_agent" -D "$subscription_header_tmpfile" -o "$subscription_tmpfile" "$subscription_url" > /dev/null 2>&1; then
+	if curl -s -f -m 120 --connect-timeout 15 --retry 3 -L -X GET -A "$subscription_user_agent" $subscription_request_header_arg -D "$subscription_header_tmpfile" -o "$subscription_tmpfile" "$subscription_url" > /dev/null 2>&1; then
 		log "Profile" "Subscription download successful."
 		if [ ! -f "$subscription_info_file" ] && grep -q -i "subscription-userinfo:" "$subscription_header_tmpfile"; then
 			subscription_info_file="$subscription_header_tmpfile"
@@ -633,6 +672,7 @@ update_subscription() {
 		# update subscription file
 		rm -f "$subscription_info_header_tmpfile"
 		rm -f "$subscription_header_tmpfile"
+		rm -f "$subscription_request_header_tmpfile"
 		mv -f "$subscription_tmpfile" "$subscription_file"
 	elif [ "$success" = 0 ]; then
 		log "Profile" "Subscription update failed."
@@ -641,6 +681,7 @@ update_subscription() {
 		# remove tmpfile
 		rm -f "$subscription_info_header_tmpfile"
 		rm -f "$subscription_header_tmpfile"
+		rm -f "$subscription_request_header_tmpfile"
 		rm -f "$subscription_tmpfile"
 	fi
 	uci_commit "nikki"

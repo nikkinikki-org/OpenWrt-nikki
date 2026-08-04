@@ -78,6 +78,38 @@ return view.extend({
         o.value('clash.meta');
         o.value('mihomo');
 
+        o = s.option(form.DynamicList, 'header', _('HWID Headers'));
+        o.modalonly = true;
+        o.placeholder = 'x-hwid: 7Kq2mVt9XbLp4Ndc';
+        o.validate = function (section_id, value) {
+            if (!value) {
+                return true;
+            }
+            if (!/^[A-Za-z0-9-]+:[\x20-\x7E]*$/.test(value)) {
+                return _('Expected format: Name: value (printable ASCII only)');
+            }
+            const name = value.split(':')[0].toLowerCase();
+            const reserved = [
+                'connection', 'content-length', 'expect', 'host',
+                'proxy-authorization', 'proxy-connection', 'te', 'trailer',
+                'transfer-encoding', 'upgrade', 'user-agent'
+            ];
+            if (reserved.includes(name)) {
+                return _('This header is reserved and cannot be overridden');
+            }
+            const values = this.formvalue(section_id) ?? [];
+            let count = 0;
+            for (const item of values) {
+                if (item && item.split(':')[0].toLowerCase() === name) {
+                    count++;
+                }
+            }
+            if (count > 1) {
+                return _('Duplicate header name');
+            }
+            return true;
+        };
+
         o = s.option(form.ListValue, 'prefer', _('Prefer'));
         o.default = 'remote';
         o.modalonly = true;
