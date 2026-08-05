@@ -29,6 +29,7 @@ jobs:
       commit_sha: ${{ steps.info.outputs.commit_sha }}
       short_commit_sha: ${{ steps.info.outputs.short_commit_sha }}
       checksum: ${{ steps.info.outputs.checksum }}
+      mihomo_alpha_version: ${{ steps.info.outputs.mihomo_alpha_version }}
     steps:
       - id: checkout
         name: checkout
@@ -46,8 +47,9 @@ jobs:
           commit_timestamp=$(git -C mihomo log -n 1 --format=%cd --date=format:%s)
           commit_sha=$(git -C mihomo rev-parse HEAD)
           commit_short_sha=$(git -C mihomo rev-parse --short=7 HEAD)
+          mihomo_alpha_version="${commit_date}~${commit_short_sha}"    
           pkg_name="mihomo-alpha"
-          pkg_source_dir="${pkg_name}-${commit_date}"
+          pkg_source_dir="${pkg_name}-${mihomo_alpha_version}"
           pkg_source="${pkg_source_dir}.tar.gz"
           mkdir -p "${pkg_source_dir}"
           git -C mihomo archive --format=tar HEAD | tar -x -f - -C "${pkg_source_dir}"
@@ -56,6 +58,7 @@ jobs:
           echo "commit_sha=$commit_sha" >> $GITHUB_OUTPUT
           echo "short_commit_sha=$commit_short_sha" >> $GITHUB_OUTPUT
           echo "checksum=$(sha256sum ${pkg_source} | cut -d ' ' -f 1)" >> $GITHUB_OUTPUT
+          echo "mihomo_alpha_version=$mihomo_alpha_version" >> $GITHUB_OUTPUT
   update_alpha:
     needs:
       - get_current_alpha_info
@@ -73,7 +76,7 @@ jobs:
       - id: update
         name: update
         run: |
-          sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=${{ needs.get_latest_alpha_info.outputs.commit_date }}/" OpenWrt-nikki/mihomo-alpha/Makefile
+          sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=${{ needs.get_latest_alpha_info.outputs.mihomo_alpha_version }}/" OpenWrt-nikki/mihomo-alpha/Makefile
           sed -i "s/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:=${{ needs.get_latest_alpha_info.outputs.commit_sha }}/" OpenWrt-nikki/mihomo-alpha/Makefile
           sed -i "s/PKG_MIRROR_HASH:=.*/PKG_MIRROR_HASH:=${{ needs.get_latest_alpha_info.outputs.checksum }}/" OpenWrt-nikki/mihomo-alpha/Makefile
           sed -i "s/PKG_BUILD_VERSION:=.*/PKG_BUILD_VERSION:=alpha-${{ needs.get_latest_alpha_info.outputs.short_commit_sha }}/" OpenWrt-nikki/mihomo-alpha/Makefile
