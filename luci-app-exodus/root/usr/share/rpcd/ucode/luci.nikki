@@ -2,7 +2,7 @@
 
 'use strict';
 
-import { access, popen, readfile, stat, writefile } from 'fs';
+import { access, glob, popen, readfile, stat, writefile } from 'fs';
 import { cursor } from 'uci';
 import { get_users, get_groups, get_cgroups, load_profile } from '/etc/nikki/ucode/include.uc';
 
@@ -108,9 +108,29 @@ const methods = {
 			let success = false;
 			const section_id = req.args?.section_id;
 			if (section_id) {
-				success = system(['service', 'nikki', 'update_subscription', section_id]) == 0;
+				// the service marks the result in the config, the info of the last successful update stays when it fails
+				success = system(['service', 'nikki', 'update_subscription', section_id]) == 0
+					&& cursor().get('nikki', section_id, 'success') == '1';
 			}
 			return { success: success };
+		}
+	},
+	subscription_meta: {
+		call: function() {
+			// what the providers told in the headers on the last successful update, by subscription section id
+			const result = {};
+			for (let path in glob('/etc/nikki/subscriptions/*.json')) {
+				const section_id = replace(substr(path, rindex(path, '/') + 1), /\.json$/, '');
+				try {
+					const meta = json(readfile(path) ?? '');
+					if (type(meta) == 'object') {
+						delete meta.source;
+						result[section_id] = meta;
+					}
+				} catch (e) {
+				}
+			}
+			return result;
 		}
 	},
 	api: {

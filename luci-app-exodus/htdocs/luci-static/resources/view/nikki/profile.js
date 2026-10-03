@@ -5,13 +5,23 @@
 'require ui';
 'require tools.nikki as nikki';
 
+// how often a subscription is downloaded: set by hand, from the provider (profile-update-interval) or every hour
+function intervalText(meta, section_id) {
+    const interval = uci.get('nikki', section_id, 'update_interval');
+    const hours = interval != null && interval !== '' ? +interval : (meta[section_id]?.interval ?? 1);
+    return hours === 0 ? _('by hand') : _('every %d h').format(hours);
+}
+
 return view.extend({
     load: function () {
         return Promise.all([
-            uci.load('nikki')
+            uci.load('nikki'),
+            nikki.subscriptionMeta()
         ]);
     },
     render: function (data) {
+        const meta = data[1];
+
         let m, s, o, so;
 
         m = new form.Map('nikki');
@@ -42,10 +52,15 @@ return view.extend({
         s.addremove = true;
         s.anonymous = true;
         s.sortable = true;
+        // descriptions are for the edit dialog, not for the table
+        s.nodescriptions = true;
         s.modaltitle = _('Edit Subscription');
 
-        o = s.option(form.Value, 'name', _('Subscription Name'));
+        o = s.option(form.Value, 'name', _('Subscription Name'), _('Replaced with the title of the provider when it sends one.'));
         o.rmempty = false;
+        o.textvalue = function (section_id) {
+            return E('span', {}, [nikki.providerLogo(meta[section_id]?.logo, 24), this.cfgvalue(section_id) ?? '']);
+        };
 
         o = s.option(form.Value, 'used', _('Used'));
         o.modalonly = false;
@@ -66,14 +81,30 @@ return view.extend({
         o.modalonly = false;
         o.optional = true;
         o.readonly = true;
+        o.textvalue = function (section_id) {
+            // the info of the last successful update stays when an update fails
+            const failed = uci.get('nikki', section_id, 'success') === '0';
+            return E('div', {}, [
+                this.cfgvalue(section_id) ?? '-',
+                failed ? E('div', { style: 'color: red' }, [_('Update failed')]) : '',
+                E('div', { style: 'opacity: .7' }, [intervalText(meta, section_id)])
+            ]);
+        };
 
         o = s.option(form.Button, 'update_subscription');
         o.editable = true;
         o.inputstyle = 'positive';
         o.inputtitle = _('Update');
         o.modalonly = false;
-        o.onclick = function (_, section_id) {
-            return nikki.updateSubscription(section_id);
+        o.onclick = function (ev, section_id) {
+            return nikki.updateSubscription(section_id).then(function (result) {
+                if (!result.success) {
+                    ui.addNotification(null, E('p', _('Subscription update failed, see the Log page.')), 'error');
+                    return;
+                }
+                // the name, the info and the logo come from the provider
+                location.reload();
+            });
         };
 
         o = s.option(form.Value, 'info_url', _('Subscription Info Url'));
@@ -97,12 +128,14 @@ return view.extend({
         o.modalonly = true;
         o.rmempty = false;
 
-        o = s.option(form.ListValue, 'prefer', _('Prefer'));
-        o.default = 'remote';
+        o = s.option(form.Value, 'update_interval', _('Update Interval'), _('In hours. Empty: the interval of the provider (profile-update-interval), otherwise every hour. 0: only by the Update button. A changed subscription in use is applied by reloading the service.'));
+        o.datatype = 'uinteger';
         o.modalonly = true;
-        o.rmempty = false;
-        o.value('remote', _('Remote'));
-        o.value('local', _('Local'));
+        o.renderWidget = function (section_id) {
+            const interval = meta[section_id]?.interval;
+            this.placeholder = interval ? _('Automatically: every %d h, as the provider says').format(interval) : _('Automatically: as the provider says, otherwise every hour');
+            return form.Value.prototype.renderWidget.apply(this, arguments);
+        };
 
         return m.render();
     }

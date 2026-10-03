@@ -548,10 +548,6 @@ msgstr "區域網路代理"
 msgid "Least Recently Used (LRU)"
 msgstr "最近最少使用（LRU）"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:85
-msgid "Local"
-msgstr "本地"
-
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/log.js:25
 #: applications/luci-app-nikki/root/usr/share/luci/menu.d/luci-app-nikki.json:53
 msgid "Log"
@@ -715,10 +711,6 @@ msgstr "請前往編輯器標籤編輯用於混入的檔案"
 msgid "Port"
 msgstr "埠"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:81
-msgid "Prefer"
-msgstr "優先"
-
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:555
 msgid "Process Name"
 msgstr "程序名稱"
@@ -766,10 +758,6 @@ msgstr "Redirect 埠"
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/app.js:69
 msgid "Reload Service"
 msgstr "重新載入服務"
-
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:84
-msgid "Remote"
-msgstr "遠端"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:196
 msgid "Reserved IP"

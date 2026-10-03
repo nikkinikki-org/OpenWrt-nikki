@@ -11,6 +11,7 @@ PROG="/usr/bin/mihomo"
 extra_command 'update_subscription' 'Update subscription by section id'
 extra_command 'clear_logs' 'Clear logs if size exceeds the limit'
 extra_command 'hard_update' 'Remove downloaded providers, update subscription and restart'
+extra_command 'auto_update' 'Update subscription in use if its interval passed and reload'
 
 boot_func() {
 	# prepare files
@@ -134,12 +135,12 @@ start_service() {
 		cp -f "$profile_file" "$RUN_PROFILE_PATH"
 	elif [ "$profile_type" = "subscription" ]; then
 		local subscription_section; subscription_section="$profile_id"
-		local subscription_name subscription_prefer
+		local subscription_name
 		config_get subscription_name "$subscription_section" "name"
-		config_get subscription_prefer "$subscription_section" "prefer" "remote"
 		log "Profile" "Use subscription: $subscription_name."
 		local subscription_file; subscription_file="$SUBSCRIPTIONS_DIR/$subscription_section.yaml"
-		if [ "$subscription_prefer" = "remote" ] || [ ! -f "$subscription_file" ]; then
+		# the saved file is used until its interval passes, the start does not wait for the provider
+		if subscription_due "$subscription_section"; then
 			update_subscription "$subscription_section"
 		fi
 		if [ ! -f "$subscription_file" ]; then
@@ -293,6 +294,16 @@ start_service() {
 		log "App" "Set log scheduled clear."
 		echo "$log_scheduled_clear_cron /etc/init.d/nikki clear_logs #nikki log scheduled clear" >> "/etc/crontabs/root"
 		reload_cron=1
+	fi
+	## add subscription auto update cron if needed, it downloads the subscription in use when its interval passes
+	if [ "$profile_type" = "subscription" ]; then
+		local subscription_update_interval
+		config_get subscription_update_interval "$profile_id" "update_interval"
+		if [ "$subscription_update_interval" != 0 ]; then
+			log "App" "Set subscription auto update."
+			echo "*/5 * * * * /etc/init.d/nikki auto_update #nikki subscription auto update" >> "/etc/crontabs/root"
+			reload_cron=1
+		fi
 	fi
 	## reload cron if needed
 	if [ "$reload_cron" = 1 ]; then
@@ -589,16 +600,52 @@ hard_update() {
 	done
 	# http providers without path are cached by hash in these dirs
 	rm -rf "$RUN_DIR/proxies" "$RUN_DIR/rules"
-	# a subscription preferring local file is not downloaded on start
+	# the start downloads a subscription only when its interval passed, a hard update downloads it anyway
 	if [ "$profile_type" = "subscription" ]; then
-		local subscription_prefer
-		config_get subscription_prefer "$profile_id" "prefer" "remote"
-		if [ "$subscription_prefer" = "local" ]; then
-			update_subscription "$profile_id"
-		fi
+		update_subscription "$profile_id"
 	fi
 	# start, providers are downloaded again
 	start
+}
+
+# hash of what the subscription file is downloaded from, a change of it downloads the file again
+subscription_source() {
+	local subscription_url subscription_user_agent subscription_send_hwid
+	config_get subscription_url "$1" "url"
+	config_get subscription_user_agent "$1" "user_agent"
+	config_get_bool subscription_send_hwid "$1" "send_hwid" 1
+	echo "$subscription_url $subscription_user_agent $subscription_send_hwid" | md5sum | cut -d ' ' -f 1
+}
+
+# the subscription is due for a download when its interval passed since the last one or its source changed, a failed download is tried again after 15 minutes
+# the interval in hours is set by hand (0 is only by hand), or comes from the provider (profile-update-interval), otherwise it is an hour
+subscription_due() {
+	local subscription_section; subscription_section="$1"
+	local subscription_file; subscription_file="$SUBSCRIPTIONS_DIR/$subscription_section.yaml"
+	local subscription_meta_file; subscription_meta_file="$SUBSCRIPTIONS_DIR/$subscription_section.json"
+	local subscription_failed_flag; subscription_failed_flag="$TEMP_DIR/$subscription_section.failed"
+	if [ ! -f "$subscription_file" ]; then
+		return 0
+	fi
+	local now; now=$(date +%s)
+	local current_source; current_source=$(subscription_source "$subscription_section")
+	if [ -f "$subscription_failed_flag" ] && [ "$(cat "$subscription_failed_flag")" = "$current_source" ] && [ $((now - $(date -r "$subscription_failed_flag" +%s))) -lt 900 ]; then
+		return 1
+	fi
+	# a file saved before the source was recorded is kept until its interval passes
+	local saved_source; saved_source=$(jsonfilter -q -i "$subscription_meta_file" -e '@.source' 2>/dev/null)
+	if [ -n "$saved_source" ] && [ "$saved_source" != "$current_source" ]; then
+		return 0
+	fi
+	local subscription_update_interval
+	config_get subscription_update_interval "$subscription_section" "update_interval"
+	if [ -z "$subscription_update_interval" ]; then
+		subscription_update_interval=$(jsonfilter -q -i "$subscription_meta_file" -e '@.interval' 2>/dev/null)
+	fi
+	case "$subscription_update_interval" in
+		""|*[!0-9]*) subscription_update_interval=1 ;;
+	esac
+	[ "$subscription_update_interval" != 0 ] && [ $((now - $(date -r "$subscription_file" +%s))) -ge $((subscription_update_interval * 3600)) ]
 }
 
 update_subscription() {
@@ -631,15 +678,6 @@ update_subscription() {
 			$(hwid_headers)
 		EOF
 	fi
-	# reset subscription info
-	uci_remove "nikki" "$subscription_section" "expire" > /dev/null 2>&1
-	uci_remove "nikki" "$subscription_section" "upload" > /dev/null 2>&1
-	uci_remove "nikki" "$subscription_section" "download" > /dev/null 2>&1
-	uci_remove "nikki" "$subscription_section" "total" > /dev/null 2>&1
-	uci_remove "nikki" "$subscription_section" "used" > /dev/null 2>&1
-	uci_remove "nikki" "$subscription_section" "avaliable" > /dev/null 2>&1
-	uci_remove "nikki" "$subscription_section" "update" > /dev/null 2>&1
-	uci_remove "nikki" "$subscription_section" "success" > /dev/null 2>&1
 	# update subscription
 	log "Profile" "Update subscription: $subscription_name."
 	local success
@@ -648,6 +686,11 @@ update_subscription() {
 	local subscription_tmpfile; subscription_tmpfile="$TEMP_DIR/$subscription_section.yaml"
 	local subscription_info_file
 	local subscription_file; subscription_file="$SUBSCRIPTIONS_DIR/$subscription_section.yaml"
+	local subscription_meta_file; subscription_meta_file="$SUBSCRIPTIONS_DIR/$subscription_section.json"
+	local subscription_failed_flag; subscription_failed_flag="$TEMP_DIR/$subscription_section.failed"
+	# headers of an earlier download must not be taken for the ones of this download
+	rm -f "$subscription_info_header_tmpfile"
+	rm -f "$subscription_header_tmpfile"
 	# fetch subscription info
 	if [ -n "$subscription_info_url" ]; then
 		log "Profile" "Fetch subscription info."
@@ -684,6 +727,13 @@ update_subscription() {
 	# check if success
 	if [ "$success" = 1 ]; then
 		log "Profile" "Subscription update successful."
+		# reset subscription info, the info of the last successful update stays when an update fails
+		uci_remove "nikki" "$subscription_section" "expire" > /dev/null 2>&1
+		uci_remove "nikki" "$subscription_section" "upload" > /dev/null 2>&1
+		uci_remove "nikki" "$subscription_section" "download" > /dev/null 2>&1
+		uci_remove "nikki" "$subscription_section" "total" > /dev/null 2>&1
+		uci_remove "nikki" "$subscription_section" "used" > /dev/null 2>&1
+		uci_remove "nikki" "$subscription_section" "avaliable" > /dev/null 2>&1
 		if [ -f "$subscription_info_file" ]; then
 			local subscription_expire subscription_upload subscription_download subscription_total subscription_used subscription_avaliable
 			subscription_expire=$(grep -i "subscription-userinfo: " "$subscription_info_file" | grep -i -o -E "expire=[[:digit:]]+" | cut -d '=' -f 2)
@@ -718,18 +768,61 @@ update_subscription() {
 		fi
 		uci_set "nikki" "$subscription_section" "update" "$(date "+%Y-%m-%d %H:%M:%S")"
 		uci_set "nikki" "$subscription_section" "success" "1"
+		# what the provider tells in the headers: title, announce, support link, logo and update interval, the info url may carry them instead
+		if ucode -S "$PROVIDER_UC" "$subscription_header_tmpfile" "$subscription_info_header_tmpfile" "$(subscription_source "$subscription_section")" > "$subscription_meta_file.tmp"; then
+			mv -f "$subscription_meta_file.tmp" "$subscription_meta_file"
+		fi
+		# the title of the provider becomes the name of the subscription
+		local subscription_title; subscription_title=$(jsonfilter -q -i "$subscription_meta_file" -e '@.title' 2>/dev/null)
+		if [ -n "$subscription_title" ] && [ "$subscription_title" != "$subscription_name" ]; then
+			uci_set "nikki" "$subscription_section" "name" "$subscription_title"
+			log "Profile" "Subscription name from the provider: $subscription_title."
+		fi
 		# update subscription file
 		rm -f "$subscription_info_header_tmpfile"
 		rm -f "$subscription_header_tmpfile"
+		rm -f "$subscription_failed_flag"
 		mv -f "$subscription_tmpfile" "$subscription_file"
 	elif [ "$success" = 0 ]; then
 		log "Profile" "Subscription update failed."
 		# update subscription info
 		uci_set "nikki" "$subscription_section" "success" "0"
+		# the next try of the same source waits, the flag is in memory and a reboot tries again at once
+		subscription_source "$subscription_section" > "$subscription_failed_flag"
 		# remove tmpfile
 		rm -f "$subscription_info_header_tmpfile"
 		rm -f "$subscription_header_tmpfile"
 		rm -f "$subscription_tmpfile"
 	fi
 	uci_commit "nikki"
+}
+
+auto_update() {
+	# prepare files
+	prepare_files
+	# one at a time, a slow provider may take longer than the cron interval
+	exec 9> "$TEMP_DIR/auto_update.lock"
+	flock -n 9 || return
+	# check if started
+	if [ ! -f "$STARTED_FLAG_PATH" ]; then
+		return
+	fi
+	# load config
+	config_load nikki
+	# get profile
+	local profile profile_type profile_id
+	config_get profile "config" "profile"
+	profile_type=$(echo "$profile" | cut -d ':' -f 1)
+	profile_id=$(echo "$profile" | cut -d ':' -f 2)
+	if [ "$profile_type" != "subscription" ] || ! subscription_due "$profile_id"; then
+		return
+	fi
+	# update subscription, the running core gets it if it changed
+	local subscription_file; subscription_file="$SUBSCRIPTIONS_DIR/$profile_id.yaml"
+	local subscription_checksum; subscription_checksum=$(md5sum < "$subscription_file" 2>/dev/null)
+	update_subscription "$profile_id"
+	if [ "$(md5sum < "$subscription_file" 2>/dev/null)" != "$subscription_checksum" ]; then
+		log "Profile" "Subscription changed, reload."
+		/etc/init.d/nikki reload 9>&-
+	fi
 }

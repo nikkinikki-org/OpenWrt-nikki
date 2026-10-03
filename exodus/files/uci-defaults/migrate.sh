@@ -235,6 +235,14 @@ config_hwid=$(uci -q get nikki.config.hwid); [ -z "$config_hwid" ] && uci set ni
 
 proxy_access_mode=$(uci -q get nikki.proxy.access_mode); [ -z "$proxy_access_mode" ] && uci set nikki.proxy.access_mode=exclude
 
+# a subscription is downloaded when its update interval passes, prefer local is an interval of 0: only by hand or when the file is missing
+uci show nikki | grep -o -E '^nikki\.[^.=]+=subscription$' | cut -d '=' -f 1 | while read -r subscription; do
+	subscription_prefer=$(uci -q get "$subscription.prefer"); [ -n "$subscription_prefer" ] && {
+		[ "$subscription_prefer" = "local" ] && [ -z "$(uci -q get "$subscription.update_interval")" ] && uci set "$subscription.update_interval=0"
+		uci del "$subscription.prefer"
+	}
+done
+
 # commit
 uci commit nikki
 

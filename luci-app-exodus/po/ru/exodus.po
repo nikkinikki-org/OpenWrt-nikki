@@ -100,6 +100,14 @@ msgstr "Архитектура"
 msgid "Auto"
 msgstr "Авто"
 
+#: applications/luci-app-exodus/htdocs/luci-static/resources/view/nikki/profile.js
+msgid "Automatically: as the provider says, otherwise every hour"
+msgstr "Автоматически: как укажет провайдер, иначе каждый час"
+
+#: applications/luci-app-exodus/htdocs/luci-static/resources/view/nikki/profile.js
+msgid "Automatically: every %d h, as the provider says"
+msgstr "Автоматически: каждые %d ч, как указал провайдер"
+
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:517
 msgid "Behavior"
 msgstr "Поведение"
@@ -616,6 +624,10 @@ msgstr "Прокси IPv6"
 msgid "Ignore Sniff Domain Name"
 msgstr "Игнорировать определение доменов"
 
+#: applications/luci-app-exodus/htdocs/luci-static/resources/view/nikki/profile.js
+msgid "In hours. Empty: the interval of the provider (profile-update-interval), otherwise every hour. 0: only by the Update button. A changed subscription in use is applied by reloading the service."
+msgstr "В часах. Пусто — интервал провайдера (profile-update-interval), иначе каждый час. 0 — только кнопкой «Обновить». Изменившаяся используемая подписка применяется перезагрузкой сервиса."
+
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:138
 msgid "Inbound Config"
 msgstr "Настройки входящих"
@@ -651,10 +663,6 @@ msgstr "Последняя"
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:239
 msgid "Least Recently Used (LRU)"
 msgstr "Наименее недавно использованный (LRU)"
-
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:85
-msgid "Local"
-msgstr "Локально"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/log.js:25
 #: applications/luci-app-nikki/root/usr/share/luci/menu.d/luci-app-nikki.json:53
@@ -843,10 +851,6 @@ msgstr "Перейдите на вкладку редактора, чтобы и
 msgid "Port"
 msgstr "Порт"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:81
-msgid "Prefer"
-msgstr "Предпочтение"
-
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:555
 msgid "Process Name"
 msgstr "Имя процесса"
@@ -903,13 +907,13 @@ msgstr "Перезагрузить сервис"
 msgid "Reload the page"
 msgstr "Перезагрузить страницу"
 
-#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:84
-msgid "Remote"
-msgstr "Удалённо"
-
 #: applications/luci-app-exodus/htdocs/luci-static/resources/view/nikki/profile.js:29
 msgid "Remove everything downloaded from providers of the current profile (proxy and rule providers), download the subscription again and restart. Files of local providers are kept."
 msgstr "Удалить всё, что скачано из провайдеров текущего профиля (провайдеры прокси и правил), заново скачать подписку и перезапустить. Файлы локальных провайдеров сохраняются."
+
+#: applications/luci-app-exodus/htdocs/luci-static/resources/view/nikki/profile.js
+msgid "Replaced with the title of the provider when it sends one."
+msgstr "Заменяется названием от провайдера, если он его присылает."
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/proxy.js:196
 msgid "Reserved IP"
@@ -1077,10 +1081,18 @@ msgstr "Имя подписки"
 msgid "Subscription Url"
 msgstr "URL подписки"
 
+#: applications/luci-app-exodus/htdocs/luci-static/resources/view/nikki/profile.js
+msgid "Subscription update failed, see the Log page."
+msgstr "Не удалось обновить подписку, смотрите страницу «Журнал»."
+
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/app.js:107
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/editor.js:37
 msgid "Subscription:"
 msgstr "Подписка:"
+
+#: applications/luci-app-exodus/htdocs/luci-static/resources/view/nikki/app.js
+msgid "Support"
+msgstr "Поддержка"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:75
 msgid "TCP Concurrent"
@@ -1282,6 +1294,10 @@ msgstr "Лог обновления"
 msgid "Update available"
 msgstr "Доступно обновление"
 
+#: applications/luci-app-exodus/htdocs/luci-static/resources/view/nikki/profile.js
+msgid "Update failed"
+msgstr "Ошибка обновления"
+
 #: applications/luci-app-exodus/htdocs/luci-static/resources/view/nikki/update.js:86
 msgid "Update finished."
 msgstr "Обновление завершено."
@@ -1322,9 +1338,17 @@ msgstr "User-Agent"
 msgid "Username"
 msgstr "Имя пользователя"
 
+#: applications/luci-app-exodus/htdocs/luci-static/resources/view/nikki/profile.js
+msgid "by hand"
+msgstr "вручную"
+
 #: applications/luci-app-exodus/htdocs/luci-static/resources/view/nikki/update.js:126
 msgid "directly from GitHub"
 msgstr "напрямую с GitHub"
+
+#: applications/luci-app-exodus/htdocs/luci-static/resources/view/nikki/profile.js
+msgid "every %d h"
+msgstr "каждые %d ч"
 
 #: applications/luci-app-exodus/htdocs/luci-static/resources/view/nikki/update.js:69
 msgid "mihomo-alpha is installed, it will be replaced by mihomo-meta."

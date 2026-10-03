@@ -26,6 +26,24 @@ function updateStatus(element, running) {
     return element;
 }
 
+// the announce of the provider of the subscription in use: logo and title, the text, a link to the support
+function renderProviderCard(meta) {
+    const profile = uci.get('nikki', 'config', 'profile') ?? '';
+    if (!profile.startsWith('subscription:')) {
+        return '';
+    }
+    const section_id = profile.substring('subscription:'.length);
+    const provider = meta[section_id] ?? {};
+    if (!provider.announce) {
+        return '';
+    }
+    return E('div', { class: 'cbi-section' }, [
+        E('h3', {}, [nikki.providerLogo(provider.logo, 32), provider.title ?? uci.get('nikki', section_id, 'name') ?? section_id]),
+        E('div', { style: 'white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 1em;' }, [provider.announce]),
+        provider.support_url ? E('a', { class: 'btn cbi-button cbi-button-action', href: provider.support_url, target: '_blank', rel: 'noopener noreferrer' }, [_('Support')]) : ''
+    ]);
+}
+
 return view.extend({
     load: function () {
         return Promise.all([
@@ -33,7 +51,8 @@ return view.extend({
             nikki.version(),
             nikki.status(),
             nikki.listProfiles(),
-            network.getHostHints()
+            network.getHostHints(),
+            nikki.subscriptionMeta()
         ]);
     },
     render: function (data) {
@@ -45,10 +64,16 @@ return view.extend({
         const running = data[2];
         const profiles = data[3];
         const hosts = data[4].hosts;
+        const meta = data[5];
 
         let m, s, o;
 
         m = new form.Map('nikki', _('Exodus'), `${_('Transparent Proxy with Mihomo on OpenWrt.')} <a href="https://github.com/prettyleaf/openwrt-exodus" target="_blank">${_('How To Use')}</a>`);
+
+        s = m.section(form.NamedSection, 'config', 'config');
+        s.render = function () {
+            return renderProviderCard(meta);
+        };
 
         s = m.section(form.TableSection, 'status', _('Status'));
         s.anonymous = true;

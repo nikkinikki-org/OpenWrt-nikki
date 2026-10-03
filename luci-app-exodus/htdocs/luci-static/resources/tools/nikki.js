@@ -45,6 +45,12 @@ const callNikkiUpdateSubscription = rpc.declare({
     expect: { '': {} }
 });
 
+const callNikkiSubscriptionMeta = rpc.declare({
+    object: 'luci.nikki',
+    method: 'subscription_meta',
+    expect: { '': {} }
+});
+
 const callNikkiAPI = rpc.declare({
     object: 'luci.nikki',
     method: 'api',
@@ -169,6 +175,21 @@ return baseclass.extend({
 
     updateSubscription: function (section_id) {
         return callNikkiUpdateSubscription(section_id);
+    },
+
+    // what the providers told in the headers: title, announce, support_url, logo and interval, by subscription section id
+    subscriptionMeta: function () {
+        return L.resolveDefault(callNikkiSubscriptionMeta(), {});
+    },
+
+    // logo of a provider, it disappears when it does not load
+    providerLogo: function (src, size) {
+        if (!src) {
+            return '';
+        }
+        const img = E('img', { src: src, alt: '', referrerpolicy: 'no-referrer', loading: 'lazy', style: `width: ${size}px; height: ${size}px; object-fit: contain; border-radius: 4px; vertical-align: middle; margin-right: .5em;` });
+        img.addEventListener('error', () => img.remove());
+        return img;
     },
 
     updateDashboard: function () {

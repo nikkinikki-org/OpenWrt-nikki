@@ -21,6 +21,8 @@
 - 运营商屏蔽 GitHub 时，可通过自建的 [gh-proxy](https://github.com/prettyleaf/gh-proxy) 安装
 - 按设备选择代理：代理除所选设备外的所有设备，或仅代理所选设备
 - 订阅 HWID 请求头，默认启用
+- 订阅提供商的响应头：`profile-title` 作为订阅名称，`announce` 和 `support-url` 显示在状态页，`profile-logo` 显示在订阅旁
+- 按提供商的 `profile-update-interval` 或自定义间隔自动更新订阅，正在使用的订阅通过重载服务生效
 - 配置文件混入
 - 配置文件编辑器
 - 定时重启
