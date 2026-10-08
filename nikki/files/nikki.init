@@ -236,7 +236,15 @@ start_service() {
 	# test profile
 	if [ "$test_profile" = 1 ]; then
 		log "Profile" "Testing..."
-		if $PROG -d "$RUN_DIR" -t >> "$CORE_LOG_PATH" 2>&1; then
+		if env \
+			GOMAXPROCS="$env_go_max_procs" \
+			GOMEMLIMIT="$env_go_mem_limit" \
+			SAFE_PATHS="$env_safe_paths" \
+			DISABLE_LOOPBACK_DETECTOR="$env_disable_loopback_detector" \
+			QUIC_GO_DISABLE_GSO="$env_disable_quic_go_gso" \
+			QUIC_GO_DISABLE_ECN="$env_disable_quic_go_ecn" \
+			SKIP_SYSTEM_IPV6_CHECK="$env_skip_system_ipv6_check" \
+			$PROG -d "$RUN_DIR" -t >> "$CORE_LOG_PATH" 2>&1; then
 			log "Profile" "Test passed."
 		else
 			log "Profile" "Test failed."
