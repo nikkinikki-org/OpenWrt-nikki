@@ -280,6 +280,10 @@ msgstr "Суффикс домена"
 msgid "Domain Name Wildcard"
 msgstr "Шаблон домена"
 
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:108
+msgid "Duplicate header name"
+msgstr "Повторяющееся имя заголовка"
+
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:169
 msgid "Edit Authentications"
 msgstr "Редактировать учётные данные"
@@ -369,6 +373,10 @@ msgstr "Включить"
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/app.js:173
 msgid "Environment Variable Config"
 msgstr "Переменные окружения"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:89
+msgid "Expected format: Name: value (printable ASCII only)"
+msgstr "Ожидаемый формат: Имя: значение (только печатаемые символы ASCII)"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:47
 msgid "Expire At"
@@ -499,6 +507,10 @@ msgstr "Группа"
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/mixin.js:146
 msgid "HTTP Port"
 msgstr "Порт HTTP"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:81
+msgid "HWID Headers"
+msgstr "HWID-заголовки"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/app.js:155
 msgid "Heap Size Hard Limit"
@@ -967,6 +979,10 @@ msgstr "Тайм-аут TUN"
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/app.js:122
 msgid "Test Profile"
 msgstr "Проверить профиль"
+
+#: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:98
+msgid "This header is reserved and cannot be overridden"
+msgstr "Этот заголовок зарезервирован и не может быть переопределён"
 
 #: applications/luci-app-nikki/htdocs/luci-static/resources/view/nikki/profile.js:42
 msgid "Total"
