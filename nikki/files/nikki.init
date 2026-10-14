@@ -282,28 +282,20 @@ start_service() {
 
 	procd_close_instance
 	# cron
-	local reload_cron; reload_cron=0
 	## clear cron
 	if grep -q "#nikki" "/etc/crontabs/root"; then
 		log "App" "Clear cron."
 		sed -i "/#nikki/d" "/etc/crontabs/root" > /dev/null 2>&1
-		reload_cron=1
 	fi
 	## add restart cron if needed
 	if [ "$scheduled_restart" = 1 ] && [ -n "$scheduled_restart_cron" ]; then
 		log "App" "Set scheduled restart."
 		echo "$scheduled_restart_cron /etc/init.d/nikki restart #nikki scheduled restart" >> "/etc/crontabs/root"
-		reload_cron=1
 	fi
 	## add log scheduled clear cron if needed
 	if [ "$log_scheduled_clear" = 1 ] && [ -n "$log_scheduled_clear_cron" ]; then
 		log "App" "Set log scheduled clear."
 		echo "$log_scheduled_clear_cron /etc/init.d/nikki clear_logs #nikki log scheduled clear" >> "/etc/crontabs/root"
-		reload_cron=1
-	fi
-	## reload cron if needed
-	if [ "$reload_cron" = 1 ]; then
-		/etc/init.d/cron restart
 	fi
 	# set started flag
 	touch "$STARTED_FLAG_PATH"
@@ -516,7 +508,6 @@ cleanup() {
 	# delete cron
 	if grep -q "#nikki" "/etc/crontabs/root"; then
 		sed -i "/#nikki/d" "/etc/crontabs/root" > /dev/null 2>&1
-		/etc/init.d/cron restart
 	fi
 }
 
