@@ -5,6 +5,11 @@
 import { access, popen, writefile } from 'fs';
 import { get_users, get_groups, get_cgroups, load_profile } from '/etc/nikki/ucode/include.uc';
 
+// Quote a value as a single shell word, so it can be embedded in a command string safely.
+function shell_quote(value) {
+	return "'" + replace(`${value ?? ''}`, "'", "'\\''") + "'";
+}
+
 const methods = {
 	version: {
 		call: function() {
@@ -56,7 +61,8 @@ const methods = {
 		call: function(req) {
 			let success = false;
 			const section_id = req.args?.section_id;
-			if (section_id) {
+			// UCI section names only contain letters, digits and underscores
+			if (section_id && match(section_id, /^[A-Za-z0-9_]+$/)) {
 				success = system(['service', 'nikki', 'update_subscription', section_id]) == 0;
 			}
 			return { success: success };
@@ -84,7 +90,15 @@ const methods = {
 
 			const url = (api_tls_listen ?? api_listen) + path;
 
-			const process = popen(`curl --proto-default '${protocol}' --insecure --request '${method}' --oauth2-bearer '${api_secret}' --url-query '${query}' --data '${body}' '${url}'`);
+			let command = `curl --proto-default ${shell_quote(protocol)} --insecure --request ${shell_quote(method)} --oauth2-bearer ${shell_quote(api_secret)}`;
+			if (query) {
+				command += ` --url-query ${shell_quote(query)}`;
+			}
+			if (body) {
+				command += ` --data ${shell_quote(body)}`;
+			}
+			command += ` ${shell_quote(url)}`;
+			const process = popen(command);
 			if (process) {
 				result = json(process);
 				process.close();
