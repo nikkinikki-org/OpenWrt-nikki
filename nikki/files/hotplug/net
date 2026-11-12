@@ -1,0 +1,54 @@
+#!/bin/sh
+
+# the core recreates the tun device when it is restarted/upgraded via api or respawned by procd
+# kernel removes routes which bound to the device when it is removed, we need to restore them
+
+[ "$ACTION" = "add" ] || exit 0
+
+. "$IPKG_INSTROOT/lib/functions.sh"
+. "$IPKG_INSTROOT/etc/nikki/scripts/include.sh"
+
+[ -f "$STARTED_FLAG_PATH" ] || exit 0
+
+config_load nikki
+config_get_bool enabled "config" "enabled" 0
+config_get_bool core_only "config" "core_only" 0
+config_get tun_listener_name "core" "tun_listener_name"
+config_get_bool proxy_enabled "proxy" "enabled" 0
+config_get tcp_mode "proxy" "tcp_mode"
+config_get udp_mode "proxy" "udp_mode"
+config_get_bool ipv4_proxy "proxy" "ipv4_proxy" 0
+config_get_bool ipv6_proxy "proxy" "ipv6_proxy" 0
+config_get tun_timeout "proxy" "tun_timeout" 30
+config_get tun_interval "proxy" "tun_interval" 1
+config_get tun_route_table "routing" "tun_route_table" "81"
+
+[ "$enabled" = 1 ] && [ "$core_only" = 0 ] && [ "$proxy_enabled" = 1 ] || exit 0
+[ "$tcp_mode" = "tun" ] || [ "$udp_mode" = "tun" ] || exit 0
+
+tun_device=$(yq -M "(.tun | select(.enable) | .device) // (.listeners[] | select(.name == \"$tun_listener_name\" and .type == \"tun\") | .device)" "$RUN_PROFILE_PATH")
+
+[ "$INTERFACE" = "$tun_device" ] || exit 0
+
+# routing is not set yet, service_started will do it
+[ -n "$(ip -4 rule list table "$tun_route_table")$(ip -6 rule list table "$tun_route_table")" ] || exit 0
+
+(
+	while [ "$tun_timeout" -gt 0 ]; do
+		if ip -j link show dev "$tun_device" 2>/dev/null | jsonfilter -q -e "@[@['flags'][@='UP']]" > /dev/null 2>&1; then
+			if [ "$ipv4_proxy" = 1 ]; then
+				ip -4 route replace unicast default dev "$tun_device" table "$tun_route_table"
+			fi
+			if [ "$ipv6_proxy" = 1 ]; then
+				ip -6 route replace unicast default dev "$tun_device" table "$tun_route_table"
+			fi
+			log "Proxy" "TUN device is recreated, routes restored."
+			exit 0
+		fi
+		tun_timeout=$((tun_timeout - tun_interval))
+		sleep "$tun_interval"
+	done
+	log "Proxy" "Timeout, TUN device is not online, routes not restored."
+) < /dev/null > /dev/null 2>&1 &
+
+exit 0
