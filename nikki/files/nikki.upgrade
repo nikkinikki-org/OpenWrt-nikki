@@ -3,3 +3,4 @@
 /etc/nikki/mixin.yaml
 /etc/nikki/run/providers/rule/
 /etc/nikki/run/providers/proxy/
+/etc/nikki/run/cache.db

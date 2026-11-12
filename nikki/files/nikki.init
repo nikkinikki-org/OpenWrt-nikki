@@ -559,21 +559,14 @@ update_subscription() {
 	config_get subscription_info_url "$subscription_section" "info_url"
 	config_get subscription_url "$subscription_section" "url"
 	config_get subscription_user_agent "$subscription_section" "user_agent"
-	# reset subscription info
-	uci_remove "nikki" "$subscription_section" "expire" > /dev/null 2>&1
-	uci_remove "nikki" "$subscription_section" "upload" > /dev/null 2>&1
-	uci_remove "nikki" "$subscription_section" "download" > /dev/null 2>&1
-	uci_remove "nikki" "$subscription_section" "total" > /dev/null 2>&1
-	uci_remove "nikki" "$subscription_section" "used" > /dev/null 2>&1
-	uci_remove "nikki" "$subscription_section" "avaliable" > /dev/null 2>&1
-	uci_remove "nikki" "$subscription_section" "update" > /dev/null 2>&1
-	uci_remove "nikki" "$subscription_section" "success" > /dev/null 2>&1
 	# update subscription
 	log "Profile" "Update subscription: $subscription_name."
 	local success
-	local subscription_info_header_tmpfile; subscription_info_header_tmpfile="$TEMP_DIR/$subscription_section.info.header"
-	local subscription_header_tmpfile; subscription_header_tmpfile="$TEMP_DIR/$subscription_section.header"
-	local subscription_tmpfile; subscription_tmpfile="$TEMP_DIR/$subscription_section.yaml"
+	# unique temporary files, so concurrent updates (scheduled and manual) of the same subscription do not share them
+	mkdir -p "$TEMP_DIR"
+	local subscription_info_header_tmpfile; subscription_info_header_tmpfile=$(mktemp "$TEMP_DIR/$subscription_section.info.header.XXXXXX")
+	local subscription_header_tmpfile; subscription_header_tmpfile=$(mktemp "$TEMP_DIR/$subscription_section.header.XXXXXX")
+	local subscription_tmpfile; subscription_tmpfile=$(mktemp "$TEMP_DIR/$subscription_section.yaml.XXXXXX")
 	local subscription_info_file
 	local subscription_file; subscription_file="$SUBSCRIPTIONS_DIR/$subscription_section.yaml"
 	# fetch subscription info
@@ -592,7 +585,8 @@ update_subscription() {
 		if [ ! -f "$subscription_info_file" ] && grep -q -i "subscription-userinfo:" "$subscription_header_tmpfile"; then
 			subscription_info_file="$subscription_header_tmpfile"
 		fi
-		if yq -M -p yaml -o yaml -e 'has("proxies") or has("proxy-providers")' "$subscription_tmpfile" > /dev/null 2>&1; then
+		# require a non-empty proxy list or proxy provider map: "proxies: null" or an empty list must not replace a working subscription
+		if yq -M -p yaml -o yaml -e '((.proxies | tag) == "!!seq" and (.proxies | length) > 0) or ((.["proxy-providers"] | tag) == "!!map" and (.["proxy-providers"] | length) > 0)' "$subscription_tmpfile" > /dev/null 2>&1; then
 			log "Profile" "Subscription is valid."
 			success=1
 		else
@@ -606,6 +600,13 @@ update_subscription() {
 	# check if success
 	if [ "$success" = 1 ]; then
 		log "Profile" "Subscription update successful."
+		# reset subscription info only after a successful update, a failed one keeps the previous info
+		uci_remove "nikki" "$subscription_section" "expire" > /dev/null 2>&1
+		uci_remove "nikki" "$subscription_section" "upload" > /dev/null 2>&1
+		uci_remove "nikki" "$subscription_section" "download" > /dev/null 2>&1
+		uci_remove "nikki" "$subscription_section" "total" > /dev/null 2>&1
+		uci_remove "nikki" "$subscription_section" "used" > /dev/null 2>&1
+		uci_remove "nikki" "$subscription_section" "avaliable" > /dev/null 2>&1
 		if [ -f "$subscription_info_file" ]; then
 			local subscription_expire subscription_upload subscription_download subscription_total subscription_used subscription_avaliable
 			subscription_expire=$(grep -i "subscription-userinfo: " "$subscription_info_file" | grep -i -o -E "expire=[[:digit:]]+" | cut -d '=' -f 2)
@@ -643,6 +644,7 @@ update_subscription() {
 		# update subscription file
 		rm -f "$subscription_info_header_tmpfile"
 		rm -f "$subscription_header_tmpfile"
+		chmod 644 "$subscription_tmpfile"
 		mv -f "$subscription_tmpfile" "$subscription_file"
 	elif [ "$success" = 0 ]; then
 		log "Profile" "Subscription update failed."
